@@ -1,0 +1,559 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500&display=swap');
+
+/* ==========================================================================
+   1. RESET Y VARIABLES GLOBALES
+   ========================================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111118;
+  --bg3: #18181f;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text: #e8e8f0;
+  --text2: #8888a0;
+  --gold: #e0c97f;
+  --silver: #b0b8c8;
+  --bronze: #c87d4a;
+  --green: #4ed88a;
+  --red: #e05b5b;
+  --blue: #5bc4d8;
+  --radius: 10px;
+}
+
+html, body, #root { height: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Barlow', sans-serif;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   2. ESTRUCTURA PRINCIPAL (LAYOUT)
+   ========================================================================== */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px;
+  position: relative;
+}
+
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.main {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  padding: 20px 0 40px;
+}
+
+.footer {
+  position: relative;
+  z-index: 1;
+  padding: 16px 0;
+  border-top: 1px solid var(--border);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text2);
+  text-align: center;
+}
+
+/* ==========================================================================
+   3. HEADER Y PESTAÑAS (TABS)
+   ========================================================================== */
+.header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 36px 0 24px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap; /* Para que en móvil los elementos bajen de línea si no caben */
+  gap: 15px;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text);
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap; /* Evita que la imagen rompa el título en pantallas muy pequeñas */
+}
+
+.subtitle {
+  font-size: 12px;
+  color: var(--text2);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 4px;
+}
+
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background 0.3s;
+}
+.status-dot.ok    { background: var(--green); }
+.status-dot.error { background: var(--red); }
+.status-dot.pulse { animation: blink 0.6s ease; }
+
+.status-text {
+  font-size: 12px;
+  color: var(--text2);
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.06em;
+}
+
+.tabs-container {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap; /* Importante para móvil: permite que los botones formen varias líneas */
+}
+
+.tab-btn {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap; /* Evita que el texto del botón se parta a la mitad */
+}
+
+.tab-btn:hover { background: rgba(255, 255, 255, 0.08); color: var(--text); }
+.tab-btn.active { background: var(--blue); color: #000; border-color: var(--blue); }
+
+/* ==========================================================================
+   4. TABLA GENERAL Y COMPONENTES DE FILA
+   ========================================================================== */
+.table-header {
+  display: grid;
+  grid-template-columns: 64px 1fr 220px 140px;
+  gap: 12px;
+  padding: 0 16px 10px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text2);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+
+.table-body {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.player-row {
+  display: grid;
+  grid-template-columns: 64px 1fr 220px 140px;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 16px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: border-color 0.2s, transform 0.15s;
+}
+
+.player-row:hover {
+  border-color: var(--border2);
+  transform: translateX(3px);
+}
+
+/* Colores Top 4 y Bottom 4 */
+.player-row.highlight-top { 
+  border-left: 3px solid rgba(78, 216, 138, 0.6); 
+  background: linear-gradient(135deg, rgba(78, 216, 138, 0.04) 0%, rgba(17, 17, 24, 1) 100%);
+}
+.player-row.highlight-top:hover { 
+  border-left-color: rgba(78, 216, 138, 0.9); 
+}
+
+.player-row.highlight-bottom {
+  border-left: 3px solid rgba(224, 91, 91, 0.6);
+  background: linear-gradient(135deg, rgba(224, 91, 91, 0.04) 0%, rgba(17, 17, 24, 1) 100%);
+}
+.player-row.highlight-bottom:hover { 
+  border-left-color: rgba(224, 91, 91, 0.9); 
+}
+
+/* --- Información del Jugador --- */
+.row-player { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.avatar {
+  width: 38px; height: 38px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px; font-weight: 700; flex-shrink: 0; letter-spacing: 0.04em;
+}
+.player-info { display: flex; flex-direction: column; gap: 6px; min-width: 0; flex: 1; }
+.player-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 17px; font-weight: 600; letter-spacing: 0.02em;
+  color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.player-team { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+.team-logo { width: 14px; height: 14px; border-radius: 2px; object-fit: cover; }
+.team-name {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 11px;
+  color: var(--text2); text-transform: uppercase; letter-spacing: 0.08em;
+}
+
+.player-arquetipo {
+  margin-left: auto;
+  display: flex; flex-direction: column; align-items: flex-end;
+  justify-content: center; padding-right: 10px;
+}
+.arq-title {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 13px;
+  color: var(--gold); font-weight: 600; letter-spacing: 0.05em;
+  text-transform: uppercase; line-height: 1.2;
+}
+.arq-desc { font-size: 11px; color: var(--text2); line-height: 1.2; margin-top: 2px; }
+
+/* --- MEDALLAS: TEXTURA PELOTA DE GOLF --- */
+.row-rank { 
+  display: flex; 
+  align-items: center; 
+  gap: 6px; 
+}
+
+.golf-ball-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  
+  /* Textura de la pelota de golf */
+  background-color: #fdfdfd;
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(0, 0, 0, 0.08) 1px, transparent 1.5px),
+    radial-gradient(circle at 75% 75%, rgba(0, 0, 0, 0.08) 1px, transparent 1.5px),
+    radial-gradient(circle at 25% 75%, rgba(0, 0, 0, 0.08) 1px, transparent 1.5px),
+    radial-gradient(circle at 75% 25%, rgba(0, 0, 0, 0.08) 1px, transparent 1.5px),
+    radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.1) 1.5px, transparent 2px);
+  background-size: 10px 10px;
+  
+  /* Efecto 3D de la esfera */
+  box-shadow: 
+    inset -3px -3px 6px rgba(0,0,0,0.3), 
+    inset 2px 2px 5px rgba(255,255,255,1), 
+    0 3px 5px rgba(0,0,0,0.4);
+}
+
+.golf-ball-badge.gold { 
+  color: #d4af37; 
+  border: 2px solid #d4af37; 
+  text-shadow: 1px 1px 0px rgba(0,0,0,0.8);
+}
+.golf-ball-badge.silver { 
+  color: #888888; 
+  border: 2px solid #aaaaaa; 
+  text-shadow: 1px 1px 0px rgba(0,0,0,0.5);
+}
+.golf-ball-badge.bronze { 
+  color: #cd7f32; 
+  border: 2px solid #cd7f32; 
+  text-shadow: 1px 1px 0px rgba(0,0,0,0.8);
+}
+.golf-ball-badge.standard { 
+  color: #111111; 
+  border: 1px solid #cccccc; 
+}
+
+.rank-delta { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; line-height: 1; }
+.rank-delta.up   { color: var(--green); }
+.rank-delta.down { color: var(--red); }
+
+/* --- Estadísticas --- */
+.row-stats { display: flex; gap: 18px; align-items: center; }
+.stat-block { display: flex; flex-direction: column; gap: 2px; }
+.stat-label { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text2); line-height: 1; }
+.stat-val { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 600; color: var(--text); line-height: 1.2; }
+
+.row-resultado { display: flex; justify-content: flex-end; align-items: center; }
+.resultado {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700;
+  letter-spacing: 0.02em; padding: 4px 12px; border-radius: 6px; line-height: 1;
+}
+.resultado.positivo { color: var(--green); background: rgba(78,216,138,0.1); border: 1px solid rgba(78,216,138,0.2); }
+.resultado.negativo { color: var(--red); background: rgba(224,91,91,0.1); border: 1px solid rgba(224,91,91,0.2); }
+.resultado.neutro { color: var(--text2); background: rgba(255,255,255,0.05); border: 1px solid var(--border); font-size: 14px; }
+
+/* ==========================================================================
+   5. VISTA DE EQUIPOS
+   ========================================================================== */
+.equipos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  padding-top: 10px;
+}
+
+.equipo-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 30px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.equipo-card:hover {
+  border-color: var(--gold);
+  transform: translateY(-4px);
+  background: linear-gradient(135deg, rgba(224, 201, 127, 0.05) 0%, var(--bg2) 100%);
+}
+
+.equipo-card h3 {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 28px; color: var(--text);
+  margin-bottom: 8px; letter-spacing: 0.02em;
+}
+.equipo-card span { font-size: 13px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.05em; }
+
+.equipo-detalle-header { display: flex; align-items: center; gap: 20px; margin-bottom: 24px; padding-top: 10px; }
+.back-btn {
+  background: none; border: 1px solid var(--border); color: var(--text2);
+  font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600;
+  letter-spacing: 0.1em; padding: 6px 14px; border-radius: 4px; cursor: pointer; transition: all 0.2s;
+}
+.back-btn:hover { color: var(--text); border-color: var(--text2); background: rgba(255,255,255,0.05); }
+.equipo-detalle-header h2 { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 400; color: var(--text2); margin: 0; }
+.equipo-nombre-resaltado { color: var(--gold); font-weight: 700; }
+
+/* ==========================================================================
+   6. MODAL Y EDICIÓN
+   ========================================================================== */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(10, 10, 15, 0.85); backdrop-filter: blur(5px);
+  z-index: 100; display: flex; align-items: center; justify-content: center;
+  padding: 20px; animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+  background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--radius);
+  width: 100%; max-width: 450px; max-height: 80vh; display: flex; flex-direction: column;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5); animation: slideUp 0.3s ease-out;
+}
+
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border); }
+.modal-header h2 { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; color: var(--text); letter-spacing: 0.04em; margin: 0; }
+
+.close-btn { background: none; border: none; color: var(--text2); font-size: 28px; cursor: pointer; line-height: 1; transition: color 0.2s; padding: 0; }
+.close-btn:hover { color: var(--red); }
+
+.modal-body { padding: 20px 24px; overflow-y: auto; }
+.modal-body::-webkit-scrollbar { width: 6px; }
+.modal-body::-webkit-scrollbar-track { background: transparent; }
+.modal-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+.stats-grid { display: flex; flex-direction: column; gap: 6px; }
+.stats-row {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; text-align: center;
+  padding: 12px; background: rgba(255,255,255,0.02); border-radius: 6px;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 16px; color: var(--text);
+  transition: all 0.2s ease;
+}
+.stats-row:hover { background: rgba(255,255,255,0.05); }
+
+.stats-row.header {
+  background: none; color: var(--text2); font-size: 12px; letter-spacing: 0.1em;
+  text-transform: uppercase; border-bottom: 1px solid var(--border); border-radius: 0;
+  padding-bottom: 8px; margin-bottom: 4px;
+}
+
+.score-under { color: var(--green); font-weight: 700; }
+.score-over { color: var(--red); font-weight: 700; }
+.score-par { color: var(--text); }
+
+/* Edición */
+.header-actions { display: flex; align-items: center; gap: 12px; }
+.edit-btn { background: none; border: none; color: var(--text2); font-size: 20px; cursor: pointer; transition: color 0.2s; padding: 4px; border-radius: 4px; }
+.edit-btn:hover { color: var(--gold); background: rgba(224, 201, 127, 0.1); }
+.save-btn, .cancel-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 6px 12px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+.save-btn { color: #fff; background: var(--green); border: 1px solid rgba(78, 216, 138, 0.4); }
+.save-btn:hover { background: #3ec67a; }
+.cancel-btn { color: var(--text2); background: none; border: 1px solid var(--border); }
+.cancel-btn:hover { color: var(--text); border-color: var(--border2); background: rgba(255,255,255,0.02); }
+
+.edit-input {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 16px; color: var(--text);
+  background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 4px;
+  width: 100%; max-width: 70px; padding: 6px; text-align: center; transition: all 0.2s;
+}
+.edit-input:focus { outline: none; border-color: var(--gold); background: rgba(255, 255, 255, 0.06); box-shadow: 0 0 0 2px rgba(224, 201, 127, 0.1); }
+.edit-input::-webkit-outer-spin-button, .edit-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.edit-input[type=number] { -moz-appearance: textfield; }
+.edit-input.score-under { color: var(--green); }
+.edit-input.score-over { color: var(--red); }
+
+/* ==========================================================================
+   7. ESTADOS GLOBALES (CARGANDO / ERROR)
+   ========================================================================== */
+.loading {
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+  padding: 80px 20px; color: var(--text2); font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px; letter-spacing: 0.06em;
+}
+.spinner { width: 24px; height: 24px; border: 2px solid var(--border2); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
+
+.error-box { display: flex; align-items: center; gap: 16px; padding: 40px 20px; color: var(--text2); }
+.error-icon {
+  width: 32px; height: 32px; background: rgba(224,91,91,0.12); border: 1px solid rgba(224,91,91,0.3);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--red); font-weight: 700; flex-shrink: 0;
+}
+.error-title { color: var(--text); font-weight: 500; margin-bottom: 2px; }
+.error-msg   { font-size: 12px; }
+
+/* ==========================================================================
+   8. ANIMACIONES Y MEDIA QUERIES (RESPONSIVE)
+   ========================================================================== */
+@keyframes blink { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.4; transform:scale(1.7); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(20px) scale(0.98); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+
+/* Ajustes para Tablets y Pantallas Medias */
+@media (max-width: 900px) {
+  .title img {
+    height: 70px !important; /* Imagen un poco más pequeña */
+    margin-left: 20px !important;
+  }
+}
+
+/* Ajustes para Móviles */
+@media (max-width: 640px) {
+  
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px 0;
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 10px;
+  }
+
+  .title {
+    font-size: 32px; /* Título más pequeño en móvil */
+  }
+
+  /* Ajuste de la foto de equipos en la cabecera para móvil */
+  .title img {
+    height: 50px !important; 
+    margin-left: 10px !important;
+    display: block;
+    margin-top: 10px; /* La pasamos abajo del texto si no cabe */
+  }
+
+  .tabs-container {
+    gap: 8px;
+  }
+  
+  .tab-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  /* Compactar la tabla en móviles */
+  .table-header {
+    grid-template-columns: 50px 1fr 80px; /* Reducimos columnas */
+    padding: 0 10px 10px;
+  }
+  
+  /* Ocultamos la columna de "Total · Par · Hoyo" en móviles para ahorrar espacio */
+  .table-header .th-stats { 
+    display: none; 
+  }
+  
+  .player-row {
+    grid-template-columns: 50px 1fr 80px; /* Alinear con cabecera */
+    padding: 10px;
+    gap: 8px;
+  }
+  
+  /* Ocultamos las stats en la vista principal del móvil (se ven en el modal al pulsar) */
+  .row-stats { 
+    display: none; 
+  }
+
+  /* Ocultamos el arquetipo en móviles para que quepa el nombre */
+  .player-arquetipo {
+    display: none;
+  }
+
+  .player-name {
+    font-size: 15px;
+  }
+
+  .resultado {
+    font-size: 18px;
+    padding: 4px 8px;
+  }
+
+  /* Ajustes del Modal en móvil */
+  .modal-content {
+    padding: 10px;
+    width: 95%;
+  }
+  
+  .modal-header h2 {
+    font-size: 20px;
+  }
+}
