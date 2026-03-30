@@ -59,41 +59,33 @@ function ResultadoBadge({ valor }) {
   return <span className="resultado positivo">{valor} pts</span>;
 }
 
-function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, totalPlayers, currentRound }) {
+function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, currentRound }) {
   const color = AVATAR_COLORS[colorIndex % AVATAR_COLORS.length];
   const rankDelta = prevRank !== null && prevRank !== undefined ? prevRank - rank : 0;
   
   const resultado = player._stableResultado !== undefined && player._stableResultado !== "" ? player._stableResultado : player["RESULTADO ACTUAL"];
-  
-  let hoyo = player["HOYO"];
-  if (!hoyo || hoyo === 0 || hoyo === "0") hoyo = 18;
+  const hoyo = player["HOYO"] || 18;
 
-  const equipo = player["EQUIPO"] && player["EQUIPO"].trim() !== "" ? player["EQUIPO"].trim() : null;
+  const equipo = player["EQUIPO"]?.trim() || null;
   const logoUrl = equipo ? `/logos/${equipo.toLowerCase().replace(/\s+/g, '-')}.jpeg` : null;
 
-  const arquetipoTitulo = player["FLL"] && player["FLL"].trim() !== "" ? player["FLL"].trim() : null;
-  const arquetipoDesc = player.ARQUETIPO_DESC && player.ARQUETIPO_DESC.trim() !== "" ? player.ARQUETIPO_DESC.trim() : null;
+  const arquetipoTitulo = player["FLL"]?.trim() || null;
+  const arquetipoDesc = player.ARQUETIPO_DESC?.trim() || null;
 
   const isTop4 = rank <= 4;
   const isWorst4 = rank >= 8;
-  let highlightClass = "";
-  if (isTop4) highlightClass = "highlight-top";
-  if (isWorst4) highlightClass = "highlight-bottom";
+  const highlightClass = isTop4 ? "highlight-top" : isWorst4 ? "highlight-bottom" : "";
 
   const isGeneral = currentRound === "General";
 
-  // LÓGICA CORREGIDA:
-  // En General: Total = PAR_JUGADOR_TOTAL.
-  // En Ronda 1 y 2: Total = TOTAL, Par = PAR_JUGADOR_TOTAL.
-  
+  // LÓGICA DE PUNTUACIONES EXACTA
   const totalGolpes = isGeneral 
-    ? (player.PAR_JUGADOR_TOTAL !== undefined && player.PAR_JUGADOR_TOTAL !== "" ? player.PAR_JUGADOR_TOTAL : "-")
-    : (player.TOTAL !== undefined && player.TOTAL !== "" ? player.TOTAL : "-");
+    ? (player.PAR_JUGADOR_TOTAL || "-") 
+    : (player.TOTAL || "-");
 
   const parTotal = isGeneral
-    ? "-" // No se muestra en General, pero por si acaso
-    : (player.PAR_JUGADOR_TOTAL !== undefined && player.PAR_JUGADOR_TOTAL !== "" ? player.PAR_JUGADOR_TOTAL : "-");
-
+    ? "-" 
+    : (player.PAR_JUGADOR_TOTAL || parRow?.TOTAL || "-");
 
   return (
     <div 
@@ -207,19 +199,6 @@ function PlayerModal({ player, onClose, parRow, onRefreshNeeded, currentRound })
         nuevosPares[hole] = editedData[hole].par; 
     });
 
-    let paqueteGolpes = {
-        jugador: player.Jugador,
-        ronda: currentRound,
-        golpes: nuevosGolpes
-    };
-
-    let nombrePar = parRow ? parRow.Jugador : `PAR ${String(player.Jugador).toUpperCase()}`;
-    let paquetePares = {
-        jugador: nombrePar,
-        ronda: currentRound,
-        golpes: nuevosPares
-    };
-
     const enviarDatos = async (paquete) => {
         try {
             await fetch(API_URL, {
@@ -228,20 +207,19 @@ function PlayerModal({ player, onClose, parRow, onRefreshNeeded, currentRound })
                 headers: { "Content-Type": "text/plain" } 
             });
         } catch (error) {
-            console.log(`Dato enviado a Google Sheets`);
+            console.log(`Error al guardar en Sheets`, error);
         }
     };
 
-    await Promise.all([ enviarDatos(paqueteGolpes), enviarDatos(paquetePares) ]);
+    await Promise.all([ 
+      enviarDatos({ jugador: player.Jugador, ronda: currentRound, golpes: nuevosGolpes }), 
+      enviarDatos({ jugador: parRow ? parRow.Jugador : `PAR ${String(player.Jugador).toUpperCase()}`, ronda: currentRound, golpes: nuevosPares }) 
+    ]);
+    
     setIsEditing(false);
     setIsSaving(false);
     onClose(); 
-    
     setTimeout(() => { if(onRefreshNeeded) onRefreshNeeded(); }, 2000);
-  };
-
-  const handleCancel = () => {
-    setIsEditing(false);
   };
 
   return (
@@ -261,7 +239,7 @@ function PlayerModal({ player, onClose, parRow, onRefreshNeeded, currentRound })
                   >
                     {isSaving ? 'GUARDANDO...' : 'GUARDAR'}
                   </button>
-                  <button className="cancel-btn" onClick={handleCancel} disabled={isSaving}>CANCELAR</button>
+                  <button className="cancel-btn" onClick={() => setIsEditing(false)} disabled={isSaving}>CANCELAR</button>
                 </>
               ) : (
                 <button className="edit-btn" onClick={() => setIsEditing(true)}>✎</button>
@@ -293,29 +271,13 @@ function PlayerModal({ player, onClose, parRow, onRefreshNeeded, currentRound })
               return (
                 <div className="stats-row" key={h}>
                   <span>{h}</span>
-                  
                   {isEditing ? (
-                    <input 
-                      type="number" 
-                      className="edit-input"
-                      value={currentEditedHole.par} 
-                      onChange={(e) => handleInputChange(h, 'par', e.target.value)} 
-                      placeholder="Par"
-                      disabled={isSaving} 
-                    />
+                    <input type="number" className="edit-input" value={currentEditedHole.par} onChange={(e) => handleInputChange(h, 'par', e.target.value)} disabled={isSaving} />
                   ) : (
                     <span>{currentEditedHole.par || "-"}</span>
                   )}
-                  
                   {isEditing ? (
-                    <input 
-                      type="number" 
-                      className={`edit-input ${scoreClass}`}
-                      value={currentEditedHole.golpes} 
-                      onChange={(e) => handleInputChange(h, 'golpes', e.target.value)} 
-                      placeholder="Golpes"
-                      disabled={isSaving} 
-                    />
+                    <input type="number" className={`edit-input ${scoreClass}`} value={currentEditedHole.golpes} onChange={(e) => handleInputChange(h, 'golpes', e.target.value)} disabled={isSaving} />
                   ) : (
                     <span className={scoreClass}>{currentEditedHole.golpes === "" ? "-" : currentEditedHole.golpes}</span>
                   )}
@@ -407,10 +369,7 @@ export default function App() {
     return () => clearInterval(id);
   }, []);
 
-  let activeData = [];
-  if (currentRound === "Ronda 1") activeData = dbRonda1;
-  else if (currentRound === "Ronda 2") activeData = dbRonda2;
-  else if (currentRound === "General") activeData = dbGeneral;
+  const activeData = currentRound === "Ronda 1" ? dbRonda1 : currentRound === "Ronda 2" ? dbRonda2 : dbGeneral;
 
   const players = activeData
     .filter(isRealPlayer)
@@ -426,60 +385,34 @@ export default function App() {
 
       <header className="header">
         <div className="header-left">
-          <h1 className="title">Clasificación <span style={{fontSize: "0.5em", color: "var(--gold)", verticalAlign: "middle"}}>{currentRound}</span><span><img src={fotoEquipos} alt="foto equipos" style={{height: "100px", verticalAlign: "middle", marginLeft: "50px", borderRadius: "10px"}} /></span></h1>
+          <h1 className="title">
+            Clasificación <span style={{fontSize: "0.5em", color: "var(--gold)", verticalAlign: "middle"}}>{currentRound}</span>
+            <span><img src={fotoEquipos} alt="foto equipos" style={{height: "100px", verticalAlign: "middle", marginLeft: "50px", borderRadius: "10px"}} /></span>
+          </h1>
           <p className="subtitle">
             {players.length > 0 ? `${players.length} jugadores ${!isGeneral ? `· Hoyo ${leader?.HOYO ?? "18"}` : ''}` : "Cargando…"}
           </p>
 
           <div className="tabs-container">
-            <button 
-              className={`tab-btn ${activeTab === "clasificacion" ? "active" : ""}`}
-              onClick={() => { setActiveTab("clasificacion"); setSelectedTeam(null); }}
-            >
+            <button className={`tab-btn ${activeTab === "clasificacion" ? "active" : ""}`} onClick={() => { setActiveTab("clasificacion"); setSelectedTeam(null); }}>
               Individuales
             </button>
-            <button 
-              className={`tab-btn ${activeTab === "equipos" ? "active" : ""}`}
-              onClick={() => setActiveTab("equipos")}
-            >
+            <button className={`tab-btn ${activeTab === "equipos" ? "active" : ""}`} onClick={() => setActiveTab("equipos")}>
               Equipos
             </button>
 
             <div style={{ width: '2px', background: 'var(--border)', margin: '0 8px' }}></div>
 
-            <button 
-              className={`tab-btn ${currentRound === "Ronda 1" ? "active" : ""}`}
-              onClick={() => setCurrentRound("Ronda 1")}
-            >
-              Ronda 1
-            </button>
-            <button 
-              className={`tab-btn ${currentRound === "Ronda 2" ? "active" : ""}`}
-              onClick={() => setCurrentRound("Ronda 2")}
-            >
-              Ronda 2
-            </button>
-            <button 
-              className={`tab-btn ${currentRound === "General" ? "active" : ""}`}
-              onClick={() => setCurrentRound("General")}
-            >
-              General
-            </button>
+            <button className={`tab-btn ${currentRound === "Ronda 1" ? "active" : ""}`} onClick={() => setCurrentRound("Ronda 1")}>Ronda 1</button>
+            <button className={`tab-btn ${currentRound === "Ronda 2" ? "active" : ""}`} onClick={() => setCurrentRound("Ronda 2")}>Ronda 2</button>
+            <button className={`tab-btn ${currentRound === "General" ? "active" : ""}`} onClick={() => setCurrentRound("General")}>General</button>
           </div>
         </div>
         
         <div className="header-right">
           <div className={`status-dot ${error ? "error" : "ok"} ${pulse ? "pulse" : ""}`} />
           <span className="status-text">
-            {error
-              ? "Sin conexión"
-              : lastUpdate
-              ? lastUpdate.toLocaleTimeString("es-ES", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                })
-              : "Conectando…"}
+            {error ? "Sin conexión" : lastUpdate ? lastUpdate.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "Conectando…"}
           </span>
         </div>
       </header>
@@ -505,29 +438,21 @@ export default function App() {
                 <div className="table-header">
                   <span className="th-rank">#</span>
                   <span className="th-player">Jugador</span>
-                  
-                  <span className="th-stats">
-                    {isGeneral ? "Total" : "Total · Par · Hoyo"}
-                  </span>
-                  
+                  <span className="th-stats">{isGeneral ? "Total" : "Total · Par · Hoyo"}</span>
                   <span className="th-resultado">Stable Resultado</span>
                 </div>
                 <div className="table-body">
-                  {players.map((player, i) => {
-                    const parRow = activeData.find((p) => String(p.Jugador) === `PAR ${String(player.Jugador).toUpperCase()}`);
-                    return (
-                      <PlayerRow
-                        key={player.Jugador}
-                        player={player}
-                        rank={i + 1}
-                        colorIndex={i}
-                        parRow={parRow}
-                        onClick={() => setSelectedPlayer(player)} 
-                        totalPlayers={players.length}
-                        currentRound={currentRound} 
-                      />
-                    );
-                  })}
+                  {players.map((player, i) => (
+                    <PlayerRow
+                      key={player.Jugador}
+                      player={player}
+                      rank={i + 1}
+                      colorIndex={i}
+                      parRow={activeData.find((p) => String(p.Jugador) === `PAR ${String(player.Jugador).toUpperCase()}`)}
+                      onClick={() => setSelectedPlayer(player)} 
+                      currentRound={currentRound} 
+                    />
+                  ))}
                 </div>
               </>
             )}
@@ -560,29 +485,21 @@ export default function App() {
                 <div className="table-header">
                   <span className="th-rank">#</span>
                   <span className="th-player">Jugador</span>
-                  <span className="th-stats">
-                    {isGeneral ? "Total" : "Total · Par · Hoyo"}
-                  </span>
+                  <span className="th-stats">{isGeneral ? "Total" : "Total · Par · Hoyo"}</span>
                   <span className="th-resultado">Stable Resultado</span>
                 </div>
                 <div className="table-body">
-                  {players
-                    .filter(p => p.EQUIPO === selectedTeam)
-                    .map((player, i) => {
-                      const parRow = activeData.find((p) => String(p.Jugador) === `PAR ${String(player.Jugador).toUpperCase()}`);
-                      return (
-                        <PlayerRow
-                          key={player.Jugador}
-                          player={player}
-                          rank={i + 1}
-                          colorIndex={i}
-                          parRow={parRow}
-                          onClick={() => setSelectedPlayer(player)} 
-                          totalPlayers={players.length}
-                          currentRound={currentRound}
-                        />
-                      );
-                    })}
+                  {players.filter(p => p.EQUIPO === selectedTeam).map((player, i) => (
+                    <PlayerRow
+                      key={player.Jugador}
+                      player={player}
+                      rank={i + 1}
+                      colorIndex={i}
+                      parRow={activeData.find((p) => String(p.Jugador) === `PAR ${String(player.Jugador).toUpperCase()}`)}
+                      onClick={() => setSelectedPlayer(player)} 
+                      currentRound={currentRound}
+                    />
+                  ))}
                 </div>
               </div>
             )}
@@ -590,7 +507,6 @@ export default function App() {
         )}
       </main>
 
-      {/* El modal ahora nunca se abre si no hay selectedPlayer, lo cual es bloqueado por la lógica de la General */}
       <PlayerModal 
         player={selectedPlayer} 
         onClose={() => setSelectedPlayer(null)} 
