@@ -254,8 +254,12 @@ body {
 
 .player-arquetipo {
   margin-left: auto;
-  display: flex; flex-direction: column; align-items: flex-end;
-  justify-content: center; padding-right: 10px;
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; /* Modificado para centrar */
+  justify-content: center; 
+  padding-right: 10px;
+  text-align: center; /* Añadido para centrar texto multilínea si lo hubiera */
 }
 .arq-title {
   font-family: 'Barlow Condensed', sans-serif; font-size: 13px;
@@ -539,10 +543,11 @@ body {
   .player-arquetipo { 
     display: flex;
     flex-direction: column;
-    align-items: flex-start; /* Alineado a la izquierda como el resto del texto */
+    align-items: center; /* Modificado para centrar */
     margin-left: 0; /* Quita el margen automático a la derecha */
     padding-right: 0;
     margin-top: 4px;
+    text-align: center; /* Añadido para centrar texto multilínea si lo hubiera */
   }
   
   .arq-title {

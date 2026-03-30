@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import "./App.css";
 
-import fotoEquipos from "./foto_equipos.png";
+import fotoEquipos from "./the-golfos-on-tour-2026.jpeg";
 import imgFlyingCarajillos from "./flying-carajillos.png";
 import imgCarabassaSlice from "./carabassa-slice.jpeg";
 
