@@ -222,6 +222,41 @@ function PlayerModal({ player, onClose, parRow, onRefreshNeeded, currentRound })
     setTimeout(() => { if(onRefreshNeeded) onRefreshNeeded(); }, 2000);
   };
 
+  // NUEVA FUNCIÓN: Resetea los golpes del jugador a vacío ("")
+  const handleReset = async () => {
+    const confirmReset = window.confirm(`⚠️ ¿Estás seguro de que quieres BORRAR todos los golpes de ${player._CleanName || player.Jugador} en la ${currentRound}?`);
+    
+    if (!confirmReset) return;
+
+    setIsSaving(true); 
+
+    let golpesVacios = {};
+    holes.forEach(hole => {
+      golpesVacios[hole] = ""; // Lo dejamos vacío como al empezar
+    });
+
+    const paqueteGolpes = {
+        jugador: player.Jugador,
+        ronda: currentRound,
+        golpes: golpesVacios
+    };
+
+    try {
+        await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify(paqueteGolpes),
+            headers: { "Content-Type": "text/plain" } 
+        });
+    } catch (error) {
+        console.log(`Error al resetear en Sheets`, error);
+    }
+    
+    setIsEditing(false);
+    setIsSaving(false);
+    onClose(); 
+    setTimeout(() => { if(onRefreshNeeded) onRefreshNeeded(); }, 2000);
+  };
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -242,7 +277,11 @@ function PlayerModal({ player, onClose, parRow, onRefreshNeeded, currentRound })
                   <button className="cancel-btn" onClick={() => setIsEditing(false)} disabled={isSaving}>CANCELAR</button>
                 </>
               ) : (
-                <button className="edit-btn" onClick={() => setIsEditing(true)}>✎</button>
+                <>
+                  {/* NUEVO BOTÓN DE REINICIO */}
+                  <button className="reset-btn" onClick={handleReset} disabled={isSaving} title="Reiniciar Partida">↺</button>
+                  <button className="edit-btn" onClick={() => setIsEditing(true)} title="Editar">✎</button>
+                </>
               )
             )}
             <button className="close-btn" onClick={onClose} disabled={isSaving}>&times;</button>
