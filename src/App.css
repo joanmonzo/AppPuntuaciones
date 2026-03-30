@@ -501,7 +501,7 @@ body {
 
   /* Compactar la tabla principal */
   .table-header {
-    grid-template-columns: 45px 1fr 75px; /* Reducido ligeramente para más espacio */
+    grid-template-columns: 45px 1fr 75px;
     padding: 0 10px 10px;
   }
   
@@ -513,41 +513,38 @@ body {
     grid-template-columns: 45px 1fr 75px; 
     padding: 10px;
     gap: 8px;
-    align-items: flex-start; /* Alinea los elementos arriba para que el texto crezca hacia abajo */
+    align-items: flex-start;
   }
 
-  /* --- AJUSTES DEL JUGADOR PARA MÓVIL (MUESTRA EL ARQUETIPO) --- */
   .row-player {
-    flex-direction: column; /* Apila el avatar y la información verticalmente si es necesario, o... */
+    flex-direction: column;
     align-items: flex-start;
     gap: 10px;
   }
   
-  /* Mejor, mantenemos avatar a la izquierda pero apilamos la info */
   .row-player {
     flex-direction: row; 
-    align-items: flex-start; /* Alinea arriba con el texto */
+    align-items: flex-start;
   }
 
   .player-info {
     width: 100%;
-    gap: 4px; /* Menos espacio entre líneas */
+    gap: 4px;
   }
 
   .player-name { 
     font-size: 15px; 
-    white-space: normal; /* Permite que el nombre baje de línea si es muy largo */
+    white-space: normal;
   }
 
-  /* El arquetipo ahora se pone debajo del equipo, sin empujar a la derecha */
   .player-arquetipo { 
     display: flex;
     flex-direction: column;
-    align-items: center; /* Modificado para centrar */
-    margin-left: 0; /* Quita el margen automático a la derecha */
+    align-items: center;
+    margin-left: 0;
     padding-right: 0;
     margin-top: 4px;
-    text-align: center; /* Añadido para centrar texto multilínea si lo hubiera */
+    text-align: center;
   }
   
   .arq-title {
@@ -561,7 +558,7 @@ body {
   .resultado {
     font-size: 16px;
     padding: 4px 6px;
-    margin-top: 2px; /* Alineación fina con el nombre */
+    margin-top: 2px;
   }
 
   /* Ajustes del Modal */
