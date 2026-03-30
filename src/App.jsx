@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import "./App.css";
+
 import fotoEquipos from "./foto_equipos.png";
+import imgFlyingCarajillos from "./flying-carajillos.png";
+import imgCarabassaSlice from "./carabassa-slice.jpeg";
 
 const API_URL =
   "https://script.google.com/macros/s/AKfycbx0hO-6xi53Siyr86zYkBPSVF2hKaYEgRw0Y-IjvjS5I1EOpegSj498XHQZr0xEqhXcfA/exec";
@@ -20,6 +23,11 @@ const AVATAR_COLORS = [
   { bg: "#0f2d2d", text: "#5be0c4" },
   { bg: "#1a2d0f", text: "#8fe05b" },
 ];
+
+const TEAM_AVATAR_IMAGES = {
+  "FLYING CARAJILLOS": imgFlyingCarajillos,
+  "CARABASSA SLICE FOCKERS": imgCarabassaSlice
+};
 
 function getInitials(name) {
   if (!name) return "?";
@@ -66,7 +74,7 @@ function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, curren
   const resultado = player._stableResultado !== undefined && player._stableResultado !== "" ? player._stableResultado : player["RESULTADO ACTUAL"];
   const hoyo = player["HOYO"] || 18;
 
-  const equipo = player["EQUIPO"]?.trim() || null;
+  const equipo = player["EQUIPO"]?.trim() || "";
   const logoUrl = equipo ? `/logos/${equipo.toLowerCase().replace(/\s+/g, '-')}.jpeg` : null;
 
   const arquetipoTitulo = player["FLL"]?.trim() || null;
@@ -78,7 +86,6 @@ function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, curren
 
   const isGeneral = currentRound === "General";
 
-  // AHORA SÍ: En General coge el TOTAL de la fila del Par (ej. 156, 164...). En Rondas coge el TOTAL del jugador.
   const totalGolpes = isGeneral 
     ? (parRow?.TOTAL !== undefined && parRow?.TOTAL !== "" ? parRow.TOTAL : "-")
     : (player.TOTAL !== undefined && player.TOTAL !== "" ? player.TOTAL : "-");
@@ -86,6 +93,8 @@ function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, curren
   const parTotal = isGeneral
     ? "-" 
     : (player.PAR_JUGADOR_TOTAL !== undefined && player.PAR_JUGADOR_TOTAL !== "" ? player.PAR_JUGADOR_TOTAL : (parRow?.TOTAL !== undefined && parRow?.TOTAL !== "" ? parRow.TOTAL : "-"));
+
+  const avatarImageUrl = TEAM_AVATAR_IMAGES[equipo];
 
   return (
     <div 
@@ -104,13 +113,17 @@ function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, curren
 
       <div className="row-player">
         <div className="avatar" style={{ background: color.bg, color: color.text, position: 'relative', overflow: 'hidden' }}>
+          {/* INICIALES SIEMPRE DE FONDO */}
           <span style={{ position: 'absolute', zIndex: 1 }}>{getInitials(player._CleanName || player.Jugador)}</span>
-          <img 
-            src="/the-golfos-on-tour-2026.jpeg" 
-            alt="Logo Torneo" 
-            style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', zIndex: 2 }}
-            onError={(e) => e.target.style.display = 'none'} 
-          />
+          
+          {/* IMAGEN POR ENCIMA SÓLO SI ESTÁ ASIGNADA AL EQUIPO */}
+          {avatarImageUrl && (
+            <img 
+              src={avatarImageUrl} 
+              alt={`Logo ${equipo}`} 
+              style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', zIndex: 2 }}
+            />
+          )}
         </div>
         
         <div className="player-info">
@@ -222,7 +235,6 @@ function PlayerModal({ player, onClose, parRow, onRefreshNeeded, currentRound })
     setTimeout(() => { if(onRefreshNeeded) onRefreshNeeded(); }, 2000);
   };
 
-  // NUEVA FUNCIÓN: Resetea los golpes del jugador a vacío ("")
   const handleReset = async () => {
     const confirmReset = window.confirm(`⚠️ ¿Estás seguro de que quieres BORRAR todos los golpes de ${player._CleanName || player.Jugador} en la ${currentRound}?`);
     
@@ -232,7 +244,7 @@ function PlayerModal({ player, onClose, parRow, onRefreshNeeded, currentRound })
 
     let golpesVacios = {};
     holes.forEach(hole => {
-      golpesVacios[hole] = ""; // Lo dejamos vacío como al empezar
+      golpesVacios[hole] = ""; 
     });
 
     const paqueteGolpes = {
@@ -278,7 +290,6 @@ function PlayerModal({ player, onClose, parRow, onRefreshNeeded, currentRound })
                 </>
               ) : (
                 <>
-                  {/* NUEVO BOTÓN DE REINICIO */}
                   <button className="reset-btn" onClick={handleReset} disabled={isSaving} title="Reiniciar Partida">↺</button>
                   <button className="edit-btn" onClick={() => setIsEditing(true)} title="Editar">✎</button>
                 </>
@@ -353,7 +364,6 @@ export default function App() {
       if (isRealPlayer(row)) {
         row._CleanName = String(row.Jugador).replace(" RESULTADO REAL", "").trim();
         
-        // NUEVA LÓGICA: Vincula el nombre exacto de su fila PAR asociada
         const parRow = raw[index + 1];
         if (parRow && String(parRow.Jugador).startsWith("PAR ")) {
           row._parName = parRow.Jugador;
@@ -506,7 +516,6 @@ export default function App() {
                       player={player}
                       rank={i + 1}
                       colorIndex={i}
-                      // AHORA USA _parName PARA ENCONTRAR EL PAR DE ESE JUGADOR AUNQUE SE LLAMEN DIFERENTE
                       parRow={activeData.find((p) => p.Jugador === player._parName)}
                       onClick={() => setSelectedPlayer(player)} 
                       currentRound={currentRound} 
