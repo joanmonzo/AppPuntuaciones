@@ -78,14 +78,14 @@ function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, curren
 
   const isGeneral = currentRound === "General";
 
-  // LÓGICA DE PUNTUACIONES EXACTA
+  // AHORA SÍ: En General coge el TOTAL de la fila del Par (ej. 156, 164...). En Rondas coge el TOTAL del jugador.
   const totalGolpes = isGeneral 
-    ? (player.PAR_JUGADOR_TOTAL || "-") 
-    : (player.TOTAL || "-");
+    ? (parRow?.TOTAL !== undefined && parRow?.TOTAL !== "" ? parRow.TOTAL : "-")
+    : (player.TOTAL !== undefined && player.TOTAL !== "" ? player.TOTAL : "-");
 
   const parTotal = isGeneral
     ? "-" 
-    : (player.PAR_JUGADOR_TOTAL || parRow?.TOTAL || "-");
+    : (player.PAR_JUGADOR_TOTAL !== undefined && player.PAR_JUGADOR_TOTAL !== "" ? player.PAR_JUGADOR_TOTAL : (parRow?.TOTAL !== undefined && parRow?.TOTAL !== "" ? parRow.TOTAL : "-"));
 
   return (
     <div 
@@ -313,6 +313,13 @@ export default function App() {
     raw.forEach((row, index) => {
       if (isRealPlayer(row)) {
         row._CleanName = String(row.Jugador).replace(" RESULTADO REAL", "").trim();
+        
+        // NUEVA LÓGICA: Vincula el nombre exacto de su fila PAR asociada
+        const parRow = raw[index + 1];
+        if (parRow && String(parRow.Jugador).startsWith("PAR ")) {
+          row._parName = parRow.Jugador;
+        }
+
         const stableRow = raw[index + 3];
         if (stableRow && stableRow.Jugador === "STABLE RESULTADO") {
           row._stableResultado = stableRow["RESULTADO ACTUAL"];
@@ -347,6 +354,18 @@ export default function App() {
       const hash = JSON.stringify({ r1: raw1, r2: raw2, rg: rawGen });
       if (hash === prevHashRef.current) return;
       prevHashRef.current = hash;
+
+      processedGen.forEach(pGen => {
+        if (isRealPlayer(pGen)) {
+          const pBase = processedR1.find(p => p.Jugador === pGen.Jugador) || 
+                        processedR2.find(p => p.Jugador === pGen.Jugador);
+          if (pBase) {
+            pGen["EQUIPO"] = pBase["EQUIPO"];
+            pGen["FLL"] = pBase["FLL"];
+            pGen["ARQUETIPO_DESC"] = pBase["ARQUETIPO_DESC"];
+          }
+        }
+      });
 
       setDbRonda1(processedR1);
       setDbRonda2(processedR2);
@@ -448,7 +467,8 @@ export default function App() {
                       player={player}
                       rank={i + 1}
                       colorIndex={i}
-                      parRow={activeData.find((p) => String(p.Jugador) === `PAR ${String(player.Jugador).toUpperCase()}`)}
+                      // AHORA USA _parName PARA ENCONTRAR EL PAR DE ESE JUGADOR AUNQUE SE LLAMEN DIFERENTE
+                      parRow={activeData.find((p) => p.Jugador === player._parName)}
                       onClick={() => setSelectedPlayer(player)} 
                       currentRound={currentRound} 
                     />
@@ -495,7 +515,7 @@ export default function App() {
                       player={player}
                       rank={i + 1}
                       colorIndex={i}
-                      parRow={activeData.find((p) => String(p.Jugador) === `PAR ${String(player.Jugador).toUpperCase()}`)}
+                      parRow={activeData.find((p) => p.Jugador === player._parName)}
                       onClick={() => setSelectedPlayer(player)} 
                       currentRound={currentRound}
                     />
@@ -510,7 +530,7 @@ export default function App() {
       <PlayerModal 
         player={selectedPlayer} 
         onClose={() => setSelectedPlayer(null)} 
-        parRow={selectedPlayer ? activeData.find(p => String(p.Jugador) === `PAR ${String(selectedPlayer.Jugador).toUpperCase()}`) : null}
+        parRow={selectedPlayer ? activeData.find(p => p.Jugador === selectedPlayer._parName) : null}
         onRefreshNeeded={fetchData} 
         currentRound={currentRound}
       />
