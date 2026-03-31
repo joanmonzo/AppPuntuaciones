@@ -455,7 +455,21 @@ export default function App() {
     .sort((a, b) => (b._stableResultado || 0) - (a._stableResultado || 0));
 
   const leader = players[0];
+  
+  // NUEVA LÓGICA: Obtener equipos únicos, sumar puntos y ordenar de mayor a menor
   const equiposUnicos = [...new Set(players.map(p => p.EQUIPO).filter(e => e && e.trim() !== ""))];
+  const equiposData = equiposUnicos.map(equipo => {
+    const jugadores = players.filter(p => p.EQUIPO === equipo);
+    const totalPuntos = jugadores.reduce((sum, p) => {
+      const pts = Number(p._stableResultado) || 0;
+      return sum + pts;
+    }, 0);
+    return { equipo, jugadores, totalPuntos };
+  }).sort((a, b) => b.totalPuntos - a.totalPuntos);
+
+  // Variable para identificar al equipo (o equipos empatados) con más puntos
+  const maxPuntosEquipos = equiposData.length > 0 ? equiposData[0].totalPuntos : 0;
+  
   const isGeneral = currentRound === "General";
 
   return (
@@ -472,20 +486,17 @@ export default function App() {
             {players.length > 0 ? `${players.length} jugadores ${!isGeneral ? `· Hoyo ${leader?.HOYO ?? "18"}` : ''}` : "Cargando…"}
           </p>
 
-          {/* Refactorización: Pestañas separadas en dos bloques verticales */}
           <div className="tabs-groups" style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
             <div className="tabs-container" style={{ marginTop: 0 }}>
               <button className={`tab-btn ${activeTab === "clasificacion" ? "active" : ""}`} onClick={() => { setActiveTab("clasificacion"); setSelectedTeam(null); }}>
                 Individuales
               </button>
-              {/* Añadida la clase "equipos" en el estado activo para el CSS del color invertido */}
               <button className={`tab-btn ${activeTab === "equipos" ? "active equipos" : ""}`} onClick={() => setActiveTab("equipos")}>
                 Equipos
               </button>
             </div>
 
             <div className="tabs-container" style={{ marginTop: 0 }}>
-              {/* Añadida la condición para heredar la clase "equipos" si estamos en la pestaña de Equipos */}
               <button className={`tab-btn ${currentRound === "Ronda 1" ? "active" : ""} ${activeTab === "equipos" ? "equipos" : ""}`} onClick={() => setCurrentRound("Ronda 1")}>Ronda 1</button>
               <button className={`tab-btn ${currentRound === "Ronda 2" ? "active" : ""} ${activeTab === "equipos" ? "equipos" : ""}`} onClick={() => setCurrentRound("Ronda 2")}>Ronda 2</button>
               <button className={`tab-btn ${currentRound === "General" ? "active" : ""} ${activeTab === "equipos" ? "equipos" : ""}`} onClick={() => setCurrentRound("General")}>General</button>
@@ -543,13 +554,23 @@ export default function App() {
 
             {activeTab === "equipos" && !selectedTeam && (
               <div className="equipos-grid">
-                {equiposUnicos.length > 0 ? (
-                  equiposUnicos.map(equipo => {
-                    const jugadoresDelEquipo = players.filter(p => p.EQUIPO === equipo);
+                {/* REFACTORIZACIÓN: Renderizado basado en equiposData */}
+                {equiposData.length > 0 ? (
+                  equiposData.map(({ equipo, jugadores, totalPuntos }) => {
+                    const isLeader = totalPuntos === maxPuntosEquipos && totalPuntos > 0;
+                    
                     return (
-                      <div key={equipo} className="equipo-card" onClick={() => setSelectedTeam(equipo)}>
+                      <div 
+                        key={equipo} 
+                        className={`equipo-card ${isLeader ? 'leader' : ''}`} 
+                        onClick={() => setSelectedTeam(equipo)}
+                      >
+                        {isLeader && <div className="leader-badge">🏆 LÍDER</div>}
                         <h3>{equipo}</h3>
-                        <span>{jugadoresDelEquipo.length} jugadores asignados</span>
+                        <div className="equipo-card-stats">
+                          <span className="eq-pts">{totalPuntos} <small>PTS</small></span>
+                          <span className="eq-jug">{jugadores.length} jugadores asignados</span>
+                        </div>
                       </div>
                     );
                   })
