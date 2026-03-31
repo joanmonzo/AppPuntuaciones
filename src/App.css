@@ -172,6 +172,11 @@ body {
 .tab-btn:hover { background: rgba(255, 255, 255, 0.08); color: var(--text); }
 .tab-btn.active { background: var(--blue); color: #000; border-color: var(--blue); }
 
+.tab-btn.active.equipos { 
+  background: #a43b28; 
+  color: #fff; 
+  border-color: #a43b28; 
+}
 /* ==========================================================================
    4. TABLA GENERAL Y COMPONENTES DE FILA
    ========================================================================== */

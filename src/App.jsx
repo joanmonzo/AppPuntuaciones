@@ -64,7 +64,18 @@ function RankBadge({ rank }) {
 }
 
 function ResultadoBadge({ valor }) {
-  return <span className="resultado positivo">{valor} pts</span>;
+  const numValor = Number(valor);
+  let claseTipo = "neutro";
+
+  if (!isNaN(numValor) && valor !== "") {
+    if (numValor >= 36) {
+      claseTipo = "positivo";
+    } else if (numValor <= 35) {
+      claseTipo = "negativo";
+    }
+  }
+  
+  return <span className={`resultado ${claseTipo}`}>{valor} pts</span>;
 }
 
 function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, currentRound }) {
@@ -461,19 +472,24 @@ export default function App() {
             {players.length > 0 ? `${players.length} jugadores ${!isGeneral ? `· Hoyo ${leader?.HOYO ?? "18"}` : ''}` : "Cargando…"}
           </p>
 
-          <div className="tabs-container">
-            <button className={`tab-btn ${activeTab === "clasificacion" ? "active" : ""}`} onClick={() => { setActiveTab("clasificacion"); setSelectedTeam(null); }}>
-              Individuales
-            </button>
-            <button className={`tab-btn ${activeTab === "equipos" ? "active" : ""}`} onClick={() => setActiveTab("equipos")}>
-              Equipos
-            </button>
+          {/* Refactorización: Pestañas separadas en dos bloques verticales */}
+          <div className="tabs-groups" style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
+            <div className="tabs-container" style={{ marginTop: 0 }}>
+              <button className={`tab-btn ${activeTab === "clasificacion" ? "active" : ""}`} onClick={() => { setActiveTab("clasificacion"); setSelectedTeam(null); }}>
+                Individuales
+              </button>
+              {/* Añadida la clase "equipos" en el estado activo para el CSS del color invertido */}
+              <button className={`tab-btn ${activeTab === "equipos" ? "active equipos" : ""}`} onClick={() => setActiveTab("equipos")}>
+                Equipos
+              </button>
+            </div>
 
-            <div style={{ width: '2px', background: 'var(--border)', margin: '0 8px' }}></div>
-
-            <button className={`tab-btn ${currentRound === "Ronda 1" ? "active" : ""}`} onClick={() => setCurrentRound("Ronda 1")}>Ronda 1</button>
-            <button className={`tab-btn ${currentRound === "Ronda 2" ? "active" : ""}`} onClick={() => setCurrentRound("Ronda 2")}>Ronda 2</button>
-            <button className={`tab-btn ${currentRound === "General" ? "active" : ""}`} onClick={() => setCurrentRound("General")}>General</button>
+            <div className="tabs-container" style={{ marginTop: 0 }}>
+              {/* Añadida la condición para heredar la clase "equipos" si estamos en la pestaña de Equipos */}
+              <button className={`tab-btn ${currentRound === "Ronda 1" ? "active" : ""} ${activeTab === "equipos" ? "equipos" : ""}`} onClick={() => setCurrentRound("Ronda 1")}>Ronda 1</button>
+              <button className={`tab-btn ${currentRound === "Ronda 2" ? "active" : ""} ${activeTab === "equipos" ? "equipos" : ""}`} onClick={() => setCurrentRound("Ronda 2")}>Ronda 2</button>
+              <button className={`tab-btn ${currentRound === "General" ? "active" : ""} ${activeTab === "equipos" ? "equipos" : ""}`} onClick={() => setCurrentRound("General")}>General</button>
+            </div>
           </div>
         </div>
         
