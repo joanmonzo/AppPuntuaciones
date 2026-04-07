@@ -536,6 +536,7 @@ body {
   }
 }
 
+.show-mobile { display: none; }
 /* Ajustes para Móviles */
 @media (max-width: 640px) {
   
@@ -572,22 +573,17 @@ body {
   
   .table-header .th-stats { 
     display: block; 
-    font-size: 0; 
     text-align: center;
-  }
-  .table-header .th-stats::after {
-    content: "TOTAL";
-    font-size: 10px;
-    letter-spacing: 0.1em;
   }
 
   .row-stats { 
     display: flex; 
     justify-content: center;
     align-items: center;
+    gap: 8px; 
   }
 
-  .row-stats .stat-block:not(:first-child) { 
+  .row-stats .stat-block:nth-child(2) { 
     display: none; 
   }
 
@@ -647,4 +643,8 @@ body {
     width: 95%;
   }
   .modal-header h2 { font-size: 20px; }
+
+  .hide-mobile { display: none; }
+
+  .show-mobile { display: inline; text-align: center; }
 }

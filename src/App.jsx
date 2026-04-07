@@ -533,7 +533,10 @@ export default function App() {
                 <div className="table-header">
                   <span className="th-rank">#</span>
                   <span className="th-player">Jugador</span>
-                  <span className="th-stats">{isGeneral ? "Total" : "Total · Par · Hoyo"}</span>
+                  <span className="th-stats">
+                    <span className="hide-mobile">{isGeneral ? "Total" : "Total · Par · Hoyo"}</span>
+                    <span className="show-mobile">{isGeneral ? "Total" : "Tot · Hoyo"}</span>
+                  </span>
                   <span className="th-resultado">Stable Resultado</span>
                 </div>
                 <div className="table-body">
@@ -590,7 +593,10 @@ export default function App() {
                 <div className="table-header">
                   <span className="th-rank">#</span>
                   <span className="th-player">Jugador</span>
-                  <span className="th-stats">{isGeneral ? "Total" : "Total · Par · Hoyo"}</span>
+                  <span className="th-stats">
+                    <span className="hide-mobile">{isGeneral ? "Total" : "Total · Par · Hoyo"}</span>
+                    <span className="show-mobile">{isGeneral ? "Total" : "Tot · Hoyo"}</span>
+                  </span>
                   <span className="th-resultado">Stable Resultado</span>
                 </div>
                 <div className="table-body">
