@@ -367,6 +367,24 @@ export default function App() {
   const [selectedTeam, setSelectedTeam] = useState(null); 
   const [currentRound, setCurrentRound] = useState("General"); 
 
+  // NUEVA LÓGICA DE TEMA (MODO CLARO/OSCURO)
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('app-theme') || 'dark';
+  });
+
+  useEffect(() => {
+    if (theme === 'light') {
+      document.body.classList.add('light-mode');
+    } else {
+      document.body.classList.remove('light-mode');
+    }
+    localStorage.setItem('app-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
+
   const prevHashRef = useRef(null);
 
   const procesarHoja = (raw) => {
@@ -456,7 +474,7 @@ export default function App() {
 
   const leader = players[0];
   
-  // NUEVA LÓGICA: Obtener equipos únicos, sumar puntos y ordenar de mayor a menor
+  // Obtener equipos únicos, sumar puntos y ordenar de mayor a menor 
   const equiposUnicos = [...new Set(players.map(p => p.EQUIPO).filter(e => e && e.trim() !== ""))];
   const equiposData = equiposUnicos.map(equipo => {
     const jugadores = players.filter(p => p.EQUIPO === equipo);
@@ -505,6 +523,9 @@ export default function App() {
         </div>
         
         <div className="header-right">
+          <button className="theme-toggle-btn" onClick={toggleTheme} title="Cambiar tema">
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
           <div className={`status-dot ${error ? "error" : "ok"} ${pulse ? "pulse" : ""}`} />
           <span className="status-text">
             {error ? "Sin conexión" : lastUpdate ? lastUpdate.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "Conectando…"}

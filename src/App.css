@@ -26,6 +26,70 @@
   --radius: 10px;
 }
 
+/* ==========================================================================
+   1.1 TEMA CLARO (LIGHT MODE)
+   ========================================================================== */
+body.light-mode {
+  --bg: #f4f4f8;
+  --bg2: #ffffff;
+  --bg3: #e8e8ed;
+  --border: rgba(0, 0, 0, 0.08);
+  --border2: rgba(0, 0, 0, 0.15);
+  --text: #1a1a24;
+  --text2: #6e6e80;
+  /* Los colores de acento (oro, verde, rojo, azul) se mantienen igual */
+}
+
+/* Ajuste de la cuadrícula de fondo para modo claro */
+body.light-mode .bg-grid {
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+}
+
+/* Ajustes de degradados para las tarjetas destacadas */
+body.light-mode .player-row.highlight-top {
+  background: linear-gradient(135deg, rgba(78, 216, 138, 0.1) 0%, rgba(255, 255, 255, 1) 100%);
+}
+
+body.light-mode .player-row.highlight-bottom {
+  background: linear-gradient(135deg, rgba(224, 91, 91, 0.1) 0%, rgba(255, 255, 255, 1) 100%);
+}
+
+body.light-mode .equipo-card.leader {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, #ffffff 100%);
+}
+
+/* Botón alternador de tema */
+.theme-toggle-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  margin-right: 12px;
+}
+
+.theme-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--border2);
+}
+
+body.light-mode .theme-toggle-btn {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+body.light-mode .theme-toggle-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
 html, body, #root {
   height: 100%;
 }
@@ -500,8 +564,7 @@ body {
 }
 .edit-input:focus { outline: none; border-color: var(--gold); background: rgba(255, 255, 255, 0.06); box-shadow: 0 0 0 2px rgba(224, 201, 127, 0.1); }
 .edit-input::-webkit-outer-spin-button, .edit-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-.edit-input[type=number] { -moz-appearance: textfield; }
-
+.edit-input[type=number] { -moz-appearance: textfield; appearance: textfield; }
 /* ==========================================================================
    8. ESTADOS GLOBALES (CARGANDO / ERROR)
    ========================================================================== */
