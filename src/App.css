@@ -269,7 +269,7 @@ body {
    ========================================================================== */
 .table-header {
   display: grid;
-  grid-template-columns: 60px 1fr 180px 120px;
+  grid-template-columns: 60px 1fr 60px 180px 120px;
   gap: 12px;
   padding: 0 16px 10px;
   font-family: 'Barlow Condensed', sans-serif;
@@ -289,7 +289,7 @@ body {
 
 .player-row {
   display: grid;
-  grid-template-columns: 60px 1fr 180px 120px;
+  grid-template-columns: 60px 1fr 60px 180px 120px;
   gap: 12px;
   align-items: center;
   padding: 14px 16px;
@@ -384,6 +384,21 @@ body {
   color: var(--text2);
   text-transform: uppercase;
   letter-spacing: 0.08em;
+}
+
+.th-hoyo, .row-hoyo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text2);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+}
+
+.th-hoyo {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 /* --- Estadísticas --- */
@@ -682,12 +697,29 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  padding-bottom: 10px;
+}
+
+.desplegable-title {
   font-family: 'Barlow Condensed', sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--gold);
+  font-weight: 700;
+}
+
+.modal-tabs.mini {
+  display: flex;
+  gap: 4px;
+}
+
+.modal-tabs.mini .modal-tab-btn {
+  padding: 3px 10px;
+  font-size: 10px;
+  background: rgba(0,0,0,0.3);
 }
 
 .info-ronda {
@@ -1246,34 +1278,30 @@ body {
   }
 
   .table-header {
-    grid-template-columns: 45px 1fr 35px 35px 85px;
+    grid-template-columns: 45px 1fr 40px 70px 85px;
     padding: 0 10px 10px;
   }
-
-  .table-header .th-stats,
-  .table-header .header-r1r2 {
-    display: flex;
+  
+  .table-header .th-stats, .table-header .header-r1r2 { 
+    display: flex; 
     justify-content: center;
     gap: 10px;
     font-size: 9px;
   }
 
-  .row-stats {
-    display: flex;
+  .row-stats { 
+    display: flex; 
     justify-content: center;
     align-items: center;
-    gap: 10px;
+    gap: 10px; 
   }
-
-  .row-stats .stat-val {
-    font-size: 13px;
-  }
+  .row-stats .stat-val { font-size: 13px; }
 
   .player-row {
-    grid-template-columns: 45px 1fr 35px 35px 85px;
+    grid-template-columns: 45px 1fr 40px 70px 85px; 
     padding: 10px;
     gap: 8px;
-    align-items: center;
+    align-items: center; 
   }
 
   .row-player {

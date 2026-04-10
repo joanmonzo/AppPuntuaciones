@@ -145,6 +145,10 @@ function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, curren
         </div>
       </div>
 
+      <div className="row-hoyo">
+        <span className="stat-val">{player.HOYO || player.Hoyo || "-"}</span>
+      </div>
+
       <div className="row-stats">
         <div className="stat-block">
           <span className="stat-val">{player._cleanR1}</span>
@@ -169,7 +173,6 @@ function PlayerModal({ player, onClose, onRefreshNeeded, dbRonda1, dbRonda2 }) {
 
   const holes = Array.from({ length: 18 }, (_, i) => i + 1);
 
-  // Determinar los datos de la ronda actual dentro del modal
   const activeDb = modalRound === "Ronda 1" ? dbRonda1 : dbRonda2;
   const roundPlayerData = player ? activeDb.find(p => p.Jugador === player.Jugador) : null;
   const parRow = roundPlayerData ? activeDb.find(p => p.Jugador === roundPlayerData._parName) : null;
@@ -359,9 +362,9 @@ export default function App() {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [activeTab, setActiveTab] = useState("clasificacion");
   const [expandedTeam, setExpandedTeam] = useState(null);
+  const [accordionRound, setAccordionRound] = useState("R1");
   const [currentRound, setCurrentRound] = useState("General");
 
-  // NUEVA LÓGICA DE TEMA (MODO CLARO/OSCURO)
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('app-theme') || 'dark';
   });
@@ -458,10 +461,8 @@ export default function App() {
     return () => clearInterval(id);
   }, []);
 
-  // Crear lista unificada de jugadores con puntos de ambas rondas
   const playerMap = new Map();
 
-  // Procesar Ronda 1
   dbRonda1.filter(isRealPlayer).forEach(p => {
     playerMap.set(p.Jugador, {
       ...p,
@@ -472,13 +473,15 @@ export default function App() {
     });
   });
 
-  // Procesar Ronda 2
   dbRonda2.filter(isRealPlayer).forEach(p => {
     if (playerMap.has(p.Jugador)) {
       const existing = playerMap.get(p.Jugador);
       existing._r2Data = p;
       existing._cleanR2 = Number(p._stableResultado) || 0;
       existing._totalScore = existing._cleanR1 + existing._cleanR2;
+      if (p.Hoyo && Number(p.Hoyo) > 0) {
+        existing.Hoyo = p.Hoyo;
+      }
     } else {
       playerMap.set(p.Jugador, {
         ...p,
@@ -506,7 +509,6 @@ export default function App() {
 
   const leader = players[0];
 
-  // Obtener equipos únicos, sumar puntos por ronda y ordenar
   const equiposUnicos = [...new Set(players.map(p => p.EQUIPO).filter(e => e && e.trim() !== ""))];
   const rawEquiposData = equiposUnicos.map(equipo => {
     const jugadores = players.filter(p => p.EQUIPO === equipo);
@@ -526,10 +528,7 @@ export default function App() {
     return { ...eq, _rank: currentEqRank };
   });
 
-  // Variable para identificar al equipo (o equipos empatados) con más puntos
   const maxPuntosEquipos = equiposData.length > 0 ? equiposData[0].totalPuntos : 0;
-
-  const isGeneral = currentRound === "General";
 
   return (
     <div className="app">
@@ -542,20 +541,18 @@ export default function App() {
             <span><img src={fotoEquipos} alt="foto equipos" style={{ height: "100px", verticalAlign: "middle", marginLeft: "50px", borderRadius: "10px" }} /></span>
           </h1>
           <p className="subtitle">
-            {players.length > 0 ? `${players.length} jugadores ${!isGeneral ? `· Hoyo ${leader?.HOYO ?? "18"}` : ''}` : "Cargando…"}
+            {players.length > 0 ? `${players.length} jugadores` : "Cargando…"}
           </p>
 
           <div className="tabs-groups" style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
             <div className="tabs-container" style={{ marginTop: 0 }}>
-              <button className={`tab-btn ${activeTab === "clasificacion" ? "active" : ""}`} onClick={() => { setActiveTab("clasificacion"); setSelectedTeam(null); }}>
+              <button className={`tab-btn ${activeTab === "clasificacion" ? "active" : ""}`} onClick={() => { setActiveTab("clasificacion"); }}>
                 Individuales
               </button>
               <button className={`tab-btn ${activeTab === "equipos" ? "active equipos" : ""}`} onClick={() => setActiveTab("equipos")}>
                 Equipos
               </button>
             </div>
-
-            {/* Las pestañas de rondas se han eliminado ya que las tablas muestran vista unificada */}
           </div>
         </div>
 
@@ -591,6 +588,7 @@ export default function App() {
                 <div className="table-header header-individual">
                   <span className="th-rank">#</span>
                   <span className="th-player">Jugador</span>
+                  <span className="th-hoyo">Hoyo</span>
                   <div className="th-stats header-r1r2">
                     <span>R1</span>
                     <span>R2</span>
@@ -668,10 +666,16 @@ export default function App() {
                           {isExpanded && (
                             <div className="equipo-desplegable">
                               <div className="desplegable-header">
-                                <span>Detalle hoyo a hoyo</span>
+                                <span className="desplegable-title">Estadísticas por hoyo</span>
                                 <div className="modal-tabs mini">
-                                  {/* Nota: En el desplegable usamos una lógica simplificada para ver R1 o R2 */}
-                                  <span className="info-ronda">Mostrando Ronda 1 + Ronda 2</span>
+                                  <button 
+                                    className={`modal-tab-btn ${accordionRound === "R1" ? "active" : ""}`} 
+                                    onClick={() => setAccordionRound("R1")}
+                                  >R1</button>
+                                  <button 
+                                    className={`modal-tab-btn ${accordionRound === "R2" ? "active" : ""}`} 
+                                    onClick={() => setAccordionRound("R2")}
+                                  >R2</button>
                                 </div>
                               </div>
                               
@@ -708,27 +712,37 @@ export default function App() {
 
                                   {/* Filas Jugadores */}
                                   {eq.jugadores.map(player => {
-                                    // Para hoyo a hoyo, mostramos Ronda 1 por defecto o R2 si R1 está vacía
-                                    const source = player._r1Data || player._r2Data || player;
+                                    // Usar los datos de la ronda seleccionada en el acordeón
+                                    const source = accordionRound === "R1" ? player._r1Data : player._r2Data;
                                     const parRow = dbRonda1.find(p => p.Jugador === player?._parName) || dbRonda2.find(p => p.Jugador === player?._parName);
                                     let totalStrokes = 0;
+
+                                    if (!source) {
+                                      return (
+                                        <div className="hole-row player" key={player.Jugador}>
+                                          <span className="hole-label">{player._CleanName || player.Jugador}</span>
+                                          <span style={{ gridColumn: 'span 19', color: 'var(--text2)', fontStyle: 'italic', fontSize: '11px' }}>Sin datos en esta ronda</span>
+                                        </div>
+                                      );
+                                    }
 
                                     return (
                                       <div className="hole-row player" key={player.Jugador}>
                                         <span className="hole-label">{player._CleanName || player.Jugador}</span>
                                         {Array.from({ length: 18 }, (_, i) => i + 1).map(h => {
-                                          const strokes = Number(source[h]);
+                                          const strokesRaw = source[h];
+                                          const strokes = Number(strokesRaw);
                                           const par = Number(parRow?.[h]);
                                           totalStrokes += strokes || 0;
                                           
                                           let scoreClass = "";
-                                          if (strokes && par) {
+                                          if (strokesRaw !== "" && strokes && par) {
                                             if (strokes < par) scoreClass = "score-under";
                                             else if (strokes > par) scoreClass = "score-over";
                                             else scoreClass = "score-par";
                                           }
 
-                                          return <span key={h} className={scoreClass}>{strokes || "-"}</span>;
+                                          return <span key={h} className={scoreClass}>{strokesRaw || "-"}</span>;
                                         })}
                                         <span className="hole-total">{totalStrokes || "-"}</span>
                                       </div>
