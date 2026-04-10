@@ -682,12 +682,29 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  padding-bottom: 10px;
+}
+
+.desplegable-title {
   font-family: 'Barlow Condensed', sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--gold);
+  font-weight: 700;
+}
+
+.modal-tabs.mini {
+  display: flex;
+  gap: 4px;
+}
+
+.modal-tabs.mini .modal-tab-btn {
+  padding: 3px 10px;
+  font-size: 10px;
+  background: rgba(0,0,0,0.3);
 }
 
 .info-ronda {
