@@ -464,8 +464,8 @@ body {
 }
 
 .th-stats span.active-th {
-  color: var(--gold);
-  text-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+  color: var(--blue);
+  text-shadow: 0 0 8px rgba(91, 196, 216, 0.4);
 }
 
 .row-resultado {
@@ -1328,10 +1328,10 @@ body {
 }
 
 .mini-tab-btn.active {
-  background: var(--gold);
+  background: var(--blue);
   color: #000;
-  border-color: var(--gold);
-  box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+  border-color: var(--blue);
+  box-shadow: 0 0 10px rgba(91, 196, 216, 0.2);
 }
 
 .mini-tab-btn:hover:not(.active) {
