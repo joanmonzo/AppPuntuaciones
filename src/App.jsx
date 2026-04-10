@@ -358,7 +358,7 @@ export default function App() {
 
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [activeTab, setActiveTab] = useState("clasificacion");
-  const [selectedTeam, setSelectedTeam] = useState(null);
+  const [expandedTeam, setExpandedTeam] = useState(null);
   const [currentRound, setCurrentRound] = useState("General");
 
   // NUEVA LÓGICA DE TEMA (MODO CLARO/OSCURO)
@@ -465,6 +465,7 @@ export default function App() {
   dbRonda1.filter(isRealPlayer).forEach(p => {
     playerMap.set(p.Jugador, {
       ...p,
+      _r1Data: p,
       _cleanR1: Number(p._stableResultado) || 0,
       _cleanR2: 0,
       _totalScore: Number(p._stableResultado) || 0
@@ -475,11 +476,13 @@ export default function App() {
   dbRonda2.filter(isRealPlayer).forEach(p => {
     if (playerMap.has(p.Jugador)) {
       const existing = playerMap.get(p.Jugador);
+      existing._r2Data = p;
       existing._cleanR2 = Number(p._stableResultado) || 0;
       existing._totalScore = existing._cleanR1 + existing._cleanR2;
     } else {
       playerMap.set(p.Jugador, {
         ...p,
+        _r2Data: p,
         _cleanR1: 0,
         _cleanR2: Number(p._stableResultado) || 0,
         _totalScore: Number(p._stableResultado) || 0
@@ -610,7 +613,7 @@ export default function App() {
               </>
             )}
 
-            {activeTab === "equipos" && !selectedTeam && (
+            {activeTab === "equipos" && (
               <div className="equipos-lista">
                 <div className="table-header header-equipos">
                   <span className="th-rank">Pos</span>
@@ -625,74 +628,122 @@ export default function App() {
                     equiposData.map((eq) => {
                       const isLeader = eq.totalPuntos === maxPuntosEquipos && eq.totalPuntos > 0;
                       const logoUrl = TEAM_AVATAR_IMAGES[eq.equipo];
+                      const isExpanded = expandedTeam === eq.equipo;
 
                       return (
                         <div
                           key={eq.equipo}
-                          className={`equipo-row ${isLeader ? 'leader' : ''}`}
-                          onClick={() => setSelectedTeam(eq.equipo)}
+                          className={`team-accordion-wrapper ${isExpanded ? 'expanded' : ''}`}
                         >
-                          <div className="row-rank">
-                            <RankBadge rank={eq._rank} />
-                          </div>
-                          <div className="row-team">
-                            <div className="team-avatar-mini">
-                              {logoUrl ? <img src={logoUrl} alt={eq.equipo} /> : <span>{getInitials(eq.equipo)}</span>}
+                          <div
+                            className={`equipo-row ${isLeader ? 'leader' : ''} ${isExpanded ? 'active' : ''}`}
+                            onClick={() => setExpandedTeam(prev => prev === eq.equipo ? null : eq.equipo)}
+                          >
+                            <div className="row-rank">
+                              <RankBadge rank={eq._rank} />
                             </div>
-                            <span className="team-name-row">{eq.equipo}</span>
-                          </div>
-                          <div className="row-players-list hide-mobile">
-                            {eq.jugadores.map((p, idx) => (
-                              <span key={idx} className="player-mini-tag">
-                                {p._CleanName || p.Jugador}
-                              </span>
-                            ))}
-                          </div>
-                          <div className="row-scores">
-                            <span className="score-val">{eq.teamR1}</span>
-                            <span className="score-val">{eq.teamR2}</span>
-                            <div className="score-tot">
-                              <ResultadoBadge valor={eq.totalPuntos} />
+                            <div className="row-team">
+                              <div className="team-avatar-mini">
+                                {logoUrl ? <img src={logoUrl} alt={eq.equipo} /> : <span>{getInitials(eq.equipo)}</span>}
+                              </div>
+                              <span className="team-name-row">{eq.equipo}</span>
+                              <span className="accordion-arrow">{isExpanded ? '▼' : '▶'}</span>
+                            </div>
+                            <div className="row-players-list hide-mobile">
+                              {eq.jugadores.map((p, idx) => (
+                                <span key={idx} className="player-mini-tag">
+                                  {p._CleanName || p.Jugador}
+                                </span>
+                              ))}
+                            </div>
+                            <div className="row-scores">
+                              <span className="score-val">{eq.teamR1}</span>
+                              <span className="score-val">{eq.teamR2}</span>
+                              <div className="score-tot">
+                                <ResultadoBadge valor={eq.totalPuntos} />
+                              </div>
                             </div>
                           </div>
+
+                          {isExpanded && (
+                            <div className="equipo-desplegable">
+                              <div className="desplegable-header">
+                                <span>Detalle hoyo a hoyo</span>
+                                <div className="modal-tabs mini">
+                                  {/* Nota: En el desplegable usamos una lógica simplificada para ver R1 o R2 */}
+                                  <span className="info-ronda">Mostrando Ronda 1 + Ronda 2</span>
+                                </div>
+                              </div>
+                              
+                              <div className="table-responsive">
+                                <div className="hole-grid">
+                                  {/* Cabecera Hoyos */}
+                                  <div className="hole-row header">
+                                    <span className="hole-label">Hoyo</span>
+                                    {Array.from({ length: 18 }, (_, i) => i + 1).map(h => (
+                                      <span key={h} className="hole-num">{h}</span>
+                                    ))}
+                                    <span className="hole-total">Tot</span>
+                                  </div>
+
+                                  {/* Fila PAR */}
+                                  <div className="hole-row par">
+                                    <span className="hole-label">Par</span>
+                                    {(() => {
+                                      const anyPlayer = eq.jugadores[0];
+                                      const parRow = dbRonda1.find(p => p.Jugador === anyPlayer?._parName) || dbRonda2.find(p => p.Jugador === anyPlayer?._parName);
+                                      let parSum = 0;
+                                      return (
+                                        <>
+                                          {Array.from({ length: 18 }, (_, i) => i + 1).map(h => {
+                                            const pVal = Number(parRow?.[h]) || 0;
+                                            parSum += pVal;
+                                            return <span key={h}>{pVal || "-"}</span>;
+                                          })}
+                                          <span className="hole-total">{parSum}</span>
+                                        </>
+                                      );
+                                    })()}
+                                  </div>
+
+                                  {/* Filas Jugadores */}
+                                  {eq.jugadores.map(player => {
+                                    // Para hoyo a hoyo, mostramos Ronda 1 por defecto o R2 si R1 está vacía
+                                    const source = player._r1Data || player._r2Data || player;
+                                    const parRow = dbRonda1.find(p => p.Jugador === player?._parName) || dbRonda2.find(p => p.Jugador === player?._parName);
+                                    let totalStrokes = 0;
+
+                                    return (
+                                      <div className="hole-row player" key={player.Jugador}>
+                                        <span className="hole-label">{player._CleanName || player.Jugador}</span>
+                                        {Array.from({ length: 18 }, (_, i) => i + 1).map(h => {
+                                          const strokes = Number(source[h]);
+                                          const par = Number(parRow?.[h]);
+                                          totalStrokes += strokes || 0;
+                                          
+                                          let scoreClass = "";
+                                          if (strokes && par) {
+                                            if (strokes < par) scoreClass = "score-under";
+                                            else if (strokes > par) scoreClass = "score-over";
+                                            else scoreClass = "score-par";
+                                          }
+
+                                          return <span key={h} className={scoreClass}>{strokes || "-"}</span>;
+                                        })}
+                                        <span className="hole-total">{totalStrokes || "-"}</span>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       );
                     })
                   ) : (
                     <div className="loading">No hay equipos asignados.</div>
                   )}
-                </div>
-              </div>
-            )}
-
-            {activeTab === "equipos" && selectedTeam && (
-              <div className="equipo-detalle">
-                <div className="equipo-detalle-header">
-                  <button className="back-btn" onClick={() => setSelectedTeam(null)}>← VOLVER</button>
-                  <h2>Equipo: <span className="equipo-nombre-resaltado">{selectedTeam}</span></h2>
-                </div>
-
-                <div className="table-header header-individual">
-                  <span className="th-rank">#</span>
-                  <span className="th-player">Jugador</span>
-                  <div className="th-stats header-r1r2">
-                    <span>R1</span>
-                    <span>R2</span>
-                  </div>
-                  <span className="th-resultado">TOTAL</span>
-                </div>
-                <div className="table-body">
-                  {players.filter(p => p.EQUIPO === selectedTeam).map((player, i) => (
-                    <PlayerRow
-                      key={player.Jugador}
-                      player={player}
-                      rank={player._rank}
-                      colorIndex={i}
-                      parRow={dbRonda1.find((p) => p.Jugador === player._parName) || dbRonda2.find((p) => p.Jugador === player._parName)}
-                      onClick={() => setSelectedPlayer(player)}
-                      currentRound={currentRound}
-                    />
-                  ))}
                 </div>
               </div>
             )}

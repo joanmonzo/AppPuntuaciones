@@ -548,6 +548,32 @@ body {
   padding: 0 20px 10px !important;
 }
 
+.accordion-arrow {
+  font-size: 10px;
+  color: var(--text2);
+  margin-left: auto;
+  transition: transform 0.3s ease;
+}
+
+.equipo-row.active .accordion-arrow {
+  transform: rotate(0deg);
+  color: var(--gold);
+}
+
+/* --- Acordeón Desplegable --- */
+.team-accordion-wrapper {
+  margin-bottom: 8px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  transition: all 0.3s ease;
+}
+
+.team-accordion-wrapper.expanded {
+  border-color: var(--border2);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
 .equipo-row {
   display: grid;
   grid-template-columns: 60px 200px 1fr 50px 50px 120px;
@@ -555,17 +581,20 @@ body {
   align-items: center;
   padding: 12px 20px;
   background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  margin-bottom: 8px;
+  border: none;
+  border-radius: 0;
+  margin-bottom: 0;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .equipo-row:hover {
-  border-color: var(--border2);
-  transform: translateX(4px);
   background: var(--bg3);
+}
+
+.equipo-row.active {
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid var(--border);
 }
 
 .equipo-row.leader {
@@ -577,28 +606,13 @@ body {
 .equipo-row.leader .team-avatar-mini {
   width: 54px;
   height: 54px;
-  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
   border: 1px solid var(--gold);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
 }
 
 .equipo-row.leader .team-name-row {
   font-size: 20px;
   color: var(--gold);
-}
-
-/* Resalte dorado para los puntos finales del líder */
-.equipo-row.leader .resultado {
-  background: var(--gold) !important;
-  color: #000 !important;
-  border-color: var(--gold) !important;
-  box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
-  font-weight: 800;
-}
-
-.row-rank {
-  display: flex;
-  align-items: center;
-  gap: 6px;
 }
 
 .row-team {
@@ -651,6 +665,105 @@ body {
 .player-mini-tag:first-child {
   border-left: none;
   padding-left: 0;
+}
+
+.equipo-desplegable {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.desplegable-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  font-family: 'Barlow Condensed', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 12px;
+  color: var(--gold);
+}
+
+.info-ronda {
+  color: var(--text2);
+  font-size: 10px;
+}
+
+/* --- Tabla Hoyo a Hoyo --- */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+.table-responsive::-webkit-scrollbar {
+  height: 4px;
+}
+.table-responsive::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.05);
+}
+.table-responsive::-webkit-scrollbar-thumb {
+  background: var(--border2);
+  border-radius: 4px;
+}
+
+.hole-grid {
+  display: grid;
+  grid-template-columns: 140px repeat(18, 35px) 55px;
+  min-width: 800px;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+.hole-row {
+  display: contents;
+}
+
+.hole-row span {
+  background: var(--bg2);
+  padding: 8px 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+}
+
+.hole-row.header span {
+  background: var(--bg3);
+  color: var(--text2);
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.hole-label {
+  justify-content: flex-start !important;
+  padding-left: 15px !important;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--bg3) !important;
+}
+
+.hole-row.par span {
+  color: var(--blue);
+  font-weight: 700;
+}
+
+.hole-total {
+  background: rgba(255,255,255,0.05) !important;
+  font-weight: 700;
+}
+
+.hole-row.player:hover span {
+  background: rgba(255,255,255,0.03);
 }
 
 .row-scores {
