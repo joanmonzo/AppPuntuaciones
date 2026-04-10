@@ -84,7 +84,7 @@ function ResultadoBadge({ valor }) {
   return <span className={`resultado ${claseTipo}`}>{valor}</span>;
 }
 
-function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, currentRound }) {
+function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, currentRound, hoyoActivo, activeHoleRound }) {
   const color = AVATAR_COLORS[colorIndex % AVATAR_COLORS.length];
   const rankDelta = prevRank !== null && prevRank !== undefined ? prevRank - rank : 0;
 
@@ -152,14 +152,14 @@ function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, curren
       </div>
 
       <div className="row-hoyo">
-        <span className="stat-val">{player.HOYO || player.Hoyo || "-"}</span>
+        <span className="stat-val">{hoyoActivo}</span>
       </div>
 
       <div className="row-stats">
-        <div className="stat-block">
+        <div className={`stat-block ${activeHoleRound === "Ronda 1" ? "active-col" : "dim-col"}`}>
           <span className="stat-val">{player._cleanR1}</span>
         </div>
-        <div className="stat-block">
+        <div className={`stat-block ${activeHoleRound === "Ronda 2" ? "active-col" : "dim-col"}`}>
           <span className="stat-val">{player._cleanR2}</span>
         </div>
       </div>
@@ -369,6 +369,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("clasificacion");
   const [expandedTeam, setExpandedTeam] = useState(null);
   const [accordionRound, setAccordionRound] = useState("R1");
+  const [activeHoleRound, setActiveHoleRound] = useState("Ronda 1");
   const [currentRound, setCurrentRound] = useState("General");
 
   const [theme, setTheme] = useState(() => {
@@ -561,6 +562,22 @@ export default function App() {
             {players.length > 0 ? `${players.length} jugadores` : "Cargando…"}
           </p>
 
+          {activeTab === "clasificacion" && (
+            <div className="hole-selector">
+              <span className="selector-label">Ver Hoyo de:</span>
+              <div className="mini-toggle">
+                <button 
+                  className={`mini-tab-btn ${activeHoleRound === "Ronda 1" ? "active" : ""}`}
+                  onClick={() => setActiveHoleRound("Ronda 1")}
+                >📍 R1</button>
+                <button 
+                  className={`mini-tab-btn ${activeHoleRound === "Ronda 2" ? "active" : ""}`}
+                  onClick={() => setActiveHoleRound("Ronda 2")}
+                >📍 R2</button>
+              </div>
+            </div>
+          )}
+
           <div className="tabs-groups" style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
             <div className="tabs-container" style={{ marginTop: 0 }}>
               <button className={`tab-btn ${activeTab === "clasificacion" ? "active" : ""}`} onClick={() => { setActiveTab("clasificacion"); }}>
@@ -607,23 +624,35 @@ export default function App() {
                   <span className="th-player">Jugador</span>
                   <span className="th-hoyo">Hoyo</span>
                   <div className="th-stats header-r1r2">
-                    <span>R1</span>
-                    <span>R2</span>
+                    <span className={activeHoleRound === "Ronda 1" ? "active-th" : ""}>R1</span>
+                    <span className={activeHoleRound === "Ronda 2" ? "active-th" : ""}>R2</span>
                   </div>
                   <span className="th-resultado">TOTAL</span>
                 </div>
                 <div className="table-body">
-                  {players.map((player, i) => (
-                    <PlayerRow
-                      key={player.Jugador}
-                      player={player}
-                      rank={player._rank}
-                      colorIndex={i}
-                      parRow={dbRonda1.find((p) => p.Jugador === player._parName) || dbRonda2.find((p) => p.Jugador === player._parName)}
-                      onClick={() => setSelectedPlayer(player)}
-                      currentRound={currentRound}
-                    />
-                  ))}
+                  {players.map((player, i) => {
+                    const playerRoundData = activeHoleRound === 'Ronda 1' 
+                      ? dbRonda1.find(p => p.Jugador === player.Jugador) 
+                      : dbRonda2.find(p => p.Jugador === player.Jugador);
+                    
+                    const hoyoValue = playerRoundData?.HOYO || playerRoundData?.Hoyo;
+                    const tienePuntos = (Number(playerRoundData?._stableResultado) || 0) > 0;
+                    const hoyoActivo = hoyoValue ? hoyoValue : (tienePuntos ? "1" : "-");
+
+                    return (
+                      <PlayerRow
+                        key={player.Jugador}
+                        player={player}
+                        rank={player._rank}
+                        colorIndex={i}
+                        parRow={dbRonda1.find((p) => p.Jugador === player._parName) || dbRonda2.find((p) => p.Jugador === player._parName)}
+                        onClick={() => setSelectedPlayer(player)}
+                        currentRound={currentRound}
+                        hoyoActivo={hoyoActivo}
+                        activeHoleRound={activeHoleRound}
+                      />
+                    );
+                  })}
                 </div>
               </>
             )}
