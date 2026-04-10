@@ -586,6 +586,15 @@ body {
   color: var(--gold);
 }
 
+/* Resalte dorado para los puntos finales del líder */
+.equipo-row.leader .resultado {
+  background: var(--gold) !important;
+  color: #000 !important;
+  border-color: var(--gold) !important;
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+  font-weight: 800;
+}
+
 .row-rank {
   display: flex;
   align-items: center;
