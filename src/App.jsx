@@ -84,6 +84,61 @@ function ResultadoBadge({ valor }) {
   return <span className={`resultado ${claseTipo}`}>{valor}</span>;
 }
 
+function VistaHoyos({ dbRonda1 }) {
+  const [selectedHole, setSelectedHole] = useState(1);
+  const holes = Array.from({ length: 18 }, (_, i) => i + 1);
+
+  const parRow = dbRonda1.find(p => p.Jugador === "PAR CAMPO");
+  const hcpRow = dbRonda1.find(p => p.Jugador === "HCP HOYO");
+
+  const par = parRow ? parRow[selectedHole] : "-";
+  const hcp = hcpRow ? hcpRow[selectedHole] : "-";
+
+  return (
+    <div className="vista-hoyos">
+      <div className="hoyos-grid-selector">
+        {holes.map(h => (
+          <button 
+            key={h} 
+            className={`hole-btn ${selectedHole === h ? 'active' : ''}`}
+            onClick={() => setSelectedHole(h)}
+          >
+            {h}
+          </button>
+        ))}
+      </div>
+
+      <div className="hoyo-card">
+        <div className="hoyo-image-container">
+          <img 
+            src={`/src/public/images/hoyos/hoyo-${selectedHole}.jpg`} 
+            alt={`Detalle Hoyo ${selectedHole}`} 
+            className="hoyo-main-img"
+          />
+          <div className="hoyo-overlay">
+            <div className="hoyo-number">Hoyo {selectedHole}</div>
+            <div className="hoyo-quick-stats">
+              <div className="q-stat">
+                <span className="q-label">PAR</span>
+                <span className="q-val">{par}</span>
+              </div>
+              <div className="q-stat">
+                <span className="q-label">HCP</span>
+                <span className="q-val">{hcp}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="hoyo-info-details">
+          <h3>Información del Campo</h3>
+          <p>Consulta el diseño táctico del hoyo {selectedHole}. Planifica tus golpes evitando los bunkers y obstáculos estratégicos diseñados para este desafío.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, currentRound, hoyoActivo, activeHoleRound }) {
   const color = AVATAR_COLORS[colorIndex % AVATAR_COLORS.length];
   const rankDelta = prevRank !== null && prevRank !== undefined ? prevRank - rank : 0;
@@ -603,6 +658,9 @@ export default function App() {
               <button className={`tab-btn ${activeTab === "equipos" ? "active equipos" : ""}`} onClick={() => setActiveTab("equipos")}>
                 Equipos
               </button>
+              <button className={`tab-btn ${activeTab === "hoyos" ? "active hoyos" : ""}`} onClick={() => setActiveTab("hoyos")}>
+                Hoyos
+              </button>
             </div>
           </div>
         </div>
@@ -833,6 +891,9 @@ export default function App() {
                   )}
                 </div>
               </div>
+            )}
+            {activeTab === "hoyos" && (
+              <VistaHoyos dbRonda1={dbRonda1} />
             )}
           </>
         )}
