@@ -682,6 +682,27 @@ body {
   padding-left: 0;
 }
 
+.player-mini-tag.captain-tag {
+  color: var(--text);
+  font-weight: 700;
+  padding: 0;
+  border-left: none;
+  background: none;
+}
+
+.cap-icon {
+  margin-right: 4px;
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1;
+}
+
+.cap-icon-mini {
+  margin-right: 6px;
+  color: var(--text);
+  font-size: 12px;
+}
+
 .equipo-desplegable {
   background: rgba(0, 0, 0, 0.2);
   padding: 20px;
@@ -719,7 +740,22 @@ body {
 .modal-tabs.mini .modal-tab-btn {
   padding: 3px 10px;
   font-size: 10px;
-  background: rgba(0,0,0,0.3);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  color: var(--text2);
+}
+
+.modal-tabs.mini .modal-tab-btn.active {
+  background: var(--gold) !important;
+  color: #000 !important;
+  border-color: var(--gold) !important;
+  font-weight: 800;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+.modal-tabs.mini .modal-tab-btn:hover:not(.active) {
+  background: rgba(255,255,255,0.1);
+  color: var(--text);
 }
 
 .info-ronda {

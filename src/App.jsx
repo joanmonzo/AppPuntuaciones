@@ -10,6 +10,12 @@ const API_URL =
 
 const POLL_INTERVAL = 5000;
 
+const TEAM_CAPTAINS = {
+  "FLYING CARAJILLOS": "Paco",
+  "CARABASSA SLICE FOCKERS": "Quique",
+  "CARABASSA SLICE": "Quique"
+};
+
 const AVATAR_COLORS = [
   { bg: "#1a1500", text: "#e0c97f" },
   { bg: "#0f2d40", text: "#5bc4d8" },
@@ -511,7 +517,18 @@ export default function App() {
 
   const equiposUnicos = [...new Set(players.map(p => p.EQUIPO).filter(e => e && e.trim() !== ""))];
   const rawEquiposData = equiposUnicos.map(equipo => {
-    const jugadores = players.filter(p => p.EQUIPO === equipo);
+    const rawJugadores = players.filter(p => p.EQUIPO === equipo);
+    // Ordenar jugadores: El capitán siempre primero (búsqueda robusta)
+    const capitanNombre = TEAM_CAPTAINS[equipo.toUpperCase()] || "";
+    const jugadores = [...rawJugadores].sort((a, b) => {
+      const aName = (a._CleanName || a.Jugador || "").toUpperCase();
+      const bName = (b._CleanName || b.Jugador || "").toUpperCase();
+      const capUpper = capitanNombre.toUpperCase();
+      if (capUpper && aName.includes(capUpper)) return -1;
+      if (capUpper && bName.includes(capUpper)) return 1;
+      return 0;
+    });
+
     const teamR1 = jugadores.reduce((sum, p) => sum + (p._cleanR1 || 0), 0);
     const teamR2 = jugadores.reduce((sum, p) => sum + (p._cleanR2 || 0), 0);
     const totalPuntos = teamR1 + teamR2;
@@ -648,11 +665,16 @@ export default function App() {
                               <span className="accordion-arrow">{isExpanded ? '▼' : '▶'}</span>
                             </div>
                             <div className="row-players-list hide-mobile">
-                              {eq.jugadores.map((p, idx) => (
-                                <span key={idx} className="player-mini-tag">
-                                  {p._CleanName || p.Jugador}
-                                </span>
-                              ))}
+                              {eq.jugadores.map((p, idx) => {
+                                const nombre = p._CleanName || p.Jugador;
+                                const capName = TEAM_CAPTAINS[eq.equipo.toUpperCase()];
+                                const esCapitan = capName && nombre.toUpperCase().includes(capName.toUpperCase());
+                                return (
+                                  <span key={idx} className={`player-mini-tag ${esCapitan ? 'captain-tag' : ''}`}>
+                                    {esCapitan && <span className="cap-icon">♛</span>} {nombre}
+                                  </span>
+                                );
+                              })}
                             </div>
                             <div className="row-scores">
                               <span className="score-val">{eq.teamR1}</span>
@@ -716,11 +738,14 @@ export default function App() {
                                     const source = accordionRound === "R1" ? player._r1Data : player._r2Data;
                                     const parRow = dbRonda1.find(p => p.Jugador === player?._parName) || dbRonda2.find(p => p.Jugador === player?._parName);
                                     let totalStrokes = 0;
+                                    const nombre = player._CleanName || player.Jugador;
+                                    const capName = TEAM_CAPTAINS[eq.equipo.toUpperCase()];
+                                    const esCapitan = capName && nombre.toUpperCase().includes(capName.toUpperCase());
 
                                     if (!source) {
                                       return (
                                         <div className="hole-row player" key={player.Jugador}>
-                                          <span className="hole-label">{player._CleanName || player.Jugador}</span>
+                                          <span className="hole-label">{esCapitan && <span className="cap-icon-mini">♛</span>} {nombre}</span>
                                           <span style={{ gridColumn: 'span 19', color: 'var(--text2)', fontStyle: 'italic', fontSize: '11px' }}>Sin datos en esta ronda</span>
                                         </div>
                                       );
@@ -728,7 +753,9 @@ export default function App() {
 
                                     return (
                                       <div className="hole-row player" key={player.Jugador}>
-                                        <span className="hole-label">{player._CleanName || player.Jugador}</span>
+                                        <span className="hole-label">
+                                          {esCapitan && <span className="cap-icon-mini">♛</span>} {nombre}
+                                        </span>
                                         {Array.from({ length: 18 }, (_, i) => i + 1).map(h => {
                                           const strokesRaw = source[h];
                                           const strokes = Number(strokesRaw);
