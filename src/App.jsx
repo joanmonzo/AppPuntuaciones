@@ -171,12 +171,11 @@ function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, curren
   );
 }
 
-function PlayerModal({ player, onClose, onRefreshNeeded, dbRonda1, dbRonda2 }) {
+function PlayerModal({ player, onClose, onRefreshNeeded, dbRonda1, dbRonda2, selectedHoleInfo, setSelectedHoleInfo }) {
   const [modalRound, setModalRound] = useState("Ronda 1");
   const [editedData, setEditedData] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [selectedHoleInfo, setSelectedHoleInfo] = useState(null); // Hoyo seleccionado para ver imagen
 
   const holes = Array.from({ length: 18 }, (_, i) => i + 1);
 
@@ -391,6 +390,7 @@ export default function App() {
   const [pulse, setPulse] = useState(false);
 
   const [selectedPlayer, setSelectedPlayer] = useState(null);
+  const [selectedHoleInfo, setSelectedHoleInfo] = useState(null);
   const [activeTab, setActiveTab] = useState("clasificacion");
   const [expandedTeam, setExpandedTeam] = useState(null);
   const [accordionRound, setAccordionRound] = useState("R1");
@@ -643,6 +643,26 @@ export default function App() {
         </div>
       </header>
 
+      {/* Overlay Global para Vista Previa de Hoyos */}
+      {selectedHoleInfo && (
+        <div className="hole-preview-overlay" onClick={() => setSelectedHoleInfo(null)}>
+          <div className="hole-preview-content" onClick={e => e.stopPropagation()}>
+            <button className="close-preview" onClick={() => setSelectedHoleInfo(null)}>×</button>
+            <h3>Información Hoyo {selectedHoleInfo}</h3>
+            <img 
+              src={`/images/hoyos/hoyo-${selectedHoleInfo}.jpg`} 
+              alt={`Hoyo ${selectedHoleInfo}`} 
+              className="hole-map-image"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "https://via.placeholder.com/400x300?text=Imagen+No+Disponible";
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+
       <main className="main">
         {loading ? (
           <div className="loading">
@@ -773,7 +793,7 @@ export default function App() {
                               </div>
                               
                               <div className="table-responsive">
-                                <div className="holes-grid">
+                                <div className="hole-grid">
                                   {selectedHoleInfo && (
                                     <div className="hole-preview-section">
                                       <img src={`/images/hoyos/hoyo-${selectedHoleInfo}.jpg`} alt={`Hoyo ${selectedHoleInfo}`} className="hole-preview-img" />
@@ -873,6 +893,8 @@ export default function App() {
         onRefreshNeeded={fetchData}
         dbRonda1={dbRonda1}
         dbRonda2={dbRonda2}
+        selectedHoleInfo={selectedHoleInfo}
+        setSelectedHoleInfo={setSelectedHoleInfo}
       />
 
       <footer className="footer">
