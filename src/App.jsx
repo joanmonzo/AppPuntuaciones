@@ -393,23 +393,38 @@ export default function App() {
 
   const procesarHoja = (raw) => {
     if (!raw || raw.error) return [];
-    raw.forEach((row, index) => {
+    
+    // Recorremos las filas con un for-loop para mayor control
+    for (let i = 0; i < raw.length; i++) {
+      const row = raw[i];
       if (isRealPlayer(row)) {
-        row._CleanName = String(row.Jugador).replace(" RESULTADO REAL", "").trim();
-
-        const parRow = raw[index + 1];
-        if (parRow && String(parRow.Jugador).startsWith("PAR ")) {
-          row._parName = parRow.Jugador;
+        row._CleanName = String(row.Jugador || "").replace(" RESULTADO REAL", "").trim();
+        
+        // Búsqueda dinámica de filas adicionales (PAR, STABLE...)
+        let foundPar = false;
+        let foundStable = false;
+        
+        for (let j = i + 1; j < i + 6 && j < raw.length; j++) {
+          const subRow = raw[j];
+          if (!subRow) continue;
+          
+          if (!foundPar && String(subRow.Jugador).startsWith("PAR ")) {
+            row._parName = subRow.Jugador;
+            foundPar = true;
+          }
+          if (!foundStable && subRow.Jugador === "STABLE RESULTADO") {
+            row._stableResultado = subRow["RESULTADO ACTUAL"];
+            foundStable = true;
+          }
+          // Si topamos con el siguiente jugador, dejamos de buscar
+          if (isRealPlayer(subRow)) break;
         }
-
-        const stableRow = raw[index + 3];
-        if (stableRow && stableRow.Jugador === "STABLE RESULTADO") {
-          row._stableResultado = stableRow["RESULTADO ACTUAL"];
-        } else {
+        
+        if (!foundStable) {
           row._stableResultado = row["RESULTADO ACTUAL"];
         }
       }
-    });
+    }
     return raw;
   };
 
@@ -471,21 +486,23 @@ export default function App() {
   const playerMap = new Map();
 
   dbRonda1.filter(isRealPlayer).forEach(p => {
+    const valR1 = String(p._stableResultado || "0").trim();
     playerMap.set(p.Jugador, {
       ...p,
       _r1Data: p,
-      _cleanR1: Number(p._stableResultado) || 0,
+      _cleanR1: Number(valR1) || 0,
       _cleanR2: 0,
-      _totalScore: Number(p._stableResultado) || 0
+      _totalScore: Number(valR1) || 0
     });
   });
 
   dbRonda2.filter(isRealPlayer).forEach(p => {
+    const valR2 = String(p._stableResultado || "0").trim();
     if (playerMap.has(p.Jugador)) {
       const existing = playerMap.get(p.Jugador);
       existing._r2Data = p;
-      existing._cleanR2 = Number(p._stableResultado) || 0;
-      existing._totalScore = existing._cleanR1 + existing._cleanR2;
+      existing._cleanR2 = Number(valR2) || 0;
+      existing._totalScore = (existing._cleanR1 || 0) + existing._cleanR2;
       if (p.Hoyo && Number(p.Hoyo) > 0) {
         existing.Hoyo = p.Hoyo;
       }
@@ -494,8 +511,8 @@ export default function App() {
         ...p,
         _r2Data: p,
         _cleanR1: 0,
-        _cleanR2: Number(p._stableResultado) || 0,
-        _totalScore: Number(p._stableResultado) || 0
+        _cleanR2: Number(valR2) || 0,
+        _totalScore: Number(valR2) || 0
       });
     }
   });
@@ -700,7 +717,7 @@ export default function App() {
                                 const esCapitan = capName && nombre.toUpperCase().includes(capName.toUpperCase());
                                 return (
                                   <span key={idx} className={`player-mini-tag ${esCapitan ? 'captain-tag' : ''}`}>
-                                    {esCapitan && <span className="cap-icon">♛</span>} {nombre}
+                                    {esCapitan && <span className="cap-icon">(C)</span>} {nombre}
                                   </span>
                                 );
                               })}
@@ -774,7 +791,7 @@ export default function App() {
                                     if (!source) {
                                       return (
                                         <div className="hole-row player" key={player.Jugador}>
-                                          <span className="hole-label">{esCapitan && <span className="cap-icon-mini">♛</span>} {nombre}</span>
+                                          <span className="hole-label">{esCapitan && <span className="cap-icon-mini">(C)</span>} {nombre}</span>
                                           <span style={{ gridColumn: 'span 19', color: 'var(--text2)', fontStyle: 'italic', fontSize: '11px' }}>Sin datos en esta ronda</span>
                                         </div>
                                       );
@@ -783,7 +800,7 @@ export default function App() {
                                     return (
                                       <div className="hole-row player" key={player.Jugador}>
                                         <span className="hole-label">
-                                          {esCapitan && <span className="cap-icon-mini">♛</span>} {nombre}
+                                          {esCapitan && <span className="cap-icon-mini">(C)</span>} {nombre}
                                         </span>
                                         {Array.from({ length: 18 }, (_, i) => i + 1).map(h => {
                                           const strokesRaw = source[h];

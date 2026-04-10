@@ -713,16 +713,18 @@ body {
 }
 
 .cap-icon {
-  margin-right: 4px;
-  font-size: 14px;
+  margin-right: 6px;
+  font-size: 11px;
   color: var(--text);
   line-height: 1;
+  font-weight: 800;
 }
 
 .cap-icon-mini {
-  margin-right: 6px;
+  margin-right: 8px;
   color: var(--text);
-  font-size: 12px;
+  font-size: 10px;
+  font-weight: 800;
 }
 
 .equipo-desplegable {
