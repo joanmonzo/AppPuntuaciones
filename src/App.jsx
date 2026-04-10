@@ -74,14 +74,14 @@ function ResultadoBadge({ valor }) {
       claseTipo = "negativo";
     }
   }
-  
+
   return <span className={`resultado ${claseTipo}`}>{valor} pts</span>;
 }
 
-function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, currentRound }) {
+function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick }) {
   const color = AVATAR_COLORS[colorIndex % AVATAR_COLORS.length];
   const rankDelta = prevRank !== null && prevRank !== undefined ? prevRank - rank : 0;
-  
+
   const resultado = player._stableResultado !== undefined && player._stableResultado !== "" ? player._stableResultado : player["RESULTADO ACTUAL"];
   const hoyo = player["HOYO"] || 18;
 
@@ -95,23 +95,15 @@ function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, curren
   const isWorst4 = rank >= 8;
   const highlightClass = isTop4 ? "highlight-top" : isWorst4 ? "highlight-bottom" : "";
 
-  const isGeneral = currentRound === "General";
-
-  const totalGolpes = isGeneral 
-    ? (parRow?.TOTAL !== undefined && parRow?.TOTAL !== "" ? parRow.TOTAL : "-")
-    : (player.TOTAL !== undefined && player.TOTAL !== "" ? player.TOTAL : "-");
-
-  const parTotal = isGeneral
-    ? "-" 
-    : (player.PAR_JUGADOR_TOTAL !== undefined && player.PAR_JUGADOR_TOTAL !== "" ? player.PAR_JUGADOR_TOTAL : (parRow?.TOTAL !== undefined && parRow?.TOTAL !== "" ? parRow.TOTAL : "-"));
+  const totalGolpes = player.TOTAL !== undefined && player.TOTAL !== "" ? player.TOTAL : "-";
 
   const avatarImageUrl = TEAM_AVATAR_IMAGES[equipo];
 
   return (
-    <div 
-      className={`player-row ${highlightClass}`} 
-      onClick={isGeneral ? null : onClick} 
-      style={{ cursor: isGeneral ? "default" : "pointer" }}
+    <div
+      className={`player-row ${highlightClass}`}
+      onClick={onClick}
+      style={{ cursor: "pointer" }}
     >
       <div className="row-rank">
         <RankBadge rank={rank} />
@@ -124,19 +116,16 @@ function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, curren
 
       <div className="row-player">
         <div className="avatar" style={{ background: color.bg, color: color.text, position: 'relative', overflow: 'hidden' }}>
-          {/* INICIALES SIEMPRE DE FONDO */}
           <span style={{ position: 'absolute', zIndex: 1 }}>{getInitials(player._CleanName || player.Jugador)}</span>
-          
-          {/* IMAGEN POR ENCIMA SÓLO SI ESTÁ ASIGNADA AL EQUIPO */}
           {avatarImageUrl && (
-            <img 
-              src={avatarImageUrl} 
-              alt={`Logo ${equipo}`} 
+            <img
+              src={avatarImageUrl}
+              alt={`Logo ${equipo}`}
               style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', zIndex: 2 }}
             />
           )}
         </div>
-        
+
         <div className="player-info">
           <span className="player-name">{player._CleanName || player.Jugador}</span>
           {equipo && (
@@ -154,24 +143,22 @@ function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, curren
         )}
       </div>
 
+      <div className="row-rounds">
+        <div className="round-score">
+          <span className="round-label">R1</span>
+          <span className="round-val">{player._scoreR1}</span>
+        </div>
+        <div className="round-score">
+          <span className="round-label">R2</span>
+          <span className="round-val">{player._scoreR2}</span>
+        </div>
+      </div>
+
       <div className="row-stats">
         <div className="stat-block">
-          <span className="stat-label">Total</span>
+          <span className="stat-label">Total Strokes</span>
           <span className="stat-val">{totalGolpes}</span>
         </div>
-        
-        {!isGeneral && (
-          <>
-            <div className="stat-block">
-              <span className="stat-label">Par</span>
-              <span className="stat-val">{parTotal}</span>
-            </div>
-            <div className="stat-block">
-              <span className="stat-label">Hoyo</span>
-              <span className="stat-val">{hoyo}</span>
-            </div>
-          </>
-        )}
       </div>
 
       <div className="row-resultado">
@@ -181,27 +168,31 @@ function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, curren
   );
 }
 
-function PlayerModal({ player, onClose, parRow, onRefreshNeeded, currentRound }) {
+function PlayerModal({ player, onClose, dbRonda1, dbRonda2, onRefreshNeeded }) {
+  const [editingRound, setEditingRound] = useState("Ronda 1");
   const [editedData, setEditedData] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   const holes = Array.from({ length: 18 }, (_, i) => i + 1);
-  const isGeneral = currentRound === "General";
+
+  const activeRondaData = editingRound === "Ronda 1" ? dbRonda1 : dbRonda2;
+  const playerInRound = activeRondaData.find(p => p.Jugador === player?.Jugador);
+  const parRowInRound = activeRondaData.find(p => p.Jugador === playerInRound?._parName);
 
   useEffect(() => {
-    if (player) {
+    if (playerInRound) {
       const initial = {};
       holes.forEach(h => {
         initial[h] = {
-          par: parRow && parRow[h] !== undefined ? parRow[h] : "",
-          golpes: player[h] !== undefined ? player[h] : ""
+          par: parRowInRound && parRowInRound[h] !== undefined ? parRowInRound[h] : "",
+          golpes: playerInRound[h] !== undefined ? playerInRound[h] : ""
         };
       });
       setEditedData(initial);
       setIsEditing(false);
     }
-  }, [player, parRow]);
+  }, [playerInRound, parRowInRound, editingRound]);
 
   if (!player) return null;
 
@@ -213,98 +204,102 @@ function PlayerModal({ player, onClose, parRow, onRefreshNeeded, currentRound })
   };
 
   const handleSave = async () => {
-    setIsSaving(true); 
+    setIsSaving(true);
 
     let nuevosGolpes = {};
     let nuevosPares = {};
 
     Object.keys(editedData).forEach(hole => {
-        nuevosGolpes[hole] = editedData[hole].golpes; 
-        nuevosPares[hole] = editedData[hole].par; 
+      nuevosGolpes[hole] = editedData[hole].golpes;
+      nuevosPares[hole] = editedData[hole].par;
     });
 
     const enviarDatos = async (paquete) => {
-        try {
-            await fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify(paquete),
-                headers: { "Content-Type": "text/plain" } 
-            });
-        } catch (error) {
-            console.log(`Error al guardar en Sheets`, error);
-        }
+      try {
+        await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify(paquete),
+          headers: { "Content-Type": "text/plain" }
+        });
+      } catch (error) {
+        console.log(`Error al guardar en Sheets`, error);
+      }
     };
 
-    await Promise.all([ 
-      enviarDatos({ jugador: player.Jugador, ronda: currentRound, golpes: nuevosGolpes }), 
-      enviarDatos({ jugador: parRow ? parRow.Jugador : `PAR ${String(player.Jugador).toUpperCase()}`, ronda: currentRound, golpes: nuevosPares }) 
+    await Promise.all([
+      enviarDatos({ jugador: player.Jugador, ronda: editingRound, golpes: nuevosGolpes }),
+      enviarDatos({ jugador: parRowInRound ? parRowInRound.Jugador : `PAR ${String(player.Jugador).toUpperCase()}`, ronda: editingRound, golpes: nuevosPares })
     ]);
-    
+
     setIsEditing(false);
     setIsSaving(false);
-    onClose(); 
-    setTimeout(() => { if(onRefreshNeeded) onRefreshNeeded(); }, 2000);
+    onClose();
+    setTimeout(() => { if (onRefreshNeeded) onRefreshNeeded(); }, 2000);
   };
 
   const handleReset = async () => {
-    const confirmReset = window.confirm(`⚠️ ¿Estás seguro de que quieres BORRAR todos los golpes de ${player._CleanName || player.Jugador} en la ${currentRound}?`);
-    
+    const confirmReset = window.confirm(`⚠️ ¿Estás seguro de que quieres BORRAR todos los golpes de ${player._CleanName || player.Jugador} en la ${editingRound}?`);
+
     if (!confirmReset) return;
 
-    setIsSaving(true); 
+    setIsSaving(true);
 
     let golpesVacios = {};
     holes.forEach(hole => {
-      golpesVacios[hole] = ""; 
+      golpesVacios[hole] = "";
     });
 
     const paqueteGolpes = {
-        jugador: player.Jugador,
-        ronda: currentRound,
-        golpes: golpesVacios
+      jugador: player.Jugador,
+      ronda: editingRound,
+      golpes: golpesVacios
     };
 
     try {
-        await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify(paqueteGolpes),
-            headers: { "Content-Type": "text/plain" } 
-        });
+      await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify(paqueteGolpes),
+        headers: { "Content-Type": "text/plain" }
+      });
     } catch (error) {
-        console.log(`Error al resetear en Sheets`, error);
+      console.log(`Error al resetear en Sheets`, error);
     }
-    
+
     setIsEditing(false);
     setIsSaving(false);
-    onClose(); 
-    setTimeout(() => { if(onRefreshNeeded) onRefreshNeeded(); }, 2000);
+    onClose();
+    setTimeout(() => { if (onRefreshNeeded) onRefreshNeeded(); }, 2000);
   };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>Estadísticas: {player._CleanName || player.Jugador}</h2>
+          <div className="header-info">
+            <h2>{player._CleanName || player.Jugador}</h2>
+            <div className="round-selector">
+              <button className={`round-mini-btn ${editingRound === "Ronda 1" ? "active" : ""}`} onClick={() => setEditingRound("Ronda 1")} disabled={isEditing || isSaving}>R1</button>
+              <button className={`round-mini-btn ${editingRound === "Ronda 2" ? "active" : ""}`} onClick={() => setEditingRound("Ronda 2")} disabled={isEditing || isSaving}>R2</button>
+            </div>
+          </div>
           <div className="header-actions">
-            {!isGeneral && (
-              isEditing ? (
-                <>
-                  <button 
-                    className="save-btn" 
-                    onClick={handleSave} 
-                    disabled={isSaving}
-                    style={isSaving ? { backgroundColor: '#95a5a6', cursor: 'not-allowed' } : {}}
-                  >
-                    {isSaving ? 'GUARDANDO...' : 'GUARDAR'}
-                  </button>
-                  <button className="cancel-btn" onClick={() => setIsEditing(false)} disabled={isSaving}>CANCELAR</button>
-                </>
-              ) : (
-                <>
-                  <button className="reset-btn" onClick={handleReset} disabled={isSaving} title="Reiniciar Partida">↺</button>
-                  <button className="edit-btn" onClick={() => setIsEditing(true)} title="Editar">✎</button>
-                </>
-              )
+            {isEditing ? (
+              <>
+                <button
+                  className="save-btn"
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  style={isSaving ? { backgroundColor: '#95a5a6', cursor: 'not-allowed' } : {}}
+                >
+                  {isSaving ? 'GUARDANDO...' : 'GUARDAR'}
+                </button>
+                <button className="cancel-btn" onClick={() => setIsEditing(false)} disabled={isSaving}>CANCELAR</button>
+              </>
+            ) : (
+              <>
+                <button className="reset-btn" onClick={handleReset} disabled={isSaving} title="Reiniciar Partida">↺</button>
+                <button className="edit-btn" onClick={() => setIsEditing(true)} title="Editar">✎</button>
+              </>
             )}
             <button className="close-btn" onClick={onClose} disabled={isSaving}>&times;</button>
           </div>
@@ -319,10 +314,10 @@ function PlayerModal({ player, onClose, parRow, onRefreshNeeded, currentRound })
             </div>
             {holes.map((h) => {
               const currentEditedHole = editedData[h] || { par: "", golpes: "" };
-              
+
               const golpesNum = Number(currentEditedHole.golpes);
               const parNum = Number(currentEditedHole.par);
-              
+
               let scoreClass = "score-par";
               if (!isNaN(parNum) && !isNaN(golpesNum) && currentEditedHole.golpes !== "" && currentEditedHole.par !== "") {
                 if (golpesNum < parNum) scoreClass = "score-under";
@@ -355,17 +350,17 @@ function PlayerModal({ player, onClose, parRow, onRefreshNeeded, currentRound })
 export default function App() {
   const [dbRonda1, setDbRonda1] = useState([]);
   const [dbRonda2, setDbRonda2] = useState([]);
-  const [dbGeneral, setDbGeneral] = useState([]); 
-  
+  const [dbGeneral, setDbGeneral] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastUpdate, setLastUpdate] = useState(null);
   const [pulse, setPulse] = useState(false);
-  
+
   const [selectedPlayer, setSelectedPlayer] = useState(null);
-  const [activeTab, setActiveTab] = useState("clasificacion"); 
-  const [selectedTeam, setSelectedTeam] = useState(null); 
-  const [currentRound, setCurrentRound] = useState("General"); 
+  const [activeTab, setActiveTab] = useState("clasificacion");
+  const [selectedTeam, setSelectedTeam] = useState(null);
+  const [currentRound, setCurrentRound] = useState("General");
 
   // NUEVA LÓGICA DE TEMA (MODO CLARO/OSCURO)
   const [theme, setTheme] = useState(() => {
@@ -392,7 +387,7 @@ export default function App() {
     raw.forEach((row, index) => {
       if (isRealPlayer(row)) {
         row._CleanName = String(row.Jugador).replace(" RESULTADO REAL", "").trim();
-        
+
         const parRow = raw[index + 1];
         if (parRow && String(parRow.Jugador).startsWith("PAR ")) {
           row._parName = parRow.Jugador;
@@ -412,15 +407,15 @@ export default function App() {
   async function fetchData() {
     try {
       const t = new Date().getTime();
-      
+
       const [res1, res2, resGen] = await Promise.all([
         fetch(`${API_URL}?ronda=Ronda 1&t=${t}`),
         fetch(`${API_URL}?ronda=Ronda 2&t=${t}`),
         fetch(`${API_URL}?ronda=General&t=${t}`)
       ]);
-      
+
       if (!res1.ok || !res2.ok || !resGen.ok) throw new Error(`HTTP Error`);
-      
+
       const raw1 = await res1.json();
       const raw2 = await res2.json();
       const rawGen = await resGen.json();
@@ -435,8 +430,13 @@ export default function App() {
 
       processedGen.forEach(pGen => {
         if (isRealPlayer(pGen)) {
-          const pBase = processedR1.find(p => p.Jugador === pGen.Jugador) || 
-                        processedR2.find(p => p.Jugador === pGen.Jugador);
+          const pR1 = processedR1.find(p => p.Jugador === pGen.Jugador);
+          const pR2 = processedR2.find(p => p.Jugador === pGen.Jugador);
+
+          pGen._scoreR1 = pR1 ? pR1._stableResultado : "-";
+          pGen._scoreR2 = pR2 ? pR2._stableResultado : "-";
+
+          const pBase = pR1 || pR2 || pGen;
           if (pBase) {
             pGen["EQUIPO"] = pBase["EQUIPO"];
             pGen["FLL"] = pBase["FLL"];
@@ -448,7 +448,7 @@ export default function App() {
       setDbRonda1(processedR1);
       setDbRonda2(processedR2);
       setDbGeneral(processedGen);
-      
+
       setLastUpdate(new Date());
       setPulse(true);
       setTimeout(() => setPulse(false), 800);
@@ -473,7 +473,7 @@ export default function App() {
     .sort((a, b) => (b._stableResultado || 0) - (a._stableResultado || 0));
 
   const leader = players[0];
-  
+
   // Obtener equipos únicos, sumar puntos y ordenar de mayor a menor 
   const equiposUnicos = [...new Set(players.map(p => p.EQUIPO).filter(e => e && e.trim() !== ""))];
   const equiposData = equiposUnicos.map(equipo => {
@@ -487,7 +487,7 @@ export default function App() {
 
   // Variable para identificar al equipo (o equipos empatados) con más puntos
   const maxPuntosEquipos = equiposData.length > 0 ? equiposData[0].totalPuntos : 0;
-  
+
   const isGeneral = currentRound === "General";
 
   return (
@@ -497,8 +497,8 @@ export default function App() {
       <header className="header">
         <div className="header-left">
           <h1 className="title">
-            Clasificación <span style={{fontSize: "0.5em", color: "var(--gold)", verticalAlign: "middle"}}>{currentRound}</span>
-            <span><img src={fotoEquipos} alt="foto equipos" style={{height: "100px", verticalAlign: "middle", marginLeft: "50px", borderRadius: "10px"}} /></span>
+            Clasificación <span style={{ fontSize: "0.5em", color: "var(--gold)", verticalAlign: "middle" }}>{currentRound}</span>
+            <span><img src={fotoEquipos} alt="foto equipos" style={{ height: "100px", verticalAlign: "middle", marginLeft: "50px", borderRadius: "10px" }} /></span>
           </h1>
           <p className="subtitle">
             {players.length > 0 ? `${players.length} jugadores ${!isGeneral ? `· Hoyo ${leader?.HOYO ?? "18"}` : ''}` : "Cargando…"}
@@ -513,18 +513,12 @@ export default function App() {
                 Equipos
               </button>
             </div>
-
-            <div className="tabs-container" style={{ marginTop: 0 }}>
-              <button className={`tab-btn ${currentRound === "Ronda 1" ? "active" : ""} ${activeTab === "equipos" ? "equipos" : ""}`} onClick={() => setCurrentRound("Ronda 1")}>Ronda 1</button>
-              <button className={`tab-btn ${currentRound === "Ronda 2" ? "active" : ""} ${activeTab === "equipos" ? "equipos" : ""}`} onClick={() => setCurrentRound("Ronda 2")}>Ronda 2</button>
-              <button className={`tab-btn ${currentRound === "General" ? "active" : ""} ${activeTab === "equipos" ? "equipos" : ""}`} onClick={() => setCurrentRound("General")}>General</button>
-            </div>
           </div>
         </div>
-        
+
         <div className="header-right">
           <button className="theme-toggle-btn" onClick={toggleTheme} title="Cambiar tema">
-            {theme === 'dark' ? '☀️' : '🌙'}
+            {theme === 'dark' ? '🌙' : '☀️'}
           </button>
           <div className={`status-dot ${error ? "error" : "ok"} ${pulse ? "pulse" : ""}`} />
           <span className="status-text">
@@ -554,11 +548,9 @@ export default function App() {
                 <div className="table-header">
                   <span className="th-rank">#</span>
                   <span className="th-player">Jugador</span>
-                  <span className="th-stats">
-                    <span className="hide-mobile">{isGeneral ? "Total" : "Total · Par · Hoyo"}</span>
-                    <span className="show-mobile">{isGeneral ? "Total" : "Tot · Hoyo"}</span>
-                  </span>
-                  <span className="th-resultado">Stable Resultado</span>
+                  <span className="th-rounds">Rondeo (R1 · R2)</span>
+                  <span className="th-stats">Total Strokes</span>
+                  <span className="th-resultado">General (Pts)</span>
                 </div>
                 <div className="table-body">
                   {players.map((player, i) => (
@@ -567,9 +559,7 @@ export default function App() {
                       player={player}
                       rank={i + 1}
                       colorIndex={i}
-                      parRow={activeData.find((p) => p.Jugador === player._parName)}
-                      onClick={() => setSelectedPlayer(player)} 
-                      currentRound={currentRound} 
+                      onClick={() => setSelectedPlayer(player)}
                     />
                   ))}
                 </div>
@@ -582,11 +572,11 @@ export default function App() {
                 {equiposData.length > 0 ? (
                   equiposData.map(({ equipo, jugadores, totalPuntos }) => {
                     const isLeader = totalPuntos === maxPuntosEquipos && totalPuntos > 0;
-                    
+
                     return (
-                      <div 
-                        key={equipo} 
-                        className={`equipo-card ${isLeader ? 'leader' : ''}`} 
+                      <div
+                        key={equipo}
+                        className={`equipo-card ${isLeader ? 'leader' : ''}`}
                         onClick={() => setSelectedTeam(equipo)}
                       >
                         {isLeader && <div className="leader-badge">🏆 LÍDER</div>}
@@ -610,15 +600,13 @@ export default function App() {
                   <button className="back-btn" onClick={() => setSelectedTeam(null)}>← VOLVER</button>
                   <h2>Equipo: <span className="equipo-nombre-resaltado">{selectedTeam}</span></h2>
                 </div>
-                
+
                 <div className="table-header">
                   <span className="th-rank">#</span>
                   <span className="th-player">Jugador</span>
-                  <span className="th-stats">
-                    <span className="hide-mobile">{isGeneral ? "Total" : "Total · Par · Hoyo"}</span>
-                    <span className="show-mobile">{isGeneral ? "Total" : "Tot · Hoyo"}</span>
-                  </span>
-                  <span className="th-resultado">Stable Resultado</span>
+                  <span className="th-rounds">Rondeo (R1 · R2)</span>
+                  <span className="th-stats">Total Strokes</span>
+                  <span className="th-resultado">General (Pts)</span>
                 </div>
                 <div className="table-body">
                   {players.filter(p => p.EQUIPO === selectedTeam).map((player, i) => (
@@ -627,9 +615,7 @@ export default function App() {
                       player={player}
                       rank={i + 1}
                       colorIndex={i}
-                      parRow={activeData.find((p) => p.Jugador === player._parName)}
-                      onClick={() => setSelectedPlayer(player)} 
-                      currentRound={currentRound}
+                      onClick={() => setSelectedPlayer(player)}
                     />
                   ))}
                 </div>
@@ -639,12 +625,12 @@ export default function App() {
         )}
       </main>
 
-      <PlayerModal 
-        player={selectedPlayer} 
-        onClose={() => setSelectedPlayer(null)} 
-        parRow={selectedPlayer ? activeData.find(p => p.Jugador === selectedPlayer._parName) : null}
-        onRefreshNeeded={fetchData} 
-        currentRound={currentRound}
+      <PlayerModal
+        player={selectedPlayer}
+        onClose={() => setSelectedPlayer(null)}
+        dbRonda1={dbRonda1}
+        dbRonda2={dbRonda2}
+        onRefreshNeeded={fetchData}
       />
 
       <footer className="footer">
