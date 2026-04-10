@@ -464,9 +464,20 @@ export default function App() {
 
   const activeData = currentRound === "Ronda 1" ? dbRonda1 : currentRound === "Ronda 2" ? dbRonda2 : dbGeneral;
 
-  const players = activeData
+  const sortedPlayers = activeData
     .filter(isRealPlayer)
-    .sort((a, b) => (b._stableResultado || 0) - (a._stableResultado || 0));
+    .sort((a, b) => (Number(b._stableResultado) || 0) - (Number(a._stableResultado) || 0));
+
+  let currentRank = 0;
+  let lastScore = null;
+  const players = sortedPlayers.map((p, i) => {
+    const score = Number(p._stableResultado) || 0;
+    if (score !== lastScore) {
+      currentRank = i + 1;
+    }
+    lastScore = score;
+    return { ...p, _rank: currentRank };
+  });
 
   const leader = players[0];
 
@@ -562,7 +573,7 @@ export default function App() {
                     <PlayerRow
                       key={player.Jugador}
                       player={player}
-                      rank={i + 1}
+                      rank={player._rank}
                       colorIndex={i}
                       parRow={activeData.find((p) => p.Jugador === player._parName)}
                       onClick={() => setSelectedPlayer(player)}
@@ -623,7 +634,7 @@ export default function App() {
                     <PlayerRow
                       key={player.Jugador}
                       player={player}
-                      rank={i + 1}
+                      rank={player._rank}
                       colorIndex={i}
                       parRow={activeData.find((p) => p.Jugador === player._parName)}
                       onClick={() => setSelectedPlayer(player)}
