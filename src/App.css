@@ -264,12 +264,6 @@ body {
   border-color: #a43b28;
 }
 
-.tab-btn.active.hoyos {
-  background: var(--green);
-  border-color: var(--green);
-  box-shadow: 0 4px 15px rgba(78, 216, 138, 0.3);
-}
-
 /* ==========================================================================
    4. TABLA GENERAL Y COMPONENTES DE FILA
    ========================================================================== */
@@ -1309,6 +1303,134 @@ body {
   border: 1px solid var(--border);
 }
 
+.hole-num-header {
+  background: var(--bg3);
+  padding: 8px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.hole-num-header:hover {
+  background: var(--blue);
+  color: #000;
+}
+
+.hole-eye-icon {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.hole-edit-card.selected {
+  border-color: var(--blue);
+  box-shadow: 0 0 15px rgba(91, 196, 216, 0.2);
+}
+
+/* Overlay Vista Previa Hoyo */
+.hole-preview-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.hole-preview-content {
+  background: var(--bg2);
+  padding: 30px;
+  border-radius: 20px;
+  border: 1px solid var(--border2);
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  animation: zoomIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.close-preview {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: var(--text2);
+  font-size: 32px;
+  cursor: pointer;
+}
+
+.close-preview:hover {
+  color: var(--red);
+}
+
+.hole-preview-content h3 {
+  font-family: 'Barlow Condensed', sans-serif;
+  color: var(--gold);
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.hole-map-image {
+  max-width: 100%;
+  max-height: 70vh;
+  border-radius: 12px;
+  object-fit: contain;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+}
+
+@keyframes zoomIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.hole-click-trigger {
+  cursor: pointer;
+  font-weight: 800;
+  color: var(--blue);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.hole-click-trigger:hover {
+  background: rgba(91, 196, 216, 0.1);
+  text-decoration: underline;
+  transform: translateY(-1px);
+}
+
+.hole-indicator-icon {
+  font-size: 10px;
+  filter: grayscale(1);
+  opacity: 0.5;
+  transition: all 0.2s;
+}
+
+.hole-click-trigger:hover .hole-indicator-icon {
+  filter: grayscale(0);
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+/* --- Responsive Modal --- */
+
 .selector-label {
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 11px;
@@ -1480,153 +1602,4 @@ body {
     display: inline;
     text-align: center;
   }
-}
-
-/* ==========================================================================
-   10. VISTA DE HOYOS
-   ========================================================================== */
-.vista-hoyos {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  animation: fadeIn 0.4s ease-out;
-}
-
-.hoyos-grid-selector {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
-  gap: 8px;
-  background: var(--bg2);
-  padding: 15px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-}
-
-.hole-btn {
-  height: 45px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  color: var(--text2);
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.hole-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text);
-}
-
-.hole-btn.active {
-  background: var(--green);
-  color: #000;
-  border-color: var(--green);
-  box-shadow: 0 0 15px rgba(78, 216, 138, 0.3);
-}
-
-.hoyo-card {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
-
-.hoyo-image-container {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  background: #000;
-}
-
-.hoyo-main-img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.hoyo-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 40%);
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  padding: 30px;
-}
-
-.hoyo-number {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 42px;
-  font-weight: 800;
-  color: #fff;
-  text-transform: uppercase;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-}
-
-.hoyo-quick-stats {
-  display: flex;
-  gap: 20px;
-}
-
-.q-stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(5px);
-  padding: 8px 15px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.1);
-  min-width: 70px;
-}
-
-.q-label {
-  font-size: 10px;
-  color: var(--green);
-  font-weight: 800;
-  letter-spacing: 0.1em;
-}
-
-.q-val {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 24px;
-  font-weight: 700;
-  color: #fff;
-}
-
-.hoyo-info-details {
-  padding: 30px;
-}
-
-.hoyo-info-details h3 {
-  font-family: 'Barlow Condensed', sans-serif;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 12px;
-  color: var(--text);
-}
-
-.hoyo-info-details p {
-  line-height: 1.6;
-  color: var(--text2);
-  font-size: 15px;
-}
-
-@media (max-width: 640px) {
-  .hoyo-overlay {
-    padding: 15px;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-end;
-    gap: 15px;
-  }
-  .hoyo-number { font-size: 32px; }
-  .hoyo-quick-stats { width: 100%; justify-content: space-between; }
 }

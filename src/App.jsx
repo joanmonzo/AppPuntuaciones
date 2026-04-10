@@ -84,61 +84,6 @@ function ResultadoBadge({ valor }) {
   return <span className={`resultado ${claseTipo}`}>{valor}</span>;
 }
 
-function VistaHoyos({ dbRonda1 }) {
-  const [selectedHole, setSelectedHole] = useState(1);
-  const holes = Array.from({ length: 18 }, (_, i) => i + 1);
-
-  const parRow = dbRonda1.find(p => p.Jugador === "PAR CAMPO");
-  const hcpRow = dbRonda1.find(p => p.Jugador === "HCP HOYO");
-
-  const par = parRow ? parRow[selectedHole] : "-";
-  const hcp = hcpRow ? hcpRow[selectedHole] : "-";
-
-  return (
-    <div className="vista-hoyos">
-      <div className="hoyos-grid-selector">
-        {holes.map(h => (
-          <button 
-            key={h} 
-            className={`hole-btn ${selectedHole === h ? 'active' : ''}`}
-            onClick={() => setSelectedHole(h)}
-          >
-            {h}
-          </button>
-        ))}
-      </div>
-
-      <div className="hoyo-card">
-        <div className="hoyo-image-container">
-          <img 
-            src={`/src/public/images/hoyos/hoyo-${selectedHole}.jpg`} 
-            alt={`Detalle Hoyo ${selectedHole}`} 
-            className="hoyo-main-img"
-          />
-          <div className="hoyo-overlay">
-            <div className="hoyo-number">Hoyo {selectedHole}</div>
-            <div className="hoyo-quick-stats">
-              <div className="q-stat">
-                <span className="q-label">PAR</span>
-                <span className="q-val">{par}</span>
-              </div>
-              <div className="q-stat">
-                <span className="q-label">HCP</span>
-                <span className="q-val">{hcp}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div className="hoyo-info-details">
-          <h3>Información del Campo</h3>
-          <p>Consulta el diseño táctico del hoyo {selectedHole}. Planifica tus golpes evitando los bunkers y obstáculos estratégicos diseñados para este desafío.</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, currentRound, hoyoActivo, activeHoleRound }) {
   const color = AVATAR_COLORS[colorIndex % AVATAR_COLORS.length];
   const rankDelta = prevRank !== null && prevRank !== undefined ? prevRank - rank : 0;
@@ -231,6 +176,7 @@ function PlayerModal({ player, onClose, onRefreshNeeded, dbRonda1, dbRonda2 }) {
   const [editedData, setEditedData] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [selectedHoleInfo, setSelectedHoleInfo] = useState(null); // Hoyo seleccionado para ver imagen
 
   const holes = Array.from({ length: 18 }, (_, i) => i + 1);
 
@@ -389,7 +335,13 @@ function PlayerModal({ player, onClose, onRefreshNeeded, dbRonda1, dbRonda2 }) {
 
               return (
                 <div className="stats-row" key={h}>
-                  <span>{h}</span>
+                  <span 
+                    onClick={() => setSelectedHoleInfo(h)} 
+                    className="hole-click-trigger"
+                    title={`Ver mapa del hoyo ${h}`}
+                  >
+                    {h} <span className="hole-indicator-icon">🗺️</span>
+                  </span>
                   {isEditing ? (
                     <input type="number" className="edit-input" value={currentEditedHole.par} onChange={(e) => handleInputChange(h, 'par', e.target.value)} disabled={isSaving} />
                   ) : (
@@ -404,6 +356,24 @@ function PlayerModal({ player, onClose, onRefreshNeeded, dbRonda1, dbRonda2 }) {
               );
             })}
           </div>
+
+          {selectedHoleInfo && (
+            <div className="hole-preview-overlay" onClick={() => setSelectedHoleInfo(null)}>
+              <div className="hole-preview-content" onClick={e => e.stopPropagation()}>
+                <button className="close-preview" onClick={() => setSelectedHoleInfo(null)}>×</button>
+                <h3>Información Hoyo {selectedHoleInfo}</h3>
+                <img 
+                  src={`/images/hoyos/hoyo-${selectedHoleInfo}.jpg`} 
+                  alt={`Hoyo ${selectedHoleInfo}`} 
+                  className="hole-map-image"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "https://via.placeholder.com/400x300?text=Imagen+No+Disponible";
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -658,9 +628,6 @@ export default function App() {
               <button className={`tab-btn ${activeTab === "equipos" ? "active equipos" : ""}`} onClick={() => setActiveTab("equipos")}>
                 Equipos
               </button>
-              <button className={`tab-btn ${activeTab === "hoyos" ? "active hoyos" : ""}`} onClick={() => setActiveTab("hoyos")}>
-                Hoyos
-              </button>
             </div>
           </div>
         </div>
@@ -806,12 +773,16 @@ export default function App() {
                               </div>
                               
                               <div className="table-responsive">
-                                <div className="hole-grid">
-                                  {/* Cabecera Hoyos */}
+                                <div className="holes-grid">
+                                  {selectedHoleInfo && (
+                                    <div className="hole-preview-section">
+                                      <img src={`/images/hoyos/hoyo-${selectedHoleInfo}.jpg`} alt={`Hoyo ${selectedHoleInfo}`} className="hole-preview-img" />
+                                    </div>
+                                  )}
                                   <div className="hole-row header">
                                     <span className="hole-label">Hoyo</span>
                                     {Array.from({ length: 18 }, (_, i) => i + 1).map(h => (
-                                      <span key={h} className="hole-num">{h}</span>
+                                      <span key={h} className="hole-num" onClick={() => setSelectedHoleInfo(selectedHoleInfo === h ? null : h)}>{h}</span>
                                     ))}
                                     <span className="hole-total">Tot</span>
                                   </div>
@@ -891,9 +862,6 @@ export default function App() {
                   )}
                 </div>
               </div>
-            )}
-            {activeTab === "hoyos" && (
-              <VistaHoyos dbRonda1={dbRonda1} />
             )}
           </>
         )}
