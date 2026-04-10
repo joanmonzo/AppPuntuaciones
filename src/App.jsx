@@ -88,9 +88,6 @@ function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, curren
   const equipo = player["EQUIPO"]?.trim() || "";
   const logoUrl = equipo ? `/logos/${equipo.toLowerCase().replace(/\s+/g, '-')}.jpeg` : null;
 
-  const arquetipoTitulo = player["FLL"]?.trim() || null;
-  const arquetipoDesc = player.ARQUETIPO_DESC?.trim() || null;
-
   const isTop4 = rank <= 4;
   const isWorst4 = rank >= 8;
   const highlightClass = isTop4 ? "highlight-top" : isWorst4 ? "highlight-bottom" : "";
@@ -110,8 +107,8 @@ function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, curren
   return (
     <div
       className={`player-row ${highlightClass}`}
-      onClick={isGeneral ? null : onClick}
-      style={{ cursor: isGeneral ? "default" : "pointer" }}
+      onClick={onClick}
+      style={{ cursor: onClick ? "pointer" : "default" }}
     >
       <div className="row-rank">
         <RankBadge rank={rank} />
@@ -148,42 +145,34 @@ function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, curren
         </div>
       </div>
 
-      <div className="row-arquetipo">
-        {arquetipoTitulo && <span className="arq-title">{arquetipoTitulo}</span>}
-        {arquetipoDesc && <span className="arq-desc">{arquetipoDesc}</span>}
-      </div>
-
       <div className="row-stats">
         <div className="stat-block">
-          <span className="stat-val">{totalGolpes}</span>
+          <span className="stat-val">{player._cleanR1}</span>
         </div>
-
-        {!isGeneral && (
-          <>
-            <div className="stat-block">
-              <span className="stat-val">{parTotal}</span>
-            </div>
-            <div className="stat-block">
-              <span className="stat-val">{hoyo}</span>
-            </div>
-          </>
-        )}
+        <div className="stat-block">
+          <span className="stat-val">{player._cleanR2}</span>
+        </div>
       </div>
 
       <div className="row-resultado">
-        <ResultadoBadge valor={resultado} />
+        <ResultadoBadge valor={player._totalScore} />
       </div>
     </div>
   );
 }
 
-function PlayerModal({ player, onClose, parRow, onRefreshNeeded, currentRound }) {
+function PlayerModal({ player, onClose, onRefreshNeeded, dbRonda1, dbRonda2 }) {
+  const [modalRound, setModalRound] = useState("Ronda 1");
   const [editedData, setEditedData] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   const holes = Array.from({ length: 18 }, (_, i) => i + 1);
-  const isGeneral = currentRound === "General";
+
+  // Determinar los datos de la ronda actual dentro del modal
+  const activeDb = modalRound === "Ronda 1" ? dbRonda1 : dbRonda2;
+  const roundPlayerData = player ? activeDb.find(p => p.Jugador === player.Jugador) : null;
+  const parRow = roundPlayerData ? activeDb.find(p => p.Jugador === roundPlayerData._parName) : null;
 
   useEffect(() => {
     if (player) {
@@ -191,13 +180,13 @@ function PlayerModal({ player, onClose, parRow, onRefreshNeeded, currentRound })
       holes.forEach(h => {
         initial[h] = {
           par: parRow && parRow[h] !== undefined ? parRow[h] : "",
-          golpes: player[h] !== undefined ? player[h] : ""
+          golpes: roundPlayerData && roundPlayerData[h] !== undefined ? roundPlayerData[h] : ""
         };
       });
       setEditedData(initial);
       setIsEditing(false);
     }
-  }, [player, parRow]);
+  }, [player, modalRound, parRow, roundPlayerData]);
 
   if (!player) return null;
 
@@ -232,8 +221,8 @@ function PlayerModal({ player, onClose, parRow, onRefreshNeeded, currentRound })
     };
 
     await Promise.all([
-      enviarDatos({ jugador: player.Jugador, ronda: currentRound, golpes: nuevosGolpes }),
-      enviarDatos({ jugador: parRow ? parRow.Jugador : `PAR ${String(player.Jugador).toUpperCase()}`, ronda: currentRound, golpes: nuevosPares })
+      enviarDatos({ jugador: player.Jugador, ronda: modalRound, golpes: nuevosGolpes }),
+      enviarDatos({ jugador: parRow ? parRow.Jugador : `PAR ${String(player.Jugador).toUpperCase()}`, ronda: modalRound, golpes: nuevosPares })
     ]);
 
     setIsEditing(false);
@@ -243,7 +232,7 @@ function PlayerModal({ player, onClose, parRow, onRefreshNeeded, currentRound })
   };
 
   const handleReset = async () => {
-    const confirmReset = window.confirm(`⚠️ ¿Estás seguro de que quieres BORRAR todos los golpes de ${player._CleanName || player.Jugador} en la ${currentRound}?`);
+    const confirmReset = window.confirm(`⚠️ ¿Estás seguro de que quieres BORRAR todos los golpes de ${player._CleanName || player.Jugador} en la ${modalRound}?`);
 
     if (!confirmReset) return;
 
@@ -256,7 +245,7 @@ function PlayerModal({ player, onClose, parRow, onRefreshNeeded, currentRound })
 
     const paqueteGolpes = {
       jugador: player.Jugador,
-      ronda: currentRound,
+      ronda: modalRound,
       golpes: golpesVacios
     };
 
@@ -280,27 +269,37 @@ function PlayerModal({ player, onClose, parRow, onRefreshNeeded, currentRound })
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>Estadísticas: {player._CleanName || player.Jugador}</h2>
+          <div className="modal-title-area">
+            <h2>{player._CleanName || player.Jugador}</h2>
+            <div className="modal-tabs">
+              <button 
+                className={`modal-tab-btn ${modalRound === "Ronda 1" ? "active" : ""}`} 
+                onClick={() => { setModalRound("Ronda 1"); setIsEditing(false); }}
+              >R1</button>
+              <button 
+                className={`modal-tab-btn ${modalRound === "Ronda 2" ? "active" : ""}`} 
+                onClick={() => { setModalRound("Ronda 2"); setIsEditing(false); }}
+              >R2</button>
+            </div>
+          </div>
           <div className="header-actions">
-            {!isGeneral && (
-              isEditing ? (
-                <>
-                  <button
-                    className="save-btn"
-                    onClick={handleSave}
-                    disabled={isSaving}
-                    style={isSaving ? { backgroundColor: '#95a5a6', cursor: 'not-allowed' } : {}}
-                  >
-                    {isSaving ? 'GUARDANDO...' : 'GUARDAR'}
-                  </button>
-                  <button className="cancel-btn" onClick={() => setIsEditing(false)} disabled={isSaving}>CANCELAR</button>
-                </>
-              ) : (
-                <>
-                  <button className="reset-btn" onClick={handleReset} disabled={isSaving} title="Reiniciar Partida">↺</button>
-                  <button className="edit-btn" onClick={() => setIsEditing(true)} title="Editar">✎</button>
-                </>
-              )
+            {isEditing ? (
+              <>
+                <button
+                  className="save-btn"
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  style={isSaving ? { backgroundColor: '#95a5a6', cursor: 'not-allowed' } : {}}
+                >
+                  {isSaving ? '...' : 'GUARDAR'}
+                </button>
+                <button className="cancel-btn" onClick={() => setIsEditing(false)} disabled={isSaving}>CAN</button>
+              </>
+            ) : (
+              <>
+                <button className="reset-btn" onClick={handleReset} disabled={isSaving} title="Reiniciar Partida">↺</button>
+                <button className="edit-btn" onClick={() => setIsEditing(true)} title="Editar">✎</button>
+              </>
             )}
             <button className="close-btn" onClick={onClose} disabled={isSaving}>&times;</button>
           </div>
@@ -315,7 +314,6 @@ function PlayerModal({ player, onClose, parRow, onRefreshNeeded, currentRound })
             </div>
             {holes.map((h) => {
               const currentEditedHole = editedData[h] || { par: "", golpes: "" };
-
               const golpesNum = Number(currentEditedHole.golpes);
               const parNum = Number(currentEditedHole.par);
 
@@ -435,8 +433,6 @@ export default function App() {
             processedR2.find(p => p.Jugador === pGen.Jugador);
           if (pBase) {
             pGen["EQUIPO"] = pBase["EQUIPO"];
-            pGen["FLL"] = pBase["FLL"];
-            pGen["ARQUETIPO_DESC"] = pBase["ARQUETIPO_DESC"];
           }
         }
       });
@@ -462,16 +458,42 @@ export default function App() {
     return () => clearInterval(id);
   }, []);
 
-  const activeData = currentRound === "Ronda 1" ? dbRonda1 : currentRound === "Ronda 2" ? dbRonda2 : dbGeneral;
+  // Crear lista unificada de jugadores con puntos de ambas rondas
+  const playerMap = new Map();
 
-  const sortedPlayers = activeData
-    .filter(isRealPlayer)
-    .sort((a, b) => (Number(b._stableResultado) || 0) - (Number(a._stableResultado) || 0));
+  // Procesar Ronda 1
+  dbRonda1.filter(isRealPlayer).forEach(p => {
+    playerMap.set(p.Jugador, {
+      ...p,
+      _cleanR1: Number(p._stableResultado) || 0,
+      _cleanR2: 0,
+      _totalScore: Number(p._stableResultado) || 0
+    });
+  });
+
+  // Procesar Ronda 2
+  dbRonda2.filter(isRealPlayer).forEach(p => {
+    if (playerMap.has(p.Jugador)) {
+      const existing = playerMap.get(p.Jugador);
+      existing._cleanR2 = Number(p._stableResultado) || 0;
+      existing._totalScore = existing._cleanR1 + existing._cleanR2;
+    } else {
+      playerMap.set(p.Jugador, {
+        ...p,
+        _cleanR1: 0,
+        _cleanR2: Number(p._stableResultado) || 0,
+        _totalScore: Number(p._stableResultado) || 0
+      });
+    }
+  });
+
+  const sortedPlayers = Array.from(playerMap.values())
+    .sort((a, b) => b._totalScore - a._totalScore);
 
   let currentRank = 0;
   let lastScore = null;
   const players = sortedPlayers.map((p, i) => {
-    const score = Number(p._stableResultado) || 0;
+    const score = p._totalScore;
     if (score !== lastScore) {
       currentRank = i + 1;
     }
@@ -481,16 +503,25 @@ export default function App() {
 
   const leader = players[0];
 
-  // Obtener equipos únicos, sumar puntos y ordenar de mayor a menor 
+  // Obtener equipos únicos, sumar puntos por ronda y ordenar
   const equiposUnicos = [...new Set(players.map(p => p.EQUIPO).filter(e => e && e.trim() !== ""))];
-  const equiposData = equiposUnicos.map(equipo => {
+  const rawEquiposData = equiposUnicos.map(equipo => {
     const jugadores = players.filter(p => p.EQUIPO === equipo);
-    const totalPuntos = jugadores.reduce((sum, p) => {
-      const pts = Number(p._stableResultado) || 0;
-      return sum + pts;
-    }, 0);
-    return { equipo, jugadores, totalPuntos };
+    const teamR1 = jugadores.reduce((sum, p) => sum + (p._cleanR1 || 0), 0);
+    const teamR2 = jugadores.reduce((sum, p) => sum + (p._cleanR2 || 0), 0);
+    const totalPuntos = teamR1 + teamR2;
+    return { equipo, jugadores, teamR1, teamR2, totalPuntos };
   }).sort((a, b) => b.totalPuntos - a.totalPuntos);
+
+  let currentEqRank = 0;
+  let lastEqScore = null;
+  const equiposData = rawEquiposData.map((eq, i) => {
+    if (eq.totalPuntos !== lastEqScore) {
+      currentEqRank = i + 1;
+    }
+    lastEqScore = eq.totalPuntos;
+    return { ...eq, _rank: currentEqRank };
+  });
 
   // Variable para identificar al equipo (o equipos empatados) con más puntos
   const maxPuntosEquipos = equiposData.length > 0 ? equiposData[0].totalPuntos : 0;
@@ -521,11 +552,7 @@ export default function App() {
               </button>
             </div>
 
-            <div className="tabs-container" style={{ marginTop: 0 }}>
-              <button className={`tab-btn ${currentRound === "Ronda 1" ? "active" : ""} ${activeTab === "equipos" ? "equipos" : ""}`} onClick={() => setCurrentRound("Ronda 1")}>Ronda 1</button>
-              <button className={`tab-btn ${currentRound === "Ronda 2" ? "active" : ""} ${activeTab === "equipos" ? "equipos" : ""}`} onClick={() => setCurrentRound("Ronda 2")}>Ronda 2</button>
-              <button className={`tab-btn ${currentRound === "General" ? "active" : ""} ${activeTab === "equipos" ? "equipos" : ""}`} onClick={() => setCurrentRound("General")}>General</button>
-            </div>
+            {/* Las pestañas de rondas se han eliminado ya que las tablas muestran vista unificada */}
           </div>
         </div>
 
@@ -558,15 +585,14 @@ export default function App() {
           <>
             {activeTab === "clasificacion" && (
               <>
-                <div className="table-header">
+                <div className="table-header header-individual">
                   <span className="th-rank">#</span>
                   <span className="th-player">Jugador</span>
-                  <span className="th-arquetipo">Arquetipo</span>
-                  <span className="th-stats">
-                    <span className="hide-mobile">{isGeneral ? "Total" : "Total · Par · Hoyo"}</span>
-                    <span className="show-mobile">{isGeneral ? "Total" : "Tot · Hoyo"}</span>
-                  </span>
-                  <span className="th-resultado">Stable Resultado</span>
+                  <div className="th-stats header-r1r2">
+                    <span>R1</span>
+                    <span>R2</span>
+                  </div>
+                  <span className="th-resultado">TOTAL</span>
                 </div>
                 <div className="table-body">
                   {players.map((player, i) => (
@@ -575,7 +601,7 @@ export default function App() {
                       player={player}
                       rank={player._rank}
                       colorIndex={i}
-                      parRow={activeData.find((p) => p.Jugador === player._parName)}
+                      parRow={dbRonda1.find((p) => p.Jugador === player._parName) || dbRonda2.find((p) => p.Jugador === player._parName)}
                       onClick={() => setSelectedPlayer(player)}
                       currentRound={currentRound}
                     />
@@ -585,30 +611,57 @@ export default function App() {
             )}
 
             {activeTab === "equipos" && !selectedTeam && (
-              <div className="equipos-grid">
-                {/* REFACTORIZACIÓN: Renderizado basado en equiposData */}
-                {equiposData.length > 0 ? (
-                  equiposData.map(({ equipo, jugadores, totalPuntos }) => {
-                    const isLeader = totalPuntos === maxPuntosEquipos && totalPuntos > 0;
+              <div className="equipos-lista">
+                <div className="table-header header-equipos">
+                  <span className="th-rank">Pos</span>
+                  <span className="th-team">Equipo</span>
+                  <span className="th-players-list hide-mobile">Jugadores</span>
+                  <span className="th-r1">R1</span>
+                  <span className="th-r2">R2</span>
+                  <span className="th-tot">Tot</span>
+                </div>
+                <div className="table-body">
+                  {equiposData.length > 0 ? (
+                    equiposData.map((eq) => {
+                      const isLeader = eq.totalPuntos === maxPuntosEquipos && eq.totalPuntos > 0;
+                      const logoUrl = TEAM_AVATAR_IMAGES[eq.equipo];
 
-                    return (
-                      <div
-                        key={equipo}
-                        className={`equipo-card ${isLeader ? 'leader' : ''}`}
-                        onClick={() => setSelectedTeam(equipo)}
-                      >
-                        {isLeader && <div className="leader-badge">🏆 LÍDER</div>}
-                        <h3>{equipo}</h3>
-                        <div className="equipo-card-stats">
-                          <span className="eq-pts">{totalPuntos} <small>PTS</small></span>
-                          <span className="eq-jug">{jugadores.length} jugadores asignados</span>
+                      return (
+                        <div
+                          key={eq.equipo}
+                          className={`equipo-row ${isLeader ? 'leader' : ''}`}
+                          onClick={() => setSelectedTeam(eq.equipo)}
+                        >
+                          <div className="row-rank">
+                            <RankBadge rank={eq._rank} />
+                          </div>
+                          <div className="row-team">
+                            <div className="team-avatar-mini">
+                              {logoUrl ? <img src={logoUrl} alt={eq.equipo} /> : <span>{getInitials(eq.equipo)}</span>}
+                            </div>
+                            <span className="team-name-row">{eq.equipo}</span>
+                          </div>
+                          <div className="row-players-list hide-mobile">
+                            {eq.jugadores.map((p, idx) => (
+                              <span key={idx} className="player-mini-tag">
+                                {p._CleanName || p.Jugador}
+                              </span>
+                            ))}
+                          </div>
+                          <div className="row-scores">
+                            <span className="score-val">{eq.teamR1}</span>
+                            <span className="score-val">{eq.teamR2}</span>
+                            <div className="score-tot">
+                              <ResultadoBadge valor={eq.totalPuntos} />
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div className="loading">No hay equipos asignados.</div>
-                )}
+                      );
+                    })
+                  ) : (
+                    <div className="loading">No hay equipos asignados.</div>
+                  )}
+                </div>
               </div>
             )}
 
@@ -619,15 +672,14 @@ export default function App() {
                   <h2>Equipo: <span className="equipo-nombre-resaltado">{selectedTeam}</span></h2>
                 </div>
 
-                <div className="table-header">
+                <div className="table-header header-individual">
                   <span className="th-rank">#</span>
                   <span className="th-player">Jugador</span>
-                  <span className="th-arquetipo">Arquetipo</span>
-                  <span className="th-stats">
-                    <span className="hide-mobile">{isGeneral ? "Total" : "Total · Par · Hoyo"}</span>
-                    <span className="show-mobile">{isGeneral ? "Total" : "Tot · Hoyo"}</span>
-                  </span>
-                  <span className="th-resultado">Stable Resultado</span>
+                  <div className="th-stats header-r1r2">
+                    <span>R1</span>
+                    <span>R2</span>
+                  </div>
+                  <span className="th-resultado">TOTAL</span>
                 </div>
                 <div className="table-body">
                   {players.filter(p => p.EQUIPO === selectedTeam).map((player, i) => (
@@ -636,7 +688,7 @@ export default function App() {
                       player={player}
                       rank={player._rank}
                       colorIndex={i}
-                      parRow={activeData.find((p) => p.Jugador === player._parName)}
+                      parRow={dbRonda1.find((p) => p.Jugador === player._parName) || dbRonda2.find((p) => p.Jugador === player._parName)}
                       onClick={() => setSelectedPlayer(player)}
                       currentRound={currentRound}
                     />
@@ -651,9 +703,9 @@ export default function App() {
       <PlayerModal
         player={selectedPlayer}
         onClose={() => setSelectedPlayer(null)}
-        parRow={selectedPlayer ? activeData.find(p => p.Jugador === selectedPlayer._parName) : null}
         onRefreshNeeded={fetchData}
-        currentRound={currentRound}
+        dbRonda1={dbRonda1}
+        dbRonda2={dbRonda2}
       />
 
       <footer className="footer">
