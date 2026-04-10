@@ -75,7 +75,7 @@ function ResultadoBadge({ valor }) {
     }
   }
 
-  return <span className={`resultado ${claseTipo}`}>{valor} pts</span>;
+  return <span className={`resultado ${claseTipo}`}>{valor}</span>;
 }
 
 function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, currentRound }) {
@@ -146,28 +146,24 @@ function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, curren
             </div>
           )}
         </div>
-        {(arquetipoTitulo || arquetipoDesc) && (
-          <div className="player-arquetipo">
-            {arquetipoTitulo && <span className="arq-title">{arquetipoTitulo}</span>}
-            {arquetipoDesc && <span className="arq-desc">{arquetipoDesc}</span>}
-          </div>
-        )}
+      </div>
+
+      <div className="row-arquetipo">
+        {arquetipoTitulo && <span className="arq-title">{arquetipoTitulo}</span>}
+        {arquetipoDesc && <span className="arq-desc">{arquetipoDesc}</span>}
       </div>
 
       <div className="row-stats">
         <div className="stat-block">
-          <span className="stat-label">Total</span>
           <span className="stat-val">{totalGolpes}</span>
         </div>
 
         {!isGeneral && (
           <>
             <div className="stat-block">
-              <span className="stat-label">Par</span>
               <span className="stat-val">{parTotal}</span>
             </div>
             <div className="stat-block">
-              <span className="stat-label">Hoyo</span>
               <span className="stat-val">{hoyo}</span>
             </div>
           </>
@@ -554,6 +550,7 @@ export default function App() {
                 <div className="table-header">
                   <span className="th-rank">#</span>
                   <span className="th-player">Jugador</span>
+                  <span className="th-arquetipo">Arquetipo</span>
                   <span className="th-stats">
                     <span className="hide-mobile">{isGeneral ? "Total" : "Total · Par · Hoyo"}</span>
                     <span className="show-mobile">{isGeneral ? "Total" : "Tot · Hoyo"}</span>
@@ -614,6 +611,7 @@ export default function App() {
                 <div className="table-header">
                   <span className="th-rank">#</span>
                   <span className="th-player">Jugador</span>
+                  <span className="th-arquetipo">Arquetipo</span>
                   <span className="th-stats">
                     <span className="hide-mobile">{isGeneral ? "Total" : "Total · Par · Hoyo"}</span>
                     <span className="show-mobile">{isGeneral ? "Total" : "Tot · Hoyo"}</span>
