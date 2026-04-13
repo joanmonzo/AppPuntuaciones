@@ -281,12 +281,12 @@ function PlayerModal({ player, onClose, onRefreshNeeded, dbRonda1, dbRonda2, sel
           <div className="modal-title-area">
             <h2>{player._CleanName || player.Jugador}</h2>
             <div className="modal-tabs">
-              <button 
-                className={`modal-tab-btn ${modalRound === "Ronda 1" ? "active" : ""}`} 
+              <button
+                className={`modal-tab-btn ${modalRound === "Ronda 1" ? "active" : ""}`}
                 onClick={() => { setModalRound("Ronda 1"); setIsEditing(false); }}
               >R1</button>
-              <button 
-                className={`modal-tab-btn ${modalRound === "Ronda 2" ? "active" : ""}`} 
+              <button
+                className={`modal-tab-btn ${modalRound === "Ronda 2" ? "active" : ""}`}
                 onClick={() => { setModalRound("Ronda 2"); setIsEditing(false); }}
               >R2</button>
             </div>
@@ -334,8 +334,8 @@ function PlayerModal({ player, onClose, onRefreshNeeded, dbRonda1, dbRonda2, sel
 
               return (
                 <div className="stats-row" key={h}>
-                  <span 
-                    onClick={() => setSelectedHoleInfo(h)} 
+                  <span
+                    onClick={() => setSelectedHoleInfo(h)}
                     className="hole-click-trigger"
                     title={`Ver mapa del hoyo ${h}`}
                   >
@@ -361,9 +361,9 @@ function PlayerModal({ player, onClose, onRefreshNeeded, dbRonda1, dbRonda2, sel
               <div className="hole-preview-content" onClick={e => e.stopPropagation()}>
                 <button className="close-preview" onClick={() => setSelectedHoleInfo(null)}>×</button>
                 <h3>Información Hoyo {selectedHoleInfo}</h3>
-                <img 
-                  src={`/images/hoyos/hoyo-${selectedHoleInfo}.jpg`} 
-                  alt={`Hoyo ${selectedHoleInfo}`} 
+                <img
+                  src={`/images/hoyos/hoyo-${selectedHoleInfo}.jpg`}
+                  alt={`Hoyo ${selectedHoleInfo}`}
                   className="hole-map-image"
                   onError={(e) => {
                     e.target.onerror = null;
@@ -418,21 +418,21 @@ export default function App() {
 
   const procesarHoja = (raw) => {
     if (!raw || raw.error) return [];
-    
+
     // Recorremos las filas con un for-loop para mayor control
     for (let i = 0; i < raw.length; i++) {
       const row = raw[i];
       if (isRealPlayer(row)) {
         row._CleanName = String(row.Jugador || "").replace(" RESULTADO REAL", "").trim();
-        
+
         // Búsqueda dinámica de filas adicionales (PAR, STABLE...)
         let foundPar = false;
         let foundStable = false;
-        
+
         for (let j = i + 1; j < i + 6 && j < raw.length; j++) {
           const subRow = raw[j];
           if (!subRow) continue;
-          
+
           if (!foundPar && String(subRow.Jugador).startsWith("PAR ")) {
             row._parName = subRow.Jugador;
             foundPar = true;
@@ -444,7 +444,7 @@ export default function App() {
           // Si topamos con el siguiente jugador, dejamos de buscar
           if (isRealPlayer(subRow)) break;
         }
-        
+
         if (!foundStable) {
           row._stableResultado = row["RESULTADO ACTUAL"];
         }
@@ -592,7 +592,6 @@ export default function App() {
 
   return (
     <div className="app">
-      <div className="bg-grid" />
 
       <header className="header">
         <div className="header-left">
@@ -608,11 +607,11 @@ export default function App() {
             <div className="hole-selector">
               <span className="selector-label">Ver Hoyo de:</span>
               <div className="mini-toggle">
-                <button 
+                <button
                   className={`mini-tab-btn ${activeHoleRound === "Ronda 1" ? "active" : ""}`}
                   onClick={() => setActiveHoleRound("Ronda 1")}
                 >📍 R1</button>
-                <button 
+                <button
                   className={`mini-tab-btn ${activeHoleRound === "Ronda 2" ? "active" : ""}`}
                   onClick={() => setActiveHoleRound("Ronda 2")}
                 >📍 R2</button>
@@ -649,9 +648,9 @@ export default function App() {
           <div className="hole-preview-content" onClick={e => e.stopPropagation()}>
             <button className="close-preview" onClick={() => setSelectedHoleInfo(null)}>×</button>
             <h3>Información Hoyo {selectedHoleInfo}</h3>
-            <img 
-              src={`/images/hoyos/hoyo-${selectedHoleInfo}.jpg`} 
-              alt={`Hoyo ${selectedHoleInfo}`} 
+            <img
+              src={`/images/hoyos/hoyo-${selectedHoleInfo}.jpg`}
+              alt={`Hoyo ${selectedHoleInfo}`}
               className="hole-map-image"
               onError={(e) => {
                 e.target.onerror = null;
@@ -693,10 +692,10 @@ export default function App() {
                 </div>
                 <div className="table-body">
                   {players.map((player, i) => {
-                    const playerRoundData = activeHoleRound === 'Ronda 1' 
-                      ? dbRonda1.find(p => p.Jugador === player.Jugador) 
+                    const playerRoundData = activeHoleRound === 'Ronda 1'
+                      ? dbRonda1.find(p => p.Jugador === player.Jugador)
                       : dbRonda2.find(p => p.Jugador === player.Jugador);
-                    
+
                     const hoyoValue = playerRoundData?.HOYO || playerRoundData?.Hoyo;
                     const tienePuntos = (Number(playerRoundData?._stableResultado) || 0) > 0;
                     const hoyoActivo = hoyoValue ? hoyoValue : (tienePuntos ? "1" : "-");
@@ -781,17 +780,17 @@ export default function App() {
                               <div className="desplegable-header">
                                 <span className="desplegable-title">Estadísticas por hoyo</span>
                                 <div className="modal-tabs mini">
-                                  <button 
-                                    className={`modal-tab-btn ${accordionRound === "R1" ? "active" : ""}`} 
+                                  <button
+                                    className={`modal-tab-btn ${accordionRound === "R1" ? "active" : ""}`}
                                     onClick={() => setAccordionRound("R1")}
                                   >R1</button>
-                                  <button 
-                                    className={`modal-tab-btn ${accordionRound === "R2" ? "active" : ""}`} 
+                                  <button
+                                    className={`modal-tab-btn ${accordionRound === "R2" ? "active" : ""}`}
                                     onClick={() => setAccordionRound("R2")}
                                   >R2</button>
                                 </div>
                               </div>
-                              
+
                               <div className="table-responsive">
                                 <div className="hole-grid">
                                   {selectedHoleInfo && (
@@ -856,7 +855,7 @@ export default function App() {
                                           const strokes = Number(strokesRaw);
                                           const par = Number(parRow?.[h]);
                                           totalStrokes += strokes || 0;
-                                          
+
                                           let scoreClass = "";
                                           if (strokesRaw !== "" && strokes && par) {
                                             if (strokes < par) scoreClass = "score-under";

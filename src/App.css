@@ -42,13 +42,6 @@ body.light-mode {
   /* Los colores de acento (oro, verde, rojo, azul) se mantienen igual */
 }
 
-/* Ajuste de la cuadrícula de fondo para modo claro */
-body.light-mode .bg-grid {
-  background-image:
-    linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
-}
-
 /* Ajustes de degradados para las tarjetas destacadas */
 body.light-mode .player-row.highlight-top {
   background: linear-gradient(135deg, rgba(78, 216, 138, 0.1) 0%, rgba(255, 255, 255, 1) 100%);
@@ -117,17 +110,6 @@ body {
   margin: 0 auto;
   padding: 0 20px;
   position: relative;
-}
-
-.bg-grid {
-  position: fixed;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  background-size: 40px 40px;
-  pointer-events: none;
-  z-index: 0;
 }
 
 .main {
@@ -386,7 +368,8 @@ body {
   letter-spacing: 0.08em;
 }
 
-.th-hoyo, .row-hoyo {
+.th-hoyo,
+.row-hoyo {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -608,7 +591,7 @@ body {
 
 .team-accordion-wrapper.expanded {
   border-color: var(--border2);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .equipo-row {
@@ -630,7 +613,7 @@ body {
 }
 
 .equipo-row.active {
-  background: rgba(255,255,255,0.03);
+  background: rgba(255, 255, 255, 0.03);
   border-bottom: 1px solid var(--border);
 }
 
@@ -735,8 +718,15 @@ body {
 }
 
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .desplegable-header {
@@ -744,7 +734,7 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   padding-bottom: 10px;
 }
 
@@ -765,7 +755,7 @@ body {
 .modal-tabs.mini .modal-tab-btn {
   padding: 3px 10px;
   font-size: 10px;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--border);
   color: var(--text2);
 }
@@ -779,7 +769,7 @@ body {
 }
 
 .modal-tabs.mini .modal-tab-btn:hover:not(.active) {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   color: var(--text);
 }
 
@@ -798,9 +788,11 @@ body {
 .table-responsive::-webkit-scrollbar {
   height: 4px;
 }
+
 .table-responsive::-webkit-scrollbar-track {
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
 }
+
 .table-responsive::-webkit-scrollbar-thumb {
   background: var(--border2);
   border-radius: 4px;
@@ -851,12 +843,12 @@ body {
 }
 
 .hole-total {
-  background: rgba(255,255,255,0.05) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
   font-weight: 700;
 }
 
 .hole-row.player:hover span {
-  background: rgba(255,255,255,0.03);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .row-scores {
@@ -1361,7 +1353,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
   animation: zoomIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -1392,12 +1384,19 @@ body {
   max-height: 70vh;
   border-radius: 12px;
   object-fit: contain;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
 }
 
 @keyframes zoomIn {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .hole-click-trigger {
@@ -1451,7 +1450,7 @@ body {
 
 .mini-tab-btn {
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--text2);
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 11px;
@@ -1515,27 +1514,31 @@ body {
     grid-template-columns: 45px 1fr 40px 70px 85px;
     padding: 0 10px 10px;
   }
-  
-  .table-header .th-stats, .table-header .header-r1r2 { 
-    display: flex; 
+
+  .table-header .th-stats,
+  .table-header .header-r1r2 {
+    display: flex;
     justify-content: center;
     gap: 10px;
     font-size: 9px;
   }
 
-  .row-stats { 
-    display: flex; 
+  .row-stats {
+    display: flex;
     justify-content: center;
     align-items: center;
-    gap: 10px; 
+    gap: 10px;
   }
-  .row-stats .stat-val { font-size: 13px; }
+
+  .row-stats .stat-val {
+    font-size: 13px;
+  }
 
   .player-row {
-    grid-template-columns: 45px 1fr 40px 70px 85px; 
+    grid-template-columns: 45px 1fr 40px 70px 85px;
     padding: 10px;
     gap: 8px;
-    align-items: center; 
+    align-items: center;
   }
 
   .row-player {
@@ -1592,19 +1595,73 @@ body {
   }
 
   /* Ajustes para la nueva lista de equipos en móvil */
-  .header-equipos, .equipo-row {
+  .header-equipos,
+  .equipo-row {
     grid-template-columns: 45px 1fr 35px 35px 85px !important;
     gap: 8px !important;
     padding: 10px !important;
   }
-  .row-players-list { display: none; }
-  .team-name-row { font-size: 13px; }
-  .score-val { font-size: 11px; }
 
-  .hide-mobile { display: none; }
+  .row-players-list {
+    display: none;
+  }
+
+  .team-name-row {
+    font-size: 13px;
+  }
+
+  .score-val {
+    font-size: 11px;
+  }
+
+  .hide-mobile {
+    display: none;
+  }
 
   .show-mobile {
     display: inline;
     text-align: center;
+  }
+
+  /* ==========================================================================
+     REPARACIÓN: FILA DE EQUIPOS EN MÓVIL
+     ========================================================================== */
+
+  /* 1. Redefinimos el Grid para que entren exactamente los 5 elementos (ocultando jugadores) */
+  .equipo-row {
+    grid-template-columns: 25px 1fr 30px 30px 40px !important;
+    padding: 12px 8px !important;
+    gap: 8px !important;
+  }
+
+  /* 2. Ocultamos la lista de jugadores (suele ser el 3er elemento del grid) */
+  .equipo-row>div:nth-child(3) {
+    display: none !important;
+  }
+
+  /* 3. Forzamos a que el contenedor del equipo se encoja si el nombre es muy largo */
+  .equipo-row>div:nth-child(2) {
+    min-width: 0;
+    /* Clave mágica para flex/grid responsive */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* 4. Cortamos el nombre del equipo con "..." si no cabe */
+  .equipo-row h3 {
+    font-size: 15px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+  }
+
+  /* 5. Ajustamos el tamaño del "círculo oscuro" del Total de LIV Golf para móviles */
+  .eq-tot-badge {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 13px !important;
+    margin-left: auto;
   }
 }
