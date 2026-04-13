@@ -766,12 +766,13 @@ export default function App() {
                                 );
                               })}
                             </div>
-                            <div className="row-scores">
-                              <span className="score-val">{eq.teamR1}</span>
-                              <span className="score-val">{eq.teamR2}</span>
-                              <div className="score-tot">
-                                <ResultadoBadge valor={eq.totalPuntos} />
-                              </div>
+
+                            {/* SOLUCIÓN: Se ha eliminado el <div className="row-scores"> 
+                                Ahora R1, R2 y Tot son hijos directos del Grid y se alinearán perfectamente */}
+                            <span className="score-val" style={{ textAlign: "center", fontWeight: "600" }}>{eq.teamR1}</span>
+                            <span className="score-val" style={{ textAlign: "center", fontWeight: "600" }}>{eq.teamR2}</span>
+                            <div className="score-tot">
+                              <ResultadoBadge valor={eq.totalPuntos} />
                             </div>
                           </div>
 

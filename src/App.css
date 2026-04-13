@@ -568,6 +568,19 @@ body {
   padding: 0 20px 10px !important;
 }
 
+/* Sincronización de textos numéricos en cabecera de equipos */
+.header-equipos .th-r1,
+.header-equipos .th-r2 {
+  text-align: center;
+  padding-right: 10px;
+}
+
+.header-equipos .th-tot {
+  text-align: right;
+  padding-right: 33px;
+  /* Para que cuadre perfectamente con la pastilla del resultado */
+}
+
 .accordion-arrow {
   font-size: 10px;
   color: var(--text2);
@@ -1594,12 +1607,26 @@ body {
     font-size: 20px;
   }
 
-  /* Ajustes para la nueva lista de equipos en móvil */
+  /* Ajustes para la lista de equipos en móvil (Cabecera y Fila Sincronizadas) */
   .header-equipos,
   .equipo-row {
-    grid-template-columns: 45px 1fr 35px 35px 85px !important;
+    /* 5 Columnas exactas: Pos, Equipo, R1, R2, Tot */
+    grid-template-columns: 35px 1fr 30px 30px 60px !important;
     gap: 8px !important;
     padding: 10px !important;
+  }
+
+  /* Centramos las cabeceras en móvil */
+  .header-equipos .th-r1,
+  .header-equipos .th-r2,
+  .header-equipos .th-tot {
+    text-align: center;
+    padding-right: 0;
+  }
+
+  .score-tot {
+    padding-right: 0;
+    justify-content: center;
   }
 
   .row-players-list {
@@ -1608,60 +1635,26 @@ body {
 
   .team-name-row {
     font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .row-team {
+    min-width: 0;
+    /* Crucial para que el texto se corte con (...) sin deformar el grid */
   }
 
   .score-val {
-    font-size: 11px;
+    font-size: 13px;
   }
 
   .hide-mobile {
-    display: none;
+    display: none !important;
   }
 
   .show-mobile {
     display: inline;
     text-align: center;
-  }
-
-  /* ==========================================================================
-     REPARACIÓN: FILA DE EQUIPOS EN MÓVIL
-     ========================================================================== */
-
-  /* 1. Redefinimos el Grid para que entren exactamente los 5 elementos (ocultando jugadores) */
-  .equipo-row {
-    grid-template-columns: 25px 1fr 30px 30px 40px !important;
-    padding: 12px 8px !important;
-    gap: 8px !important;
-  }
-
-  /* 2. Ocultamos la lista de jugadores (suele ser el 3er elemento del grid) */
-  .equipo-row>div:nth-child(3) {
-    display: none !important;
-  }
-
-  /* 3. Forzamos a que el contenedor del equipo se encoja si el nombre es muy largo */
-  .equipo-row>div:nth-child(2) {
-    min-width: 0;
-    /* Clave mágica para flex/grid responsive */
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  /* 4. Cortamos el nombre del equipo con "..." si no cabe */
-  .equipo-row h3 {
-    font-size: 15px !important;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin: 0;
-  }
-
-  /* 5. Ajustamos el tamaño del "círculo oscuro" del Total de LIV Golf para móviles */
-  .eq-tot-badge {
-    width: 32px !important;
-    height: 32px !important;
-    font-size: 13px !important;
-    margin-left: auto;
   }
 }
