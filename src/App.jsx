@@ -13,7 +13,7 @@ const POLL_INTERVAL = 5000;
 const TEAM_CAPTAINS = {
   "FLYING CARAJILLOS": "Paco",
   "CARABASSA SLICE FOCKERS": "Quique",
-  "CARABASSA SLICE": "Quique"
+  "CARABASSA SLICE": "Quique",
 };
 
 const AVATAR_COLORS = [
@@ -32,12 +32,17 @@ const AVATAR_COLORS = [
 
 const TEAM_AVATAR_IMAGES = {
   "FLYING CARAJILLOS": imgFlyingCarajillos,
-  "CARABASSA SLICE FOCKERS": imgCarabassaSlice
+  "CARABASSA SLICE FOCKERS": imgCarabassaSlice,
 };
 
 function getInitials(name) {
   if (!name) return "?";
-  return String(name).split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
+  return String(name)
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
 }
 
 function getRoundKeys(player) {
@@ -84,29 +89,57 @@ function ResultadoBadge({ valor }) {
   return <span className={`resultado ${claseTipo}`}>{valor}</span>;
 }
 
-function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, currentRound, hoyoActivo, activeHoleRound }) {
+function PlayerRow({
+  player,
+  rank,
+  colorIndex,
+  prevRank,
+  parRow,
+  onClick,
+  currentRound,
+  hoyoActivo,
+  activeHoleRound,
+}) {
   const color = AVATAR_COLORS[colorIndex % AVATAR_COLORS.length];
-  const rankDelta = prevRank !== null && prevRank !== undefined ? prevRank - rank : 0;
+  const rankDelta =
+    prevRank !== null && prevRank !== undefined ? prevRank - rank : 0;
 
-  const resultado = player._stableResultado !== undefined && player._stableResultado !== "" ? player._stableResultado : player["RESULTADO ACTUAL"];
+  const resultado =
+    player._stableResultado !== undefined && player._stableResultado !== ""
+      ? player._stableResultado
+      : player["RESULTADO ACTUAL"];
   const hoyo = player["HOYO"] || 18;
 
   const equipo = player["EQUIPO"]?.trim() || "";
-  const logoUrl = equipo ? `/logos/${equipo.toLowerCase().replace(/\s+/g, '-')}.jpeg` : null;
+  const logoUrl = equipo
+    ? `/logos/${equipo.toLowerCase().replace(/\s+/g, "-")}.jpeg`
+    : null;
 
   const isTop4 = rank <= 4;
   const isWorst4 = rank >= 8;
-  const highlightClass = isTop4 ? "highlight-top" : isWorst4 ? "highlight-bottom" : "";
+  const highlightClass = isTop4
+    ? "highlight-top"
+    : isWorst4
+      ? "highlight-bottom"
+      : "";
 
   const isGeneral = currentRound === "General";
 
   const totalGolpes = isGeneral
-    ? (parRow?.TOTAL !== undefined && parRow?.TOTAL !== "" ? parRow.TOTAL : "-")
-    : (player.TOTAL !== undefined && player.TOTAL !== "" ? player.TOTAL : "-");
+    ? parRow?.TOTAL !== undefined && parRow?.TOTAL !== ""
+      ? parRow.TOTAL
+      : "-"
+    : player.TOTAL !== undefined && player.TOTAL !== ""
+      ? player.TOTAL
+      : "-";
 
   const parTotal = isGeneral
     ? "-"
-    : (player.PAR_JUGADOR_TOTAL !== undefined && player.PAR_JUGADOR_TOTAL !== "" ? player.PAR_JUGADOR_TOTAL : (parRow?.TOTAL !== undefined && parRow?.TOTAL !== "" ? parRow.TOTAL : "-"));
+    : player.PAR_JUGADOR_TOTAL !== undefined && player.PAR_JUGADOR_TOTAL !== ""
+      ? player.PAR_JUGADOR_TOTAL
+      : parRow?.TOTAL !== undefined && parRow?.TOTAL !== ""
+        ? parRow.TOTAL
+        : "-";
 
   const avatarImageUrl = TEAM_AVATAR_IMAGES[equipo];
 
@@ -126,25 +159,45 @@ function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, curren
       </div>
 
       <div className="row-player">
-        <div className="avatar" style={{ background: color.bg, color: color.text, position: 'relative', overflow: 'hidden' }}>
-          {/* INICIALES SIEMPRE DE FONDO */}
-          <span style={{ position: 'absolute', zIndex: 1 }}>{getInitials(player._CleanName || player.Jugador)}</span>
-
-          {/* IMAGEN POR ENCIMA SÓLO SI ESTÁ ASIGNADA AL EQUIPO */}
+        <div
+          className="avatar"
+          style={{
+            background: color.bg,
+            color: color.text,
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          <span style={{ position: "absolute", zIndex: 1 }}>
+            {getInitials(player._CleanName || player.Jugador)}
+          </span>
           {avatarImageUrl && (
             <img
               src={avatarImageUrl}
               alt={`Logo ${equipo}`}
-              style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', zIndex: 2 }}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                position: "absolute",
+                zIndex: 2,
+              }}
             />
           )}
         </div>
 
         <div className="player-info">
-          <span className="player-name">{player._CleanName || player.Jugador}</span>
+          <span className="player-name">
+            {player._CleanName || player.Jugador}
+          </span>
           {equipo && (
             <div className="player-team">
-              <img src={logoUrl} alt={equipo} className="team-logo" onError={(e) => e.target.style.display = 'none'} />
+              <img
+                src={logoUrl}
+                alt={equipo}
+                className="team-logo"
+                onError={(e) => (e.target.style.display = "none")}
+              />
               <span className="team-name">{equipo}</span>
             </div>
           )}
@@ -156,10 +209,14 @@ function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, curren
       </div>
 
       <div className="row-stats">
-        <div className={`stat-block ${activeHoleRound === "Ronda 1" ? "active-col" : "dim-col"}`}>
+        <div
+          className={`stat-block ${activeHoleRound === "Ronda 1" ? "active-col" : "dim-col"}`}
+        >
           <span className="stat-val">{player._cleanR1}</span>
         </div>
-        <div className={`stat-block ${activeHoleRound === "Ronda 2" ? "active-col" : "dim-col"}`}>
+        <div
+          className={`stat-block ${activeHoleRound === "Ronda 2" ? "active-col" : "dim-col"}`}
+        >
           <span className="stat-val">{player._cleanR2}</span>
         </div>
       </div>
@@ -171,7 +228,15 @@ function PlayerRow({ player, rank, colorIndex, prevRank, parRow, onClick, curren
   );
 }
 
-function PlayerModal({ player, onClose, onRefreshNeeded, dbRonda1, dbRonda2, selectedHoleInfo, setSelectedHoleInfo }) {
+function PlayerModal({
+  player,
+  onClose,
+  onRefreshNeeded,
+  dbRonda1,
+  dbRonda2,
+  selectedHoleInfo,
+  setSelectedHoleInfo,
+}) {
   const [modalRound, setModalRound] = useState("Ronda 1");
   const [editedData, setEditedData] = useState({});
   const [isEditing, setIsEditing] = useState(false);
@@ -180,16 +245,23 @@ function PlayerModal({ player, onClose, onRefreshNeeded, dbRonda1, dbRonda2, sel
   const holes = Array.from({ length: 18 }, (_, i) => i + 1);
 
   const activeDb = modalRound === "Ronda 1" ? dbRonda1 : dbRonda2;
-  const roundPlayerData = player ? activeDb.find(p => p.Jugador === player.Jugador) : null;
-  const parRow = roundPlayerData ? activeDb.find(p => p.Jugador === roundPlayerData._parName) : null;
+  const roundPlayerData = player
+    ? activeDb.find((p) => p.Jugador === player.Jugador)
+    : null;
+  const parRow = roundPlayerData
+    ? activeDb.find((p) => p.Jugador === roundPlayerData._parName)
+    : null;
 
   useEffect(() => {
     if (player) {
       const initial = {};
-      holes.forEach(h => {
+      holes.forEach((h) => {
         initial[h] = {
           par: parRow && parRow[h] !== undefined ? parRow[h] : "",
-          golpes: roundPlayerData && roundPlayerData[h] !== undefined ? roundPlayerData[h] : ""
+          golpes:
+            roundPlayerData && roundPlayerData[h] !== undefined
+              ? roundPlayerData[h]
+              : "",
         };
       });
       setEditedData(initial);
@@ -200,19 +272,18 @@ function PlayerModal({ player, onClose, onRefreshNeeded, dbRonda1, dbRonda2, sel
   if (!player) return null;
 
   const handleInputChange = (hole, field, value) => {
-    setEditedData(prev => ({
+    setEditedData((prev) => ({
       ...prev,
-      [hole]: { ...prev[hole], [field]: value }
+      [hole]: { ...prev[hole], [field]: value },
     }));
   };
 
   const handleSave = async () => {
     setIsSaving(true);
-
     let nuevosGolpes = {};
     let nuevosPares = {};
 
-    Object.keys(editedData).forEach(hole => {
+    Object.keys(editedData).forEach((hole) => {
       nuevosGolpes[hole] = editedData[hole].golpes;
       nuevosPares[hole] = editedData[hole].par;
     });
@@ -220,9 +291,9 @@ function PlayerModal({ player, onClose, onRefreshNeeded, dbRonda1, dbRonda2, sel
     const enviarDatos = async (paquete) => {
       try {
         await fetch(API_URL, {
-          method: 'POST',
+          method: "POST",
           body: JSON.stringify(paquete),
-          headers: { "Content-Type": "text/plain" }
+          headers: { "Content-Type": "text/plain" },
         });
       } catch (error) {
         console.log(`Error al guardar en Sheets`, error);
@@ -230,39 +301,51 @@ function PlayerModal({ player, onClose, onRefreshNeeded, dbRonda1, dbRonda2, sel
     };
 
     await Promise.all([
-      enviarDatos({ jugador: player.Jugador, ronda: modalRound, golpes: nuevosGolpes }),
-      enviarDatos({ jugador: parRow ? parRow.Jugador : `PAR ${String(player.Jugador).toUpperCase()}`, ronda: modalRound, golpes: nuevosPares })
+      enviarDatos({
+        jugador: player.Jugador,
+        ronda: modalRound,
+        golpes: nuevosGolpes,
+      }),
+      enviarDatos({
+        jugador: parRow
+          ? parRow.Jugador
+          : `PAR ${String(player.Jugador).toUpperCase()}`,
+        ronda: modalRound,
+        golpes: nuevosPares,
+      }),
     ]);
 
     setIsEditing(false);
     setIsSaving(false);
     onClose();
-    setTimeout(() => { if (onRefreshNeeded) onRefreshNeeded(); }, 2000);
+    setTimeout(() => {
+      if (onRefreshNeeded) onRefreshNeeded();
+    }, 2000);
   };
 
   const handleReset = async () => {
-    const confirmReset = window.confirm(`⚠️ ¿Estás seguro de que quieres BORRAR todos los golpes de ${player._CleanName || player.Jugador} en la ${modalRound}?`);
-
+    const confirmReset = window.confirm(
+      `⚠️ ¿Estás seguro de que quieres BORRAR todos los golpes de ${player._CleanName || player.Jugador} en la ${modalRound}?`,
+    );
     if (!confirmReset) return;
 
     setIsSaving(true);
-
     let golpesVacios = {};
-    holes.forEach(hole => {
+    holes.forEach((hole) => {
       golpesVacios[hole] = "";
     });
 
     const paqueteGolpes = {
       jugador: player.Jugador,
       ronda: modalRound,
-      golpes: golpesVacios
+      golpes: golpesVacios,
     };
 
     try {
       await fetch(API_URL, {
-        method: 'POST',
+        method: "POST",
         body: JSON.stringify(paqueteGolpes),
-        headers: { "Content-Type": "text/plain" }
+        headers: { "Content-Type": "text/plain" },
       });
     } catch (error) {
       console.log(`Error al resetear en Sheets`, error);
@@ -271,7 +354,9 @@ function PlayerModal({ player, onClose, onRefreshNeeded, dbRonda1, dbRonda2, sel
     setIsEditing(false);
     setIsSaving(false);
     onClose();
-    setTimeout(() => { if (onRefreshNeeded) onRefreshNeeded(); }, 2000);
+    setTimeout(() => {
+      if (onRefreshNeeded) onRefreshNeeded();
+    }, 2000);
   };
 
   return (
@@ -283,12 +368,22 @@ function PlayerModal({ player, onClose, onRefreshNeeded, dbRonda1, dbRonda2, sel
             <div className="modal-tabs">
               <button
                 className={`modal-tab-btn ${modalRound === "Ronda 1" ? "active" : ""}`}
-                onClick={() => { setModalRound("Ronda 1"); setIsEditing(false); }}
-              >R1</button>
+                onClick={() => {
+                  setModalRound("Ronda 1");
+                  setIsEditing(false);
+                }}
+              >
+                R1
+              </button>
               <button
                 className={`modal-tab-btn ${modalRound === "Ronda 2" ? "active" : ""}`}
-                onClick={() => { setModalRound("Ronda 2"); setIsEditing(false); }}
-              >R2</button>
+                onClick={() => {
+                  setModalRound("Ronda 2");
+                  setIsEditing(false);
+                }}
+              >
+                R2
+              </button>
             </div>
           </div>
           <div className="header-actions">
@@ -298,19 +393,44 @@ function PlayerModal({ player, onClose, onRefreshNeeded, dbRonda1, dbRonda2, sel
                   className="save-btn"
                   onClick={handleSave}
                   disabled={isSaving}
-                  style={isSaving ? { backgroundColor: '#95a5a6', cursor: 'not-allowed' } : {}}
+                  style={
+                    isSaving
+                      ? { backgroundColor: "#95a5a6", cursor: "not-allowed" }
+                      : {}
+                  }
                 >
-                  {isSaving ? '...' : 'GUARDAR'}
+                  {isSaving ? "..." : "GUARDAR"}
                 </button>
-                <button className="cancel-btn" onClick={() => setIsEditing(false)} disabled={isSaving}>CAN</button>
+                <button
+                  className="cancel-btn"
+                  onClick={() => setIsEditing(false)}
+                  disabled={isSaving}
+                >
+                  CAN
+                </button>
               </>
             ) : (
               <>
-                <button className="reset-btn" onClick={handleReset} disabled={isSaving} title="Reiniciar Partida">↺</button>
-                <button className="edit-btn" onClick={() => setIsEditing(true)} title="Editar">✎</button>
+                <button
+                  className="reset-btn"
+                  onClick={handleReset}
+                  disabled={isSaving}
+                  title="Reiniciar Partida"
+                >
+                  ↺
+                </button>
+                <button
+                  className="edit-btn"
+                  onClick={() => setIsEditing(true)}
+                  title="Editar"
+                >
+                  ✎
+                </button>
               </>
             )}
-            <button className="close-btn" onClick={onClose} disabled={isSaving}>&times;</button>
+            <button className="close-btn" onClick={onClose} disabled={isSaving}>
+              &times;
+            </button>
           </div>
         </div>
 
@@ -322,12 +442,20 @@ function PlayerModal({ player, onClose, onRefreshNeeded, dbRonda1, dbRonda2, sel
               <span>Golpes</span>
             </div>
             {holes.map((h) => {
-              const currentEditedHole = editedData[h] || { par: "", golpes: "" };
+              const currentEditedHole = editedData[h] || {
+                par: "",
+                golpes: "",
+              };
               const golpesNum = Number(currentEditedHole.golpes);
               const parNum = Number(currentEditedHole.par);
 
               let scoreClass = "score-par";
-              if (!isNaN(parNum) && !isNaN(golpesNum) && currentEditedHole.golpes !== "" && currentEditedHole.par !== "") {
+              if (
+                !isNaN(parNum) &&
+                !isNaN(golpesNum) &&
+                currentEditedHole.golpes !== "" &&
+                currentEditedHole.par !== ""
+              ) {
                 if (golpesNum < parNum) scoreClass = "score-under";
                 else if (golpesNum > parNum) scoreClass = "score-over";
               }
@@ -342,14 +470,34 @@ function PlayerModal({ player, onClose, onRefreshNeeded, dbRonda1, dbRonda2, sel
                     {h} <span className="hole-indicator-icon">🗺️</span>
                   </span>
                   {isEditing ? (
-                    <input type="number" className="edit-input" value={currentEditedHole.par} onChange={(e) => handleInputChange(h, 'par', e.target.value)} disabled={isSaving} />
+                    <input
+                      type="number"
+                      className="edit-input"
+                      value={currentEditedHole.par}
+                      onChange={(e) =>
+                        handleInputChange(h, "par", e.target.value)
+                      }
+                      disabled={isSaving}
+                    />
                   ) : (
                     <span>{currentEditedHole.par || "-"}</span>
                   )}
                   {isEditing ? (
-                    <input type="number" className={`edit-input ${scoreClass}`} value={currentEditedHole.golpes} onChange={(e) => handleInputChange(h, 'golpes', e.target.value)} disabled={isSaving} />
+                    <input
+                      type="number"
+                      className={`edit-input ${scoreClass}`}
+                      value={currentEditedHole.golpes}
+                      onChange={(e) =>
+                        handleInputChange(h, "golpes", e.target.value)
+                      }
+                      disabled={isSaving}
+                    />
                   ) : (
-                    <span className={scoreClass}>{currentEditedHole.golpes === "" ? "-" : currentEditedHole.golpes}</span>
+                    <span className={scoreClass}>
+                      {currentEditedHole.golpes === ""
+                        ? "-"
+                        : currentEditedHole.golpes}
+                    </span>
                   )}
                 </div>
               );
@@ -357,9 +505,20 @@ function PlayerModal({ player, onClose, onRefreshNeeded, dbRonda1, dbRonda2, sel
           </div>
 
           {selectedHoleInfo && (
-            <div className="hole-preview-overlay" onClick={() => setSelectedHoleInfo(null)}>
-              <div className="hole-preview-content" onClick={e => e.stopPropagation()}>
-                <button className="close-preview" onClick={() => setSelectedHoleInfo(null)}>×</button>
+            <div
+              className="hole-preview-overlay"
+              onClick={() => setSelectedHoleInfo(null)}
+            >
+              <div
+                className="hole-preview-content"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button
+                  className="close-preview"
+                  onClick={() => setSelectedHoleInfo(null)}
+                >
+                  ×
+                </button>
                 <h3>Información Hoyo {selectedHoleInfo}</h3>
                 <img
                   src={`/images/hoyos/hoyo-${selectedHoleInfo}.jpg`}
@@ -367,7 +526,8 @@ function PlayerModal({ player, onClose, onRefreshNeeded, dbRonda1, dbRonda2, sel
                   className="hole-map-image"
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = "https://via.placeholder.com/400x300?text=Imagen+No+Disponible";
+                    e.target.src =
+                      "https://via.placeholder.com/400x300?text=Imagen+No+Disponible";
                   }}
                 />
               </div>
@@ -398,34 +558,32 @@ export default function App() {
   const [currentRound, setCurrentRound] = useState("General");
 
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('app-theme') || 'dark';
+    return localStorage.getItem("app-theme") || "dark";
   });
 
   useEffect(() => {
-    if (theme === 'light') {
-      document.body.classList.add('light-mode');
+    if (theme === "light") {
+      document.body.classList.add("light-mode");
     } else {
-      document.body.classList.remove('light-mode');
+      document.body.classList.remove("light-mode");
     }
-    localStorage.setItem('app-theme', theme);
+    localStorage.setItem("app-theme", theme);
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
   const prevHashRef = useRef(null);
 
   const procesarHoja = (raw) => {
     if (!raw || raw.error) return [];
-
-    // Recorremos las filas con un for-loop para mayor control
     for (let i = 0; i < raw.length; i++) {
       const row = raw[i];
       if (isRealPlayer(row)) {
-        row._CleanName = String(row.Jugador || "").replace(" RESULTADO REAL", "").trim();
-
-        // Búsqueda dinámica de filas adicionales (PAR, STABLE...)
+        row._CleanName = String(row.Jugador || "")
+          .replace(" RESULTADO REAL", "")
+          .trim();
         let foundPar = false;
         let foundStable = false;
 
@@ -441,10 +599,8 @@ export default function App() {
             row._stableResultado = subRow["RESULTADO ACTUAL"];
             foundStable = true;
           }
-          // Si topamos con el siguiente jugador, dejamos de buscar
           if (isRealPlayer(subRow)) break;
         }
-
         if (!foundStable) {
           row._stableResultado = row["RESULTADO ACTUAL"];
         }
@@ -460,7 +616,7 @@ export default function App() {
       const [res1, res2, resGen] = await Promise.all([
         fetch(`${API_URL}?ronda=Ronda 1&t=${t}`),
         fetch(`${API_URL}?ronda=Ronda 2&t=${t}`),
-        fetch(`${API_URL}?ronda=General&t=${t}`)
+        fetch(`${API_URL}?ronda=General&t=${t}`),
       ]);
 
       if (!res1.ok || !res2.ok || !resGen.ok) throw new Error(`HTTP Error`);
@@ -477,10 +633,11 @@ export default function App() {
       if (hash === prevHashRef.current) return;
       prevHashRef.current = hash;
 
-      processedGen.forEach(pGen => {
+      processedGen.forEach((pGen) => {
         if (isRealPlayer(pGen)) {
-          const pBase = processedR1.find(p => p.Jugador === pGen.Jugador) ||
-            processedR2.find(p => p.Jugador === pGen.Jugador);
+          const pBase =
+            processedR1.find((p) => p.Jugador === pGen.Jugador) ||
+            processedR2.find((p) => p.Jugador === pGen.Jugador);
           if (pBase) {
             pGen["EQUIPO"] = pBase["EQUIPO"];
           }
@@ -510,24 +667,19 @@ export default function App() {
 
   const playerMap = new Map();
 
-  dbRonda1.filter(isRealPlayer).forEach(p => {
-    const valR1 = String(p._stableResultado || "0").trim();
+  // Guardamos la info básica de R1
+  dbRonda1.filter(isRealPlayer).forEach((p) => {
     playerMap.set(p.Jugador, {
       ...p,
       _r1Data: p,
-      _cleanR1: Number(valR1) || 0,
-      _cleanR2: 0,
-      _totalScore: Number(valR1) || 0
     });
   });
 
-  dbRonda2.filter(isRealPlayer).forEach(p => {
-    const valR2 = String(p._stableResultado || "0").trim();
+  // Guardamos la info básica de R2
+  dbRonda2.filter(isRealPlayer).forEach((p) => {
     if (playerMap.has(p.Jugador)) {
       const existing = playerMap.get(p.Jugador);
       existing._r2Data = p;
-      existing._cleanR2 = Number(valR2) || 0;
-      existing._totalScore = (existing._cleanR1 || 0) + existing._cleanR2;
       if (p.Hoyo && Number(p.Hoyo) > 0) {
         existing.Hoyo = p.Hoyo;
       }
@@ -535,15 +687,50 @@ export default function App() {
       playerMap.set(p.Jugador, {
         ...p,
         _r2Data: p,
-        _cleanR1: 0,
-        _cleanR2: Number(valR2) || 0,
-        _totalScore: Number(valR2) || 0
       });
     }
   });
 
+  // ======= NUEVO: MAPEO DESDE LA PESTAÑA GENERAL PARA INDIVIDUALES =======
   const sortedPlayers = Array.from(playerMap.values())
-    .sort((a, b) => b._totalScore - a._totalScore);
+    .map((p) => {
+      const pGen = dbGeneral.find((pg) => pg.Jugador === p.Jugador);
+
+      let valR1 = "-";
+      let valR2 = "-";
+      let valTotal = "-";
+
+      if (pGen) {
+        valR1 =
+          pGen["PUNTOS DIA 1"] !== "" && pGen["PUNTOS DIA 1"] !== undefined
+            ? Number(pGen["PUNTOS DIA 1"])
+            : "-";
+        valR2 =
+          pGen["PUNTOS DIA 2"] !== "" && pGen["PUNTOS DIA 2"] !== undefined
+            ? Number(pGen["PUNTOS DIA 2"])
+            : "-";
+        valTotal =
+          pGen["PUNTOS INDIV. TOTAL"] !== "" &&
+            pGen["PUNTOS INDIV. TOTAL"] !== undefined
+            ? Number(pGen["PUNTOS INDIV. TOTAL"])
+            : "-";
+      }
+
+      return {
+        ...p,
+        // Estas propiedades son las que se pintan en la vista Individual (R1, R2 y TOTAL)
+        _cleanR1: valR1,
+        _cleanR2: valR2,
+        _totalScore: valTotal,
+        // Estas propiedades numéricas se usan abajo para calcular el Match Play
+        _puntosDia1: valR1 !== "-" ? valR1 : 0,
+        _puntosDia2: valR2 !== "-" ? valR2 : 0,
+        _puntosIndivTotal: valTotal !== "-" ? valTotal : 0,
+      };
+    })
+    .sort(
+      (a, b) => (Number(b._totalScore) || 0) - (Number(a._totalScore) || 0),
+    );
 
   let currentRank = 0;
   let lastScore = null;
@@ -556,27 +743,125 @@ export default function App() {
     return { ...p, _rank: currentRank };
   });
 
-  const leader = players[0];
+  // ========== LÓGICA DE MATCH PLAY FRONTAL ==========
+  const equiposUnicosMatch = [
+    ...new Set(
+      players.map((p) => p.EQUIPO).filter((e) => e && e.trim() !== ""),
+    ),
+  ];
 
-  const equiposUnicos = [...new Set(players.map(p => p.EQUIPO).filter(e => e && e.trim() !== ""))];
-  const rawEquiposData = equiposUnicos.map(equipo => {
-    const rawJugadores = players.filter(p => p.EQUIPO === equipo);
-    // Ordenar jugadores: El capitán siempre primero (búsqueda robusta)
-    const capitanNombre = TEAM_CAPTAINS[equipo.toUpperCase()] || "";
-    const jugadores = [...rawJugadores].sort((a, b) => {
-      const aName = (a._CleanName || a.Jugador || "").toUpperCase();
-      const bName = (b._CleanName || b.Jugador || "").toUpperCase();
-      const capUpper = capitanNombre.toUpperCase();
-      if (capUpper && aName.includes(capUpper)) return -1;
-      if (capUpper && bName.includes(capUpper)) return 1;
-      return 0;
-    });
+  // Como la array "players" ya tiene los puntos de la General, la usamos directamente
+  const pDecorated = players;
 
-    const teamR1 = jugadores.reduce((sum, p) => sum + (p._cleanR1 || 0), 0);
-    const teamR2 = jugadores.reduce((sum, p) => sum + (p._cleanR2 || 0), 0);
-    const totalPuntos = teamR1 + teamR2;
-    return { equipo, jugadores, teamR1, teamR2, totalPuntos };
-  }).sort((a, b) => b.totalPuntos - a.totalPuntos);
+  let matchPlayHtml = "";
+  let matchPlayPts = {};
+
+  if (equiposUnicosMatch.length === 2) {
+    const eq1Name = equiposUnicosMatch[0];
+    const eq2Name = equiposUnicosMatch[1];
+    matchPlayPts = { [eq1Name]: 0, [eq2Name]: 0 };
+
+    // Filtramos por equipo y ORDENAMOS de mejor a peor según sus Puntos Indiv. Total (1º vs 1º...)
+    let eq1Players = pDecorated
+      .filter((p) => p.EQUIPO === eq1Name)
+      .sort((a, b) => b._puntosIndivTotal - a._puntosIndivTotal);
+    let eq2Players = pDecorated
+      .filter((p) => p.EQUIPO === eq2Name)
+      .sort((a, b) => b._puntosIndivTotal - a._puntosIndivTotal);
+
+    const minLen = Math.min(eq1Players.length, eq2Players.length);
+    const hasTrio = eq1Players.length !== eq2Players.length;
+    const normalMatchesCount = hasTrio ? minLen - 1 : minLen; // Dejamos a los últimos para el trío
+
+    let html = [];
+
+    // Partidos 1v1 (Desde los primeros del ranking hasta antes de los últimos)
+    for (let i = 0; i < normalMatchesCount; i++) {
+      const p1 = eq1Players[i];
+      const p2 = eq2Players[i];
+
+      if (p1._puntosIndivTotal > p2._puntosIndivTotal) {
+        matchPlayPts[p1.EQUIPO] += 2;
+        html.push(
+          `<li><b>1v1:</b> <b>${p1._CleanName}</b> (${p1._puntosIndivTotal}) gana a ${p2._CleanName} (${p2._puntosIndivTotal}). <br><span style='color:#e67e22; font-weight:bold;'>+2 ${p1.EQUIPO}</span></li>`,
+        );
+      } else if (p2._puntosIndivTotal > p1._puntosIndivTotal) {
+        matchPlayPts[p2.EQUIPO] += 2;
+        html.push(
+          `<li><b>1v1:</b> <b>${p2._CleanName}</b> (${p2._puntosIndivTotal}) gana a ${p1._CleanName} (${p1._puntosIndivTotal}). <br><span style='color:#e67e22; font-weight:bold;'>+2 ${p2.EQUIPO}</span></li>`,
+        );
+      } else {
+        matchPlayPts[p1.EQUIPO] += 1;
+        matchPlayPts[p2.EQUIPO] += 1;
+        html.push(
+          `<li><b>1v1:</b> <b>Empate</b> entre ${p1._CleanName} y ${p2._CleanName} (${p1._puntosIndivTotal} pts). <br><span style='color:#e67e22; font-weight:bold;'>+1 cada equipo</span></li>`,
+        );
+      }
+    }
+
+    // El partido del Trío (con el último del pequeño y los 2 últimos del grande)
+    if (hasTrio) {
+      const minEq =
+        eq1Players.length < eq2Players.length ? eq1Players : eq2Players;
+      const maxEq =
+        eq1Players.length > eq2Players.length ? eq1Players : eq2Players;
+
+      const solitario = minEq[minEq.length - 1]; // El último de la lista del equipo pequeño
+      const pareja1 = maxEq[maxEq.length - 2]; // El penúltimo de la lista del equipo grande
+      const pareja2 = maxEq[maxEq.length - 1]; // El último de la lista del equipo grande
+
+      // Minoría suma +1
+      matchPlayPts[minEq[0].EQUIPO] += 1;
+
+      // Ordenamos a los 3 integrantes del trío para ver quién gana
+      const trio = [solitario, pareja1, pareja2].sort(
+        (a, b) => b._puntosIndivTotal - a._puntosIndivTotal,
+      );
+
+      matchPlayPts[trio[0].EQUIPO] += 2;
+      matchPlayPts[trio[1].EQUIPO] += 2;
+
+      html.push(
+        `<li class='trio' style='margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc;'><b>El Trío Final:</b> ${solitario._CleanName} vs ${pareja1._CleanName} y ${pareja2._CleanName}.<br> 1º: ${trio[0]._CleanName} (+2) | 2º: ${trio[1]._CleanName} (+2) <br><span style='color:#e67e22; font-weight:bold;'>(+1 minoría para ${minEq[0].EQUIPO})</span></li>`,
+      );
+    }
+    matchPlayHtml = html.join("");
+  }
+
+  // ========== ARMADO DE EQUIPOS DEFINITIVO ==========
+  const rawEquiposData = equiposUnicosMatch
+    .map((equipo) => {
+      const rawJugadores = pDecorated.filter((p) => p.EQUIPO === equipo);
+
+      // El orden interno para listarlos en el Acordeón (Capitán primero)
+      const capitanNombre = TEAM_CAPTAINS[equipo.toUpperCase()] || "";
+      const jugadores = [...rawJugadores].sort((a, b) => {
+        const aName = (a._CleanName || a.Jugador || "").toUpperCase();
+        const bName = (b._CleanName || b.Jugador || "").toUpperCase();
+        const capUpper = capitanNombre.toUpperCase();
+        if (capUpper && aName.includes(capUpper)) return -1;
+        if (capUpper && bName.includes(capUpper)) return 1;
+        return 0;
+      });
+
+      let teamR1 = 0;
+      let teamR2 = 0;
+      let puntosIndivTotal = 0;
+
+      // SUMAMOS DIRECTAMENTE LOS PUNTOS EXACTOS QUE VISTE EN LAS CELDAS "General"
+      rawJugadores.forEach((p) => {
+        teamR1 += p._puntosDia1;
+        teamR2 += p._puntosDia2;
+        puntosIndivTotal += p._puntosIndivTotal;
+      });
+
+      // SUMAMOS LOS PUNTOS DE MATCH PLAY DE LA CALCULADORA DE ARRIBA
+      const puntosExtrasMatch = matchPlayPts[equipo] || 0;
+      const totalPuntos = puntosIndivTotal + puntosExtrasMatch;
+
+      return { equipo, jugadores, teamR1, teamR2, totalPuntos };
+    })
+    .sort((a, b) => b.totalPuntos - a.totalPuntos);
 
   let currentEqRank = 0;
   let lastEqScore = null;
@@ -588,16 +873,36 @@ export default function App() {
     return { ...eq, _rank: currentEqRank };
   });
 
-  const maxPuntosEquipos = equiposData.length > 0 ? equiposData[0].totalPuntos : 0;
+  const maxPuntosEquipos =
+    equiposData.length > 0 ? equiposData[0].totalPuntos : 0;
 
   return (
     <div className="app">
-
       <header className="header">
         <div className="header-left">
           <h1 className="title">
-            Clasificación <span style={{ fontSize: "0.5em", color: "var(--gold)", verticalAlign: "middle" }}>{currentRound}</span>
-            <span><img src={fotoEquipos} alt="foto equipos" style={{ height: "100px", verticalAlign: "middle", marginLeft: "50px", borderRadius: "10px" }} /></span>
+            Clasificación{" "}
+            <span
+              style={{
+                fontSize: "0.5em",
+                color: "var(--gold)",
+                verticalAlign: "middle",
+              }}
+            >
+              {currentRound}
+            </span>
+            <span>
+              <img
+                src={fotoEquipos}
+                alt="foto equipos"
+                style={{
+                  height: "100px",
+                  verticalAlign: "middle",
+                  marginLeft: "50px",
+                  borderRadius: "10px",
+                }}
+              />
+            </span>
           </h1>
           <p className="subtitle">
             {players.length > 0 ? `${players.length} jugadores` : "Cargando…"}
@@ -610,21 +915,41 @@ export default function App() {
                 <button
                   className={`mini-tab-btn ${activeHoleRound === "Ronda 1" ? "active" : ""}`}
                   onClick={() => setActiveHoleRound("Ronda 1")}
-                >📍 R1</button>
+                >
+                  📍 R1
+                </button>
                 <button
                   className={`mini-tab-btn ${activeHoleRound === "Ronda 2" ? "active" : ""}`}
                   onClick={() => setActiveHoleRound("Ronda 2")}
-                >📍 R2</button>
+                >
+                  📍 R2
+                </button>
               </div>
             </div>
           )}
 
-          <div className="tabs-groups" style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
+          <div
+            className="tabs-groups"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "12px",
+              marginTop: "16px",
+            }}
+          >
             <div className="tabs-container" style={{ marginTop: 0 }}>
-              <button className={`tab-btn ${activeTab === "clasificacion" ? "active" : ""}`} onClick={() => { setActiveTab("clasificacion"); }}>
+              <button
+                className={`tab-btn ${activeTab === "clasificacion" ? "active" : ""}`}
+                onClick={() => {
+                  setActiveTab("clasificacion");
+                }}
+              >
                 Individuales
               </button>
-              <button className={`tab-btn ${activeTab === "equipos" ? "active equipos" : ""}`} onClick={() => setActiveTab("equipos")}>
+              <button
+                className={`tab-btn ${activeTab === "equipos" ? "active equipos" : ""}`}
+                onClick={() => setActiveTab("equipos")}
+              >
                 Equipos
               </button>
             </div>
@@ -632,21 +957,46 @@ export default function App() {
         </div>
 
         <div className="header-right">
-          <button className="theme-toggle-btn" onClick={toggleTheme} title="Cambiar tema">
-            {theme === 'dark' ? '☀️' : '🌙'}
+          <button
+            className="theme-toggle-btn"
+            onClick={toggleTheme}
+            title="Cambiar tema"
+          >
+            {theme === "dark" ? "☀️" : "🌙"}
           </button>
-          <div className={`status-dot ${error ? "error" : "ok"} ${pulse ? "pulse" : ""}`} />
+          <div
+            className={`status-dot ${error ? "error" : "ok"} ${pulse ? "pulse" : ""}`}
+          />
           <span className="status-text">
-            {error ? "Sin conexión" : lastUpdate ? lastUpdate.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "Conectando…"}
+            {error
+              ? "Sin conexión"
+              : lastUpdate
+                ? lastUpdate.toLocaleTimeString("es-ES", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                })
+                : "Conectando…"}
           </span>
         </div>
       </header>
 
       {/* Overlay Global para Vista Previa de Hoyos */}
       {selectedHoleInfo && (
-        <div className="hole-preview-overlay" onClick={() => setSelectedHoleInfo(null)}>
-          <div className="hole-preview-content" onClick={e => e.stopPropagation()}>
-            <button className="close-preview" onClick={() => setSelectedHoleInfo(null)}>×</button>
+        <div
+          className="hole-preview-overlay"
+          onClick={() => setSelectedHoleInfo(null)}
+        >
+          <div
+            className="hole-preview-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="close-preview"
+              onClick={() => setSelectedHoleInfo(null)}
+            >
+              ×
+            </button>
             <h3>Información Hoyo {selectedHoleInfo}</h3>
             <img
               src={`/images/hoyos/hoyo-${selectedHoleInfo}.jpg`}
@@ -654,13 +1004,13 @@ export default function App() {
               className="hole-map-image"
               onError={(e) => {
                 e.target.onerror = null;
-                e.target.src = "https://via.placeholder.com/400x300?text=Imagen+No+Disponible";
+                e.target.src =
+                  "https://via.placeholder.com/400x300?text=Imagen+No+Disponible";
               }}
             />
           </div>
         </div>
       )}
-
 
       <main className="main">
         {loading ? (
@@ -685,20 +1035,39 @@ export default function App() {
                   <span className="th-player">Jugador</span>
                   <span className="th-hoyo">Hoyo</span>
                   <div className="th-stats header-r1r2">
-                    <span className={activeHoleRound === "Ronda 1" ? "active-th" : ""}>R1</span>
-                    <span className={activeHoleRound === "Ronda 2" ? "active-th" : ""}>R2</span>
+                    <span
+                      className={
+                        activeHoleRound === "Ronda 1" ? "active-th" : ""
+                      }
+                    >
+                      R1
+                    </span>
+                    <span
+                      className={
+                        activeHoleRound === "Ronda 2" ? "active-th" : ""
+                      }
+                    >
+                      R2
+                    </span>
                   </div>
                   <span className="th-resultado">TOTAL</span>
                 </div>
                 <div className="table-body">
                   {players.map((player, i) => {
-                    const playerRoundData = activeHoleRound === 'Ronda 1'
-                      ? dbRonda1.find(p => p.Jugador === player.Jugador)
-                      : dbRonda2.find(p => p.Jugador === player.Jugador);
+                    const playerRoundData =
+                      activeHoleRound === "Ronda 1"
+                        ? dbRonda1.find((p) => p.Jugador === player.Jugador)
+                        : dbRonda2.find((p) => p.Jugador === player.Jugador);
 
-                    const hoyoValue = playerRoundData?.HOYO || playerRoundData?.Hoyo;
-                    const tienePuntos = (Number(playerRoundData?._stableResultado) || 0) > 0;
-                    const hoyoActivo = hoyoValue ? hoyoValue : (tienePuntos ? "1" : "-");
+                    const hoyoValue =
+                      playerRoundData?.HOYO || playerRoundData?.Hoyo;
+                    const tienePuntos =
+                      (Number(playerRoundData?._stableResultado) || 0) > 0;
+                    const hoyoActivo = hoyoValue
+                      ? hoyoValue
+                      : tienePuntos
+                        ? "1"
+                        : "-";
 
                     return (
                       <PlayerRow
@@ -706,7 +1075,10 @@ export default function App() {
                         player={player}
                         rank={player._rank}
                         colorIndex={i}
-                        parRow={dbRonda1.find((p) => p.Jugador === player._parName) || dbRonda2.find((p) => p.Jugador === player._parName)}
+                        parRow={
+                          dbRonda1.find((p) => p.Jugador === player._parName) ||
+                          dbRonda2.find((p) => p.Jugador === player._parName)
+                        }
                         onClick={() => setSelectedPlayer(player)}
                         currentRound={currentRound}
                         hoyoActivo={hoyoActivo}
@@ -720,57 +1092,126 @@ export default function App() {
 
             {activeTab === "equipos" && (
               <div className="equipos-lista">
+                {matchPlayHtml && (
+                  <div
+                    className="marcador-enfrentamientos"
+                    style={{
+                      backgroundColor: "var(--bg-card)",
+                      padding: "15px",
+                      borderRadius: "10px",
+                      marginBottom: "20px",
+                      border: "1px solid var(--border)",
+                    }}
+                  >
+                    <h3
+                      style={{
+                        marginTop: 0,
+                        marginBottom: "15px",
+                        textAlign: "center",
+                        color: "var(--gold)",
+                        fontSize: "16px",
+                      }}
+                    >
+                      Puntos en Juego (Match Play)
+                    </h3>
+                    <ul
+                      style={{
+                        listStyle: "none",
+                        padding: 0,
+                        margin: 0,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "10px",
+                        fontSize: "14px",
+                        lineHeight: "1.4",
+                      }}
+                      dangerouslySetInnerHTML={{ __html: matchPlayHtml }}
+                    />
+                  </div>
+                )}
+
                 <div className="table-header header-equipos">
                   <span className="th-rank">Pos</span>
                   <span className="th-team">Equipo</span>
                   <span className="th-players-list hide-mobile">Jugadores</span>
                   <span className="th-r1">R1</span>
                   <span className="th-r2">R2</span>
-                  <span className="th-tot">Tot</span>
+                  <span className="th-tot">Pts</span>
                 </div>
                 <div className="table-body">
                   {equiposData.length > 0 ? (
                     equiposData.map((eq) => {
-                      const isLeader = eq.totalPuntos === maxPuntosEquipos && eq.totalPuntos > 0;
+                      const isLeader =
+                        eq.totalPuntos === maxPuntosEquipos &&
+                        eq.totalPuntos > 0;
                       const logoUrl = TEAM_AVATAR_IMAGES[eq.equipo];
                       const isExpanded = expandedTeam === eq.equipo;
 
                       return (
                         <div
                           key={eq.equipo}
-                          className={`team-accordion-wrapper ${isExpanded ? 'expanded' : ''}`}
+                          className={`team-accordion-wrapper ${isExpanded ? "expanded" : ""}`}
                         >
                           <div
-                            className={`equipo-row ${isLeader ? 'leader' : ''} ${isExpanded ? 'active' : ''}`}
-                            onClick={() => setExpandedTeam(prev => prev === eq.equipo ? null : eq.equipo)}
+                            className={`equipo-row ${isLeader ? "leader" : ""} ${isExpanded ? "active" : ""}`}
+                            onClick={() =>
+                              setExpandedTeam((prev) =>
+                                prev === eq.equipo ? null : eq.equipo,
+                              )
+                            }
                           >
                             <div className="row-rank">
                               <RankBadge rank={eq._rank} />
                             </div>
                             <div className="row-team">
                               <div className="team-avatar-mini">
-                                {logoUrl ? <img src={logoUrl} alt={eq.equipo} /> : <span>{getInitials(eq.equipo)}</span>}
+                                {logoUrl ? (
+                                  <img src={logoUrl} alt={eq.equipo} />
+                                ) : (
+                                  <span>{getInitials(eq.equipo)}</span>
+                                )}
                               </div>
                               <span className="team-name-row">{eq.equipo}</span>
-                              <span className="accordion-arrow">{isExpanded ? '▼' : '▶'}</span>
+                              <span className="accordion-arrow">
+                                {isExpanded ? "▼" : "▶"}
+                              </span>
                             </div>
                             <div className="row-players-list hide-mobile">
                               {eq.jugadores.map((p, idx) => {
                                 const nombre = p._CleanName || p.Jugador;
-                                const capName = TEAM_CAPTAINS[eq.equipo.toUpperCase()];
-                                const esCapitan = capName && nombre.toUpperCase().includes(capName.toUpperCase());
+                                const capName =
+                                  TEAM_CAPTAINS[eq.equipo.toUpperCase()];
+                                const esCapitan =
+                                  capName &&
+                                  nombre
+                                    .toUpperCase()
+                                    .includes(capName.toUpperCase());
                                 return (
-                                  <span key={idx} className={`player-mini-tag ${esCapitan ? 'captain-tag' : ''}`}>
-                                    {esCapitan && <span className="cap-icon">(C)</span>} {nombre}
+                                  <span
+                                    key={idx}
+                                    className={`player-mini-tag ${esCapitan ? "captain-tag" : ""}`}
+                                  >
+                                    {esCapitan && (
+                                      <span className="cap-icon">(C)</span>
+                                    )}{" "}
+                                    {nombre}
                                   </span>
                                 );
                               })}
                             </div>
 
-                            {/* SOLUCIÓN: Se ha eliminado el <div className="row-scores"> 
-                                Ahora R1, R2 y Tot son hijos directos del Grid y se alinearán perfectamente */}
-                            <span className="score-val" style={{ textAlign: "center", fontWeight: "600" }}>{eq.teamR1}</span>
-                            <span className="score-val" style={{ textAlign: "center", fontWeight: "600" }}>{eq.teamR2}</span>
+                            <span
+                              className="score-val"
+                              style={{ textAlign: "center", fontWeight: "600" }}
+                            >
+                              {eq.teamR1}
+                            </span>
+                            <span
+                              className="score-val"
+                              style={{ textAlign: "center", fontWeight: "600" }}
+                            >
+                              {eq.teamR2}
+                            </span>
                             <div className="score-tot">
                               <ResultadoBadge valor={eq.totalPuntos} />
                             </div>
@@ -779,16 +1220,22 @@ export default function App() {
                           {isExpanded && (
                             <div className="equipo-desplegable">
                               <div className="desplegable-header">
-                                <span className="desplegable-title">Estadísticas por hoyo</span>
+                                <span className="desplegable-title">
+                                  Estadísticas por hoyo
+                                </span>
                                 <div className="modal-tabs mini">
                                   <button
                                     className={`modal-tab-btn ${accordionRound === "R1" ? "active" : ""}`}
                                     onClick={() => setAccordionRound("R1")}
-                                  >R1</button>
+                                  >
+                                    R1
+                                  </button>
                                   <button
                                     className={`modal-tab-btn ${accordionRound === "R2" ? "active" : ""}`}
                                     onClick={() => setAccordionRound("R2")}
-                                  >R2</button>
+                                  >
+                                    R2
+                                  </button>
                                 </div>
                               </div>
 
@@ -796,77 +1243,167 @@ export default function App() {
                                 <div className="hole-grid">
                                   {selectedHoleInfo && (
                                     <div className="hole-preview-section">
-                                      <img src={`/images/hoyos/hoyo-${selectedHoleInfo}.jpg`} alt={`Hoyo ${selectedHoleInfo}`} className="hole-preview-img" />
+                                      <img
+                                        src={`/images/hoyos/hoyo-${selectedHoleInfo}.jpg`}
+                                        alt={`Hoyo ${selectedHoleInfo}`}
+                                        className="hole-preview-img"
+                                      />
                                     </div>
                                   )}
                                   <div className="hole-row header">
                                     <span className="hole-label">Hoyo</span>
-                                    {Array.from({ length: 18 }, (_, i) => i + 1).map(h => (
-                                      <span key={h} className="hole-num" onClick={() => setSelectedHoleInfo(selectedHoleInfo === h ? null : h)}>{h}</span>
+                                    {Array.from(
+                                      { length: 18 },
+                                      (_, i) => i + 1,
+                                    ).map((h) => (
+                                      <span
+                                        key={h}
+                                        className="hole-num"
+                                        onClick={() =>
+                                          setSelectedHoleInfo(
+                                            selectedHoleInfo === h ? null : h,
+                                          )
+                                        }
+                                      >
+                                        {h}
+                                      </span>
                                     ))}
                                     <span className="hole-total">Tot</span>
                                   </div>
 
-                                  {/* Fila PAR */}
                                   <div className="hole-row par">
                                     <span className="hole-label">Par</span>
                                     {(() => {
                                       const anyPlayer = eq.jugadores[0];
-                                      const parRow = dbRonda1.find(p => p.Jugador === anyPlayer?._parName) || dbRonda2.find(p => p.Jugador === anyPlayer?._parName);
+                                      const parRow =
+                                        dbRonda1.find(
+                                          (p) =>
+                                            p.Jugador === anyPlayer?._parName,
+                                        ) ||
+                                        dbRonda2.find(
+                                          (p) =>
+                                            p.Jugador === anyPlayer?._parName,
+                                        );
                                       let parSum = 0;
                                       return (
                                         <>
-                                          {Array.from({ length: 18 }, (_, i) => i + 1).map(h => {
-                                            const pVal = Number(parRow?.[h]) || 0;
+                                          {Array.from(
+                                            { length: 18 },
+                                            (_, i) => i + 1,
+                                          ).map((h) => {
+                                            const pVal =
+                                              Number(parRow?.[h]) || 0;
                                             parSum += pVal;
-                                            return <span key={h}>{pVal || "-"}</span>;
+                                            return (
+                                              <span key={h}>{pVal || "-"}</span>
+                                            );
                                           })}
-                                          <span className="hole-total">{parSum}</span>
+                                          <span className="hole-total">
+                                            {parSum}
+                                          </span>
                                         </>
                                       );
                                     })()}
                                   </div>
 
-                                  {/* Filas Jugadores */}
-                                  {eq.jugadores.map(player => {
-                                    // Usar los datos de la ronda seleccionada en el acordeón
-                                    const source = accordionRound === "R1" ? player._r1Data : player._r2Data;
-                                    const parRow = dbRonda1.find(p => p.Jugador === player?._parName) || dbRonda2.find(p => p.Jugador === player?._parName);
+                                  {eq.jugadores.map((player) => {
+                                    const source =
+                                      accordionRound === "R1"
+                                        ? player._r1Data
+                                        : player._r2Data;
+                                    const parRow =
+                                      dbRonda1.find(
+                                        (p) => p.Jugador === player?._parName,
+                                      ) ||
+                                      dbRonda2.find(
+                                        (p) => p.Jugador === player?._parName,
+                                      );
                                     let totalStrokes = 0;
-                                    const nombre = player._CleanName || player.Jugador;
-                                    const capName = TEAM_CAPTAINS[eq.equipo.toUpperCase()];
-                                    const esCapitan = capName && nombre.toUpperCase().includes(capName.toUpperCase());
+                                    const nombre =
+                                      player._CleanName || player.Jugador;
+                                    const capName =
+                                      TEAM_CAPTAINS[eq.equipo.toUpperCase()];
+                                    const esCapitan =
+                                      capName &&
+                                      nombre
+                                        .toUpperCase()
+                                        .includes(capName.toUpperCase());
 
                                     if (!source) {
                                       return (
-                                        <div className="hole-row player" key={player.Jugador}>
-                                          <span className="hole-label">{esCapitan && <span className="cap-icon-mini">(C)</span>} {nombre}</span>
-                                          <span style={{ gridColumn: 'span 19', color: 'var(--text2)', fontStyle: 'italic', fontSize: '11px' }}>Sin datos en esta ronda</span>
+                                        <div
+                                          className="hole-row player"
+                                          key={player.Jugador}
+                                        >
+                                          <span className="hole-label">
+                                            {esCapitan && (
+                                              <span className="cap-icon-mini">
+                                                (C)
+                                              </span>
+                                            )}{" "}
+                                            {nombre}
+                                          </span>
+                                          <span
+                                            style={{
+                                              gridColumn: "span 19",
+                                              color: "var(--text2)",
+                                              fontStyle: "italic",
+                                              fontSize: "11px",
+                                            }}
+                                          >
+                                            Sin datos en esta ronda
+                                          </span>
                                         </div>
                                       );
                                     }
 
                                     return (
-                                      <div className="hole-row player" key={player.Jugador}>
+                                      <div
+                                        className="hole-row player"
+                                        key={player.Jugador}
+                                      >
                                         <span className="hole-label">
-                                          {esCapitan && <span className="cap-icon-mini">(C)</span>} {nombre}
+                                          {esCapitan && (
+                                            <span className="cap-icon-mini">
+                                              (C)
+                                            </span>
+                                          )}{" "}
+                                          {nombre}
                                         </span>
-                                        {Array.from({ length: 18 }, (_, i) => i + 1).map(h => {
+                                        {Array.from(
+                                          { length: 18 },
+                                          (_, i) => i + 1,
+                                        ).map((h) => {
                                           const strokesRaw = source[h];
                                           const strokes = Number(strokesRaw);
                                           const par = Number(parRow?.[h]);
                                           totalStrokes += strokes || 0;
 
                                           let scoreClass = "";
-                                          if (strokesRaw !== "" && strokes && par) {
-                                            if (strokes < par) scoreClass = "score-under";
-                                            else if (strokes > par) scoreClass = "score-over";
+                                          if (
+                                            strokesRaw !== "" &&
+                                            strokes &&
+                                            par
+                                          ) {
+                                            if (strokes < par)
+                                              scoreClass = "score-under";
+                                            else if (strokes > par)
+                                              scoreClass = "score-over";
                                             else scoreClass = "score-par";
                                           }
 
-                                          return <span key={h} className={scoreClass}>{strokesRaw || "-"}</span>;
+                                          return (
+                                            <span
+                                              key={h}
+                                              className={scoreClass}
+                                            >
+                                              {strokesRaw || "-"}
+                                            </span>
+                                          );
                                         })}
-                                        <span className="hole-total">{totalStrokes || "-"}</span>
+                                        <span className="hole-total">
+                                          {totalStrokes || "-"}
+                                        </span>
                                       </div>
                                     );
                                   })}
