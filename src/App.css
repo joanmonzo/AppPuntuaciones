@@ -1654,15 +1654,22 @@ body {
   }
 
   .team-name-row {
-    font-size: 13px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    display: none !important;
+  }
+
+  .equipo-row .team-avatar-mini {
+    width: 100px !important;
+    height: 100px !important;
+    border-radius: 6px !important;
+  }
+
+  .header-equipos .th-team {
+    color: transparent !important;
+    user-select: none;
   }
 
   .row-team {
     min-width: 0;
-    /* Crucial para que el texto se corte con (...) sin deformar el grid */
   }
 
   .score-val {
