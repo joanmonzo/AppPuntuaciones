@@ -104,10 +104,6 @@ function PlayerRow({
   const rankDelta =
     prevRank !== null && prevRank !== undefined ? prevRank - rank : 0;
 
-  const resultado =
-    player._stableResultado !== undefined && player._stableResultado !== ""
-      ? player._stableResultado
-      : player["RESULTADO ACTUAL"];
   const hoyo = player["HOYO"] || 18;
 
   const equipo = player["EQUIPO"]?.trim() || "";
@@ -122,24 +118,6 @@ function PlayerRow({
     : isWorst4
       ? "highlight-bottom"
       : "";
-
-  const isGeneral = currentRound === "General";
-
-  const totalGolpes = isGeneral
-    ? parRow?.TOTAL !== undefined && parRow?.TOTAL !== ""
-      ? parRow.TOTAL
-      : "-"
-    : player.TOTAL !== undefined && player.TOTAL !== ""
-      ? player.TOTAL
-      : "-";
-
-  const parTotal = isGeneral
-    ? "-"
-    : player.PAR_JUGADOR_TOTAL !== undefined && player.PAR_JUGADOR_TOTAL !== ""
-      ? player.PAR_JUGADOR_TOTAL
-      : parRow?.TOTAL !== undefined && parRow?.TOTAL !== ""
-        ? parRow.TOTAL
-        : "-";
 
   const avatarImageUrl = TEAM_AVATAR_IMAGES[equipo];
 
@@ -251,6 +229,8 @@ function PlayerModal({
   const parRow = roundPlayerData
     ? activeDb.find((p) => p.Jugador === roundPlayerData._parName)
     : null;
+
+  const hcpRow = activeDb.find((p) => p.Jugador === "HCP HOYO");
 
   useEffect(() => {
     if (player) {
@@ -436,9 +416,13 @@ function PlayerModal({
 
         <div className="modal-body">
           <div className="stats-grid">
-            <div className="stats-row header">
+            <div
+              className="stats-row header"
+              style={{ gridTemplateColumns: "repeat(4, 1fr)" }}
+            >
               <span>Hoyo</span>
-              <span>Par</span>
+              <span>PAR Hoyo</span>
+              <span>PAR Jug.</span>
               <span>Golpes</span>
             </div>
             {holes.map((h) => {
@@ -448,6 +432,11 @@ function PlayerModal({
               };
               const golpesNum = Number(currentEditedHole.golpes);
               const parNum = Number(currentEditedHole.par);
+
+              const hcpHoyoVal =
+                hcpRow && hcpRow[h] !== undefined && hcpRow[h] !== ""
+                  ? hcpRow[h]
+                  : "-";
 
               let scoreClass = "score-par";
               if (
@@ -461,7 +450,11 @@ function PlayerModal({
               }
 
               return (
-                <div className="stats-row" key={h}>
+                <div
+                  className="stats-row"
+                  key={h}
+                  style={{ gridTemplateColumns: "repeat(4, 1fr)" }}
+                >
                   <span
                     onClick={() => setSelectedHoleInfo(h)}
                     className="hole-click-trigger"
@@ -469,6 +462,9 @@ function PlayerModal({
                   >
                     {h} <span className="hole-indicator-icon">🗺️</span>
                   </span>
+
+                  <span>{hcpHoyoVal}</span>
+
                   {isEditing ? (
                     <input
                       type="number"
@@ -482,6 +478,7 @@ function PlayerModal({
                   ) : (
                     <span>{currentEditedHole.par || "-"}</span>
                   )}
+
                   {isEditing ? (
                     <input
                       type="number"
@@ -667,19 +664,34 @@ export default function App() {
 
   const playerMap = new Map();
 
-  // Guardamos la info básica de R1
   dbRonda1.filter(isRealPlayer).forEach((p) => {
+    const rawValR1 = p._stableResultado;
+    const valR1 =
+      rawValR1 !== "" && rawValR1 !== undefined ? Number(rawValR1) : "-";
+
     playerMap.set(p.Jugador, {
       ...p,
       _r1Data: p,
+      _cleanR1: valR1,
+      _cleanR2: "-",
+      _totalScore: valR1 !== "-" ? valR1 : 0,
     });
   });
 
-  // Guardamos la info básica de R2
   dbRonda2.filter(isRealPlayer).forEach((p) => {
+    const rawValR2 = p._stableResultado;
+    const valR2 =
+      rawValR2 !== "" && rawValR2 !== undefined ? Number(rawValR2) : "-";
+
     if (playerMap.has(p.Jugador)) {
       const existing = playerMap.get(p.Jugador);
       existing._r2Data = p;
+      existing._cleanR2 = valR2;
+
+      const score1 = existing._cleanR1 !== "-" ? existing._cleanR1 : 0;
+      const score2 = valR2 !== "-" ? valR2 : 0;
+      existing._totalScore = score1 + score2;
+
       if (p.Hoyo && Number(p.Hoyo) > 0) {
         existing.Hoyo = p.Hoyo;
       }
@@ -687,45 +699,42 @@ export default function App() {
       playerMap.set(p.Jugador, {
         ...p,
         _r2Data: p,
+        _cleanR1: "-",
+        _cleanR2: valR2,
+        _totalScore: valR2 !== "-" ? valR2 : 0,
       });
     }
   });
 
-  // ======= NUEVO: MAPEO DESDE LA PESTAÑA GENERAL PARA INDIVIDUALES =======
   const sortedPlayers = Array.from(playerMap.values())
     .map((p) => {
       const pGen = dbGeneral.find((pg) => pg.Jugador === p.Jugador);
 
-      let valR1 = "-";
-      let valR2 = "-";
-      let valTotal = "-";
+      let ptsR1 = 0;
+      let ptsR2 = 0;
+      let ptsTot = 0;
 
       if (pGen) {
-        valR1 =
+        ptsR1 =
           pGen["PUNTOS DIA 1"] !== "" && pGen["PUNTOS DIA 1"] !== undefined
             ? Number(pGen["PUNTOS DIA 1"])
-            : "-";
-        valR2 =
+            : 0;
+        ptsR2 =
           pGen["PUNTOS DIA 2"] !== "" && pGen["PUNTOS DIA 2"] !== undefined
             ? Number(pGen["PUNTOS DIA 2"])
-            : "-";
-        valTotal =
+            : 0;
+        ptsTot =
           pGen["PUNTOS INDIV. TOTAL"] !== "" &&
             pGen["PUNTOS INDIV. TOTAL"] !== undefined
             ? Number(pGen["PUNTOS INDIV. TOTAL"])
-            : "-";
+            : 0;
       }
 
       return {
         ...p,
-        // Estas propiedades son las que se pintan en la vista Individual (R1, R2 y TOTAL)
-        _cleanR1: valR1,
-        _cleanR2: valR2,
-        _totalScore: valTotal,
-        // Estas propiedades numéricas se usan abajo para calcular el Match Play
-        _puntosDia1: valR1 !== "-" ? valR1 : 0,
-        _puntosDia2: valR2 !== "-" ? valR2 : 0,
-        _puntosIndivTotal: valTotal !== "-" ? valTotal : 0,
+        _puntosDia1: ptsR1,
+        _puntosDia2: ptsR2,
+        _puntosIndivTotal: ptsTot,
       };
     })
     .sort(
@@ -743,14 +752,12 @@ export default function App() {
     return { ...p, _rank: currentRank };
   });
 
-  // ========== LÓGICA DE MATCH PLAY FRONTAL ==========
   const equiposUnicosMatch = [
     ...new Set(
       players.map((p) => p.EQUIPO).filter((e) => e && e.trim() !== ""),
     ),
   ];
 
-  // Como la array "players" ya tiene los puntos de la General, la usamos directamente
   const pDecorated = players;
 
   let matchPlayHtml = "";
@@ -761,7 +768,6 @@ export default function App() {
     const eq2Name = equiposUnicosMatch[1];
     matchPlayPts = { [eq1Name]: 0, [eq2Name]: 0 };
 
-    // Filtramos por equipo y ORDENAMOS de mejor a peor según sus Puntos Indiv. Total (1º vs 1º...)
     let eq1Players = pDecorated
       .filter((p) => p.EQUIPO === eq1Name)
       .sort((a, b) => b._puntosIndivTotal - a._puntosIndivTotal);
@@ -771,11 +777,10 @@ export default function App() {
 
     const minLen = Math.min(eq1Players.length, eq2Players.length);
     const hasTrio = eq1Players.length !== eq2Players.length;
-    const normalMatchesCount = hasTrio ? minLen - 1 : minLen; // Dejamos a los últimos para el trío
+    const normalMatchesCount = hasTrio ? minLen - 1 : minLen;
 
     let html = [];
 
-    // Partidos 1v1 (Desde los primeros del ranking hasta antes de los últimos)
     for (let i = 0; i < normalMatchesCount; i++) {
       const p1 = eq1Players[i];
       const p2 = eq2Players[i];
@@ -799,21 +804,18 @@ export default function App() {
       }
     }
 
-    // El partido del Trío (con el último del pequeño y los 2 últimos del grande)
     if (hasTrio) {
       const minEq =
         eq1Players.length < eq2Players.length ? eq1Players : eq2Players;
       const maxEq =
         eq1Players.length > eq2Players.length ? eq1Players : eq2Players;
 
-      const solitario = minEq[minEq.length - 1]; // El último de la lista del equipo pequeño
-      const pareja1 = maxEq[maxEq.length - 2]; // El penúltimo de la lista del equipo grande
-      const pareja2 = maxEq[maxEq.length - 1]; // El último de la lista del equipo grande
+      const solitario = minEq[minEq.length - 1];
+      const pareja1 = maxEq[maxEq.length - 2];
+      const pareja2 = maxEq[maxEq.length - 1];
 
-      // Minoría suma +1
       matchPlayPts[minEq[0].EQUIPO] += 1;
 
-      // Ordenamos a los 3 integrantes del trío para ver quién gana
       const trio = [solitario, pareja1, pareja2].sort(
         (a, b) => b._puntosIndivTotal - a._puntosIndivTotal,
       );
@@ -828,12 +830,10 @@ export default function App() {
     matchPlayHtml = html.join("");
   }
 
-  // ========== ARMADO DE EQUIPOS DEFINITIVO ==========
   const rawEquiposData = equiposUnicosMatch
     .map((equipo) => {
       const rawJugadores = pDecorated.filter((p) => p.EQUIPO === equipo);
 
-      // El orden interno para listarlos en el Acordeón (Capitán primero)
       const capitanNombre = TEAM_CAPTAINS[equipo.toUpperCase()] || "";
       const jugadores = [...rawJugadores].sort((a, b) => {
         const aName = (a._CleanName || a.Jugador || "").toUpperCase();
@@ -848,14 +848,12 @@ export default function App() {
       let teamR2 = 0;
       let puntosIndivTotal = 0;
 
-      // SUMAMOS DIRECTAMENTE LOS PUNTOS EXACTOS QUE VISTE EN LAS CELDAS "General"
       rawJugadores.forEach((p) => {
         teamR1 += p._puntosDia1;
         teamR2 += p._puntosDia2;
         puntosIndivTotal += p._puntosIndivTotal;
       });
 
-      // SUMAMOS LOS PUNTOS DE MATCH PLAY DE LA CALCULADORA DE ARRIBA
       const puntosExtrasMatch = matchPlayPts[equipo] || 0;
       const totalPuntos = puntosIndivTotal + puntosExtrasMatch;
 
@@ -908,26 +906,7 @@ export default function App() {
             {players.length > 0 ? `${players.length} jugadores` : "Cargando…"}
           </p>
 
-          {activeTab === "clasificacion" && (
-            <div className="hole-selector">
-              <span className="selector-label">Ver Hoyo de:</span>
-              <div className="mini-toggle">
-                <button
-                  className={`mini-tab-btn ${activeHoleRound === "Ronda 1" ? "active" : ""}`}
-                  onClick={() => setActiveHoleRound("Ronda 1")}
-                >
-                  📍 R1
-                </button>
-                <button
-                  className={`mini-tab-btn ${activeHoleRound === "Ronda 2" ? "active" : ""}`}
-                  onClick={() => setActiveHoleRound("Ronda 2")}
-                >
-                  📍 R2
-                </button>
-              </div>
-            </div>
-          )}
-
+          {/* CAMBIO DE ORDEN: Pestañas (Individuales / Equipos) ahora están arriba */}
           <div
             className="tabs-groups"
             style={{
@@ -954,6 +933,28 @@ export default function App() {
               </button>
             </div>
           </div>
+
+          {/* CAMBIO DE ORDEN: Selector de Rondas (Hoyo) ahora está debajo de las pestañas */}
+          {activeTab === "clasificacion" && (
+            <div className="hole-selector" style={{ marginTop: "16px" }}>
+              <span className="selector-label">Ver Hoyo de:</span>
+              <div className="mini-toggle">
+                <button
+                  className={`mini-tab-btn ${activeHoleRound === "Ronda 1" ? "active" : ""}`}
+                  onClick={() => setActiveHoleRound("Ronda 1")}
+                >
+                  📍 R1
+                </button>
+                <button
+                  className={`mini-tab-btn ${activeHoleRound === "Ronda 2" ? "active" : ""}`}
+                  onClick={() => setActiveHoleRound("Ronda 2")}
+                >
+                  📍 R2
+                </button>
+              </div>
+            </div>
+          )}
+
         </div>
 
         <div className="header-right">
@@ -981,7 +982,6 @@ export default function App() {
         </div>
       </header>
 
-      {/* Overlay Global para Vista Previa de Hoyos */}
       {selectedHoleInfo && (
         <div
           className="hole-preview-overlay"

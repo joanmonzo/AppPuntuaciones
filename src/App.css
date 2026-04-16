@@ -962,20 +962,25 @@ body {
   flex-direction: column;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
   animation: slideUp 0.3s ease-out;
+  position: relative;
 }
 
 .modal-header {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  padding: 20px 24px;
+  justify-content: center;
+  gap: 15px;
+  padding: 32px 24px 20px;
   border-bottom: 1px solid var(--border);
 }
 
 .modal-title-area {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
 }
 
 .modal-header h2 {
@@ -1017,14 +1022,18 @@ body {
 }
 
 .close-btn {
+  position: absolute;
+  top: 10px;
+  right: 14px;
   background: none;
   border: none;
   color: var(--text2);
-  font-size: 28px;
+  font-size: 36px;
   cursor: pointer;
   line-height: 1;
   transition: color 0.2s;
-  padding: 0;
+  padding: 4px;
+  z-index: 10;
 }
 
 .close-btn:hover {
@@ -1103,7 +1112,8 @@ body {
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  gap: 20px;
 }
 
 .reset-btn {
