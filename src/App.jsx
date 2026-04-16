@@ -1120,44 +1120,8 @@ export default function App() {
 
             {activeTab === "equipos" && (
               <div className="equipos-lista">
-                {matchPlayHtml && (
-                  <div
-                    className="marcador-enfrentamientos"
-                    style={{
-                      backgroundColor: "var(--bg-card)",
-                      padding: "15px",
-                      borderRadius: "10px",
-                      marginBottom: "20px",
-                      border: "1px solid var(--border)",
-                    }}
-                  >
-                    <h3
-                      style={{
-                        marginTop: 0,
-                        marginBottom: "15px",
-                        textAlign: "center",
-                        color: "var(--gold)",
-                        fontSize: "16px",
-                      }}
-                    >
-                      Puntos en Juego (Match Play)
-                    </h3>
-                    <ul
-                      style={{
-                        listStyle: "none",
-                        padding: 0,
-                        margin: 0,
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "10px",
-                        fontSize: "14px",
-                        lineHeight: "1.4",
-                      }}
-                      dangerouslySetInnerHTML={{ __html: matchPlayHtml }}
-                    />
-                  </div>
-                )}
 
+                {/* --- 1. CLASIFICACIÓN DE EQUIPOS (Módulo Principal) --- */}
                 <div className="table-header header-equipos">
                   <span className="th-rank">Pos</span>
                   <span className="th-team">Equipo</span>
@@ -1446,6 +1410,46 @@ export default function App() {
                     <div className="loading">No hay equipos asignados.</div>
                   )}
                 </div>
+
+                {/* --- 2. ENFRENTAMIENTOS (Módulo Secundario - Movido abajo) --- */}
+                {matchPlayHtml && (
+                  <div
+                    className="marcador-enfrentamientos"
+                    style={{
+                      backgroundColor: "var(--bg-card)",
+                      padding: "15px",
+                      borderRadius: "10px",
+                      marginTop: "30px", /* Cambio de margen para alejarlo de la tabla de arriba */
+                      marginBottom: "20px",
+                      border: "1px solid var(--border)",
+                    }}
+                  >
+                    <h3
+                      style={{
+                        marginTop: 0,
+                        marginBottom: "15px",
+                        textAlign: "center",
+                        color: "var(--gold)",
+                        fontSize: "16px",
+                      }}
+                    >
+                      Puntos en Juego (Match Play)
+                    </h3>
+                    <ul
+                      style={{
+                        listStyle: "none",
+                        padding: 0,
+                        margin: 0,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "10px",
+                        fontSize: "14px",
+                        lineHeight: "1.4",
+                      }}
+                      dangerouslySetInnerHTML={{ __html: matchPlayHtml }}
+                    />
+                  </div>
+                )}
               </div>
             )}
           </>
