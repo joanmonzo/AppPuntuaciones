@@ -342,10 +342,23 @@ function PlayerModal({
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <button className="close-btn" onClick={onClose} disabled={isSaving}>
+          &times;
+        </button>
+
         <div className="modal-header">
           <div className="modal-title-area">
-            <h2>{player._CleanName || player.Jugador}</h2>
-            <div className="modal-tabs">
+            {/* Título Principal: Arquetipo */}
+            <h2 style={{ color: "var(--gold)", fontSize: "24px", margin: 0, textTransform: "uppercase", letterSpacing: "1px" }}>
+              {player.ARQUETIPO || player.fll || player.FLL || "SIN ARQUETIPO"}
+            </h2>
+
+            {/* Subtítulo: Nombre Real */}
+            <span style={{ color: "var(--text2)", fontSize: "13px", fontWeight: "600", textTransform: "uppercase", marginTop: "4px", display: "block" }}>
+              {player._CleanName || player.Jugador}
+            </span>
+
+            <div className="modal-tabs" style={{ marginTop: "12px" }}>
               <button
                 className={`modal-tab-btn ${modalRound === "Ronda 1" ? "active" : ""}`}
                 onClick={() => {
@@ -366,6 +379,7 @@ function PlayerModal({
               </button>
             </div>
           </div>
+
           <div className="header-actions">
             {isEditing ? (
               <>
@@ -408,9 +422,6 @@ function PlayerModal({
                 </button>
               </>
             )}
-            <button className="close-btn" onClick={onClose} disabled={isSaving}>
-              &times;
-            </button>
           </div>
         </div>
 
@@ -455,13 +466,32 @@ function PlayerModal({
                   key={h}
                   style={{ gridTemplateColumns: "repeat(4, 1fr)" }}
                 >
-                  <span
-                    onClick={() => setSelectedHoleInfo(h)}
-                    className="hole-click-trigger"
-                    title={`Ver mapa del hoyo ${h}`}
-                  >
-                    {h} <span className="hole-indicator-icon">🗺️</span>
-                  </span>
+                  {/* Recuadro interactivo para el número de hoyo */}
+                  <div className="hole-cell">
+                    <button
+                      type="button"
+                      className="hole-btn-trigger"
+                      onClick={() => setSelectedHoleInfo(h)}
+                      title={`Ver info hoyo ${h}`}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "6px",
+                        padding: "5px 10px",
+                        backgroundColor: "var(--bg3)",
+                        border: "1px solid var(--border)",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                        fontSize: "13px",
+                        fontWeight: "600",
+                        color: "var(--text)",
+                        transition: "all 0.2s ease"
+                      }}
+                    >
+                      {h} <span className="hole-indicator-icon">🗺️</span>
+                    </button>
+                  </div>
 
                   <span>{hcpHoyoVal}</span>
 
@@ -906,7 +936,6 @@ export default function App() {
             {players.length > 0 ? `${players.length} jugadores` : "Cargando…"}
           </p>
 
-          {/* CAMBIO DE ORDEN: Pestañas (Individuales / Equipos) ahora están arriba */}
           <div
             className="tabs-groups"
             style={{
@@ -934,7 +963,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* CAMBIO DE ORDEN: Selector de Rondas (Hoyo) ahora está debajo de las pestañas */}
           {activeTab === "clasificacion" && (
             <div className="hole-selector" style={{ marginTop: "16px" }}>
               <span className="selector-label">Ver Hoyo de:</span>
