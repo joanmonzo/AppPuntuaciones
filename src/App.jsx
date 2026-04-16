@@ -631,7 +631,9 @@ export default function App() {
     return raw;
   };
 
-  async function fetchData() {
+  async function fetchData(isRetry) {
+    const isRetryAttempt = isRetry === true;
+
     try {
       const t = new Date().getTime();
 
@@ -652,7 +654,11 @@ export default function App() {
       const processedGen = procesarHoja(rawGen);
 
       const hash = JSON.stringify({ r1: raw1, r2: raw2, rg: rawGen });
-      if (hash === prevHashRef.current) return;
+
+      if (hash === prevHashRef.current) {
+        setLoading(false);
+        return;
+      }
       prevHashRef.current = hash;
 
       processedGen.forEach((pGen) => {
@@ -674,10 +680,19 @@ export default function App() {
       setPulse(true);
       setTimeout(() => setPulse(false), 800);
       setError(null);
-    } catch (e) {
-      setError(e.message);
-    } finally {
+
       setLoading(false);
+
+    } catch (e) {
+      if (!isRetryAttempt) {
+        console.warn("Fallo de conexión detectado. Reintentando de forma invisible en 2 segundos...");
+        setTimeout(() => {
+          fetchData(true);
+        }, 2000);
+      } else {
+        setError(e.message);
+        setLoading(false);
+      }
     }
   }
 
