@@ -961,25 +961,6 @@ export default function App() {
             </div>
           </div>
 
-          {activeTab === "clasificacion" && (
-            <div className="hole-selector" style={{ marginTop: "16px" }}>
-              <span className="selector-label">Ver Hoyo de:</span>
-              <div className="mini-toggle">
-                <button
-                  className={`mini-tab-btn ${activeHoleRound === "Ronda 1" ? "active" : ""}`}
-                  onClick={() => setActiveHoleRound("Ronda 1")}
-                >
-                  📍 R1
-                </button>
-                <button
-                  className={`mini-tab-btn ${activeHoleRound === "Ronda 2" ? "active" : ""}`}
-                  onClick={() => setActiveHoleRound("Ronda 2")}
-                >
-                  📍 R2
-                </button>
-              </div>
-            </div>
-          )}
         </div>
 
         <div className="header-right">
@@ -1058,22 +1039,57 @@ export default function App() {
                 <div className="table-header header-individual">
                   <span className="th-rank">#</span>
                   <span className="th-player">Jugador</span>
-                  <span className="th-hoyo">Hoyo</span>
-                  <div className="th-stats header-r1r2">
-                    <span
-                      className={
-                        activeHoleRound === "Ronda 1" ? "active-th" : ""
-                      }
+                  <span className="th-hoyo" style={{ fontSize: "11px", lineHeight: "1.2", textAlign: "center" }}>
+                    <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "3px" }}>
+                      Hoyo
+                      <span style={{
+                        fontSize: "9px",
+                        fontWeight: "700",
+                        background: "var(--blue)",
+                        color: "#1a1a2e",
+                        padding: "1px 5px",
+                        borderRadius: "4px",
+                        letterSpacing: "0.5px",
+                      }}>
+                        {activeHoleRound === "Ronda 1" ? "R1" : "R2"}
+                      </span>
+                    </span>
+                  </span>
+                  <div className="th-stats header-r1r2" style={{ gap: "4px" }}>
+                    <button
+                      onClick={() => setActiveHoleRound("Ronda 1")}
+                      style={{
+                        padding: "4px 10px",
+                        borderRadius: "6px",
+                        border: activeHoleRound === "Ronda 1" ? "1px solid var(--blue)" : "1px solid var(--border)",
+                        background: activeHoleRound === "Ronda 1" ? "var(--blue)" : "transparent",
+                        color: activeHoleRound === "Ronda 1" ? "#1a1a2e" : "var(--text2)",
+                        fontWeight: "700",
+                        fontSize: "12px",
+                        cursor: "pointer",
+                        transition: "all 0.2s ease",
+                        letterSpacing: "0.5px",
+                      }}
                     >
                       R1
-                    </span>
-                    <span
-                      className={
-                        activeHoleRound === "Ronda 2" ? "active-th" : ""
-                      }
+                    </button>
+                    <button
+                      onClick={() => setActiveHoleRound("Ronda 2")}
+                      style={{
+                        padding: "4px 10px",
+                        borderRadius: "6px",
+                        border: activeHoleRound === "Ronda 2" ? "1px solid var(--blue)" : "1px solid var(--border)",
+                        background: activeHoleRound === "Ronda 2" ? "var(--blue)" : "transparent",
+                        color: activeHoleRound === "Ronda 2" ? "#1a1a2e" : "var(--text2)",
+                        fontWeight: "700",
+                        fontSize: "12px",
+                        cursor: "pointer",
+                        transition: "all 0.2s ease",
+                        letterSpacing: "0.5px",
+                      }}
                     >
                       R2
-                    </span>
+                    </button>
                   </div>
                   <span className="th-resultado">TOTAL</span>
                 </div>
