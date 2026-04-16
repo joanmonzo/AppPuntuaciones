@@ -45,14 +45,6 @@ function getInitials(name) {
     .slice(0, 2);
 }
 
-function getRoundKeys(player) {
-  if (!player) return [];
-  return Object.keys(player)
-    .filter((k) => !isNaN(Number(k)))
-    .map(Number)
-    .sort((a, b) => a - b);
-}
-
 function isRealPlayer(p) {
   return (
     p.Jugador &&
@@ -94,17 +86,13 @@ function PlayerRow({
   rank,
   colorIndex,
   prevRank,
-  parRow,
   onClick,
-  currentRound,
   hoyoActivo,
   activeHoleRound,
 }) {
   const color = AVATAR_COLORS[colorIndex % AVATAR_COLORS.length];
   const rankDelta =
     prevRank !== null && prevRank !== undefined ? prevRank - rank : 0;
-
-  const hoyo = player["HOYO"] || 18;
 
   const equipo = player["EQUIPO"]?.trim() || "";
   const logoUrl = equipo
@@ -527,36 +515,6 @@ function PlayerModal({
               );
             })}
           </div>
-
-          {selectedHoleInfo && (
-            <div
-              className="hole-preview-overlay"
-              onClick={() => setSelectedHoleInfo(null)}
-            >
-              <div
-                className="hole-preview-content"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <button
-                  className="close-preview"
-                  onClick={() => setSelectedHoleInfo(null)}
-                >
-                  ×
-                </button>
-                <h3>Información Hoyo {selectedHoleInfo}</h3>
-                <img
-                  src={`/images/hoyos/hoyo-${selectedHoleInfo}.jpg`}
-                  alt={`Hoyo ${selectedHoleInfo}`}
-                  className="hole-map-image"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src =
-                      "https://via.placeholder.com/400x300?text=Imagen+No+Disponible";
-                  }}
-                />
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
@@ -567,6 +525,7 @@ export default function App() {
   const [dbRonda1, setDbRonda1] = useState([]);
   const [dbRonda2, setDbRonda2] = useState([]);
   const [dbGeneral, setDbGeneral] = useState([]);
+  const [marcadorInfo, setMarcadorInfo] = useState(null);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -581,7 +540,9 @@ export default function App() {
   const [activeHoleRound, setActiveHoleRound] = useState("Ronda 1");
   const [currentRound, setCurrentRound] = useState("General");
 
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem("app-theme") || "dark";
+  });
 
   useEffect(() => {
     if (theme === "light") {
@@ -631,16 +592,15 @@ export default function App() {
     return raw;
   };
 
-  async function fetchData(isRetry) {
-    const isRetryAttempt = isRetry === true;
-
+  async function fetchData() {
     try {
       const t = new Date().getTime();
 
-      const [res1, res2, resGen] = await Promise.all([
+      const [res1, res2, resGen, resMarcador] = await Promise.all([
         fetch(`${API_URL}?ronda=Ronda 1&t=${t}`),
         fetch(`${API_URL}?ronda=Ronda 2&t=${t}`),
         fetch(`${API_URL}?ronda=General&t=${t}`),
+        fetch(`${API_URL}?ronda=marcador&t=${t}`),
       ]);
 
       if (!res1.ok || !res2.ok || !resGen.ok) throw new Error(`HTTP Error`);
@@ -649,16 +609,18 @@ export default function App() {
       const raw2 = await res2.json();
       const rawGen = await resGen.json();
 
+      let rawMarcador = null;
+      try {
+        rawMarcador = await resMarcador.json();
+        setMarcadorInfo(rawMarcador);
+      } catch (e) {}
+
       const processedR1 = procesarHoja(raw1);
       const processedR2 = procesarHoja(raw2);
       const processedGen = procesarHoja(rawGen);
 
       const hash = JSON.stringify({ r1: raw1, r2: raw2, rg: rawGen });
-
-      if (hash === prevHashRef.current) {
-        setLoading(false);
-        return;
-      }
+      if (hash === prevHashRef.current) return;
       prevHashRef.current = hash;
 
       processedGen.forEach((pGen) => {
@@ -680,19 +642,10 @@ export default function App() {
       setPulse(true);
       setTimeout(() => setPulse(false), 800);
       setError(null);
-
-      setLoading(false);
-
     } catch (e) {
-      if (!isRetryAttempt) {
-        console.warn("Fallo de conexión detectado. Reintentando de forma invisible en 2 segundos...");
-        setTimeout(() => {
-          fetchData(true);
-        }, 2000);
-      } else {
-        setError(e.message);
-        setLoading(false);
-      }
+      setError(e.message);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -765,7 +718,7 @@ export default function App() {
             : 0;
         ptsTot =
           pGen["PUNTOS INDIV. TOTAL"] !== "" &&
-            pGen["PUNTOS INDIV. TOTAL"] !== undefined
+          pGen["PUNTOS INDIV. TOTAL"] !== undefined
             ? Number(pGen["PUNTOS INDIV. TOTAL"])
             : 0;
       }
@@ -797,75 +750,102 @@ export default function App() {
       players.map((p) => p.EQUIPO).filter((e) => e && e.trim() !== ""),
     ),
   ];
-
   const pDecorated = players;
 
   let matchPlayHtml = "";
-  let matchPlayPts = {};
 
-  if (equiposUnicosMatch.length === 2) {
-    const eq1Name = equiposUnicosMatch[0];
-    const eq2Name = equiposUnicosMatch[1];
-    matchPlayPts = { [eq1Name]: 0, [eq2Name]: 0 };
+  let sumaTotalFly = 0;
+  let sumaTotalCar = 0;
 
-    let eq1Players = pDecorated
-      .filter((p) => p.EQUIPO === eq1Name)
-      .sort((a, b) => b._puntosIndivTotal - a._puntosIndivTotal);
-    let eq2Players = pDecorated
-      .filter((p) => p.EQUIPO === eq2Name)
-      .sort((a, b) => b._puntosIndivTotal - a._puntosIndivTotal);
-
-    const minLen = Math.min(eq1Players.length, eq2Players.length);
-    const hasTrio = eq1Players.length !== eq2Players.length;
-    const normalMatchesCount = hasTrio ? minLen - 1 : minLen;
-
+  if (marcadorInfo && Array.isArray(marcadorInfo)) {
     let html = [];
+    let isBottomSection = false;
 
-    for (let i = 0; i < normalMatchesCount; i++) {
-      const p1 = eq1Players[i];
-      const p2 = eq2Players[i];
+    const dividerIdx = marcadorInfo.findIndex((r) =>
+      Object.values(r).some((v) =>
+        String(v).toUpperCase().includes("TOTAL FLY"),
+      ),
+    );
 
-      if (p1._puntosIndivTotal > p2._puntosIndivTotal) {
-        matchPlayPts[p1.EQUIPO] += 2;
-        html.push(
-          `<li><b>1v1:</b> <b>${p1._CleanName}</b> (${p1._puntosIndivTotal}) gana a ${p2._CleanName} (${p2._puntosIndivTotal}). <br><span style='color:#e67e22; font-weight:bold;'>+2 ${p1.EQUIPO}</span></li>`,
-        );
-      } else if (p2._puntosIndivTotal > p1._puntosIndivTotal) {
-        matchPlayPts[p2.EQUIPO] += 2;
-        html.push(
-          `<li><b>1v1:</b> <b>${p2._CleanName}</b> (${p2._puntosIndivTotal}) gana a ${p1._CleanName} (${p1._puntosIndivTotal}). <br><span style='color:#e67e22; font-weight:bold;'>+2 ${p2.EQUIPO}</span></li>`,
-        );
-      } else {
-        matchPlayPts[p1.EQUIPO] += 1;
-        matchPlayPts[p2.EQUIPO] += 1;
-        html.push(
-          `<li><b>1v1:</b> <b>Empate</b> entre ${p1._CleanName} y ${p2._CleanName} (${p1._puntosIndivTotal} pts). <br><span style='color:#e67e22; font-weight:bold;'>+1 cada equipo</span></li>`,
-        );
+    for (let i = 0; i < marcadorInfo.length; i++) {
+      const row = marcadorInfo[i];
+      const stringFilaEntera = JSON.stringify(row).toUpperCase();
+
+      if (
+        stringFilaEntera.includes("SUMA TOTAL") ||
+        stringFilaEntera.includes("EMPAREJAMIENTO")
+      ) {
+        sumaTotalFly = Number(row.STABLEFORD) || 0;
+        sumaTotalCar = Number(row.POSICION) || 0;
+        continue;
       }
-    }
 
-    if (hasTrio) {
-      const minEq =
-        eq1Players.length < eq2Players.length ? eq1Players : eq2Players;
-      const maxEq =
-        eq1Players.length > eq2Players.length ? eq1Players : eq2Players;
+      if (
+        !row.FLY ||
+        String(row.FLY).trim() === "" ||
+        String(row.FLY).toUpperCase() === "FLY"
+      ) {
+        isBottomSection = true;
+        continue;
+      }
 
-      const solitario = minEq[minEq.length - 1];
-      const pareja1 = maxEq[maxEq.length - 2];
-      const pareja2 = maxEq[maxEq.length - 1];
+      if (isBottomSection && row.FLY && dividerIdx !== -1) {
+        const pFly = String(row.FLY).trim();
+        const flyPts = Number(row.STABLEFORD) || 0;
+        const carPts = Number(row.POSICION) || 0;
 
-      matchPlayPts[minEq[0].EQUIPO] += 1;
+        const upperRowIdx = marcadorInfo.findIndex(
+          (r) => String(r.FLY).trim().toUpperCase() === pFly.toUpperCase(),
+        );
+        let pCar = "Rival";
+        let pCar2 = null;
 
-      const trio = [solitario, pareja1, pareja2].sort(
-        (a, b) => b._puntosIndivTotal - a._puntosIndivTotal,
-      );
+        if (upperRowIdx !== -1 && upperRowIdx < i) {
+          pCar = String(marcadorInfo[upperRowIdx].CAR).trim();
 
-      matchPlayPts[trio[0].EQUIPO] += 2;
-      matchPlayPts[trio[1].EQUIPO] += 2;
+          const nextUpper = marcadorInfo[upperRowIdx + 1];
+          if (
+            nextUpper &&
+            (!nextUpper.FLY || String(nextUpper.FLY).trim() === "") &&
+            nextUpper.CAR
+          ) {
+            pCar2 = String(nextUpper.CAR).trim();
+          }
+        }
 
-      html.push(
-        `<li class='trio' style='margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc;'><b>El Trío Final:</b> ${solitario._CleanName} vs ${pareja1._CleanName} y ${pareja2._CleanName}.<br> 1º: ${trio[0]._CleanName} (+2) | 2º: ${trio[1]._CleanName} (+2) <br><span style='color:#e67e22; font-weight:bold;'>(+1 minoría para ${minEq[0].EQUIPO})</span></li>`,
-      );
+        const pFlyData = pDecorated.find((p) =>
+          (p._CleanName || p.Jugador).toUpperCase().includes(pFly.toUpperCase()),
+        );
+        const pCarData = pDecorated.find((p) =>
+          (p._CleanName || p.Jugador).toUpperCase().includes(pCar.toUpperCase()),
+        );
+        const flyScore = pFlyData ? pFlyData._totalScore : "?";
+        const carScore = pCarData ? pCarData._totalScore : "?";
+
+        if (pCar2) {
+          const pCar2Data = pDecorated.find((p) =>
+            (p._CleanName || p.Jugador).toUpperCase().includes(pCar2.toUpperCase()),
+          );
+          const car2Score = pCar2Data ? pCar2Data._totalScore : "?";
+          html.push(
+            `<li class='trio' style='margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc;'><b>El Trío Final:</b> ${pFly} (${flyScore} pts) vs ${pCar} (${carScore} pts) y ${pCar2} (${car2Score} pts).<br> <b>+${flyPts}</b> puntos para FLYING | <b>+${carPts}</b> puntos para CARABASSA <br><span style='color:#e67e22; font-weight:bold;'>(Incluye +1 minoría FLY)</span></li>`,
+          );
+        } else {
+          if (flyPts > carPts) {
+            html.push(
+              `<li><b>1v1:</b> <b>${pFly}</b> (${flyScore} pts) gana a ${pCar} (${carScore} pts). <br><span style='color:#e67e22; font-weight:bold;'>+${flyPts} FLYING CARAJILLOS</span></li>`,
+            );
+          } else if (carPts > flyPts) {
+            html.push(
+              `<li><b>1v1:</b> <b>${pCar}</b> (${carScore} pts) gana a ${pFly} (${flyScore} pts). <br><span style='color:#e67e22; font-weight:bold;'>+${carPts} CARABASSA SLICE FOCKERS</span></li>`,
+            );
+          } else {
+            html.push(
+              `<li><b>1v1:</b> <b>Empate</b> entre ${pFly} (${flyScore} pts) y ${pCar} (${carScore} pts). <br><span style='color:#e67e22; font-weight:bold;'>+1 cada equipo</span></li>`,
+            );
+          }
+        }
+      }
     }
     matchPlayHtml = html.join("");
   }
@@ -894,8 +874,16 @@ export default function App() {
         puntosIndivTotal += p._puntosIndivTotal;
       });
 
-      const puntosExtrasMatch = matchPlayPts[equipo] || 0;
-      const totalPuntos = puntosIndivTotal + puntosExtrasMatch;
+      const eqNameUpper = equipo.trim().toUpperCase();
+      let totalPuntos = 0;
+
+      if (eqNameUpper.includes("FLY")) {
+        totalPuntos = sumaTotalFly > 0 ? sumaTotalFly : puntosIndivTotal;
+      } else if (eqNameUpper.includes("CARA")) {
+        totalPuntos = sumaTotalCar > 0 ? sumaTotalCar : puntosIndivTotal;
+      } else {
+        totalPuntos = puntosIndivTotal;
+      }
 
       return { equipo, jugadores, teamR1, teamR2, totalPuntos };
     })
@@ -992,7 +980,6 @@ export default function App() {
               </div>
             </div>
           )}
-
         </div>
 
         <div className="header-right">
@@ -1011,10 +998,10 @@ export default function App() {
               ? "Sin conexión"
               : lastUpdate
                 ? lastUpdate.toLocaleTimeString("es-ES", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                })
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                  })
                 : "Conectando…"}
           </span>
         </div>
@@ -1113,12 +1100,7 @@ export default function App() {
                         player={player}
                         rank={player._rank}
                         colorIndex={i}
-                        parRow={
-                          dbRonda1.find((p) => p.Jugador === player._parName) ||
-                          dbRonda2.find((p) => p.Jugador === player._parName)
-                        }
                         onClick={() => setSelectedPlayer(player)}
-                        currentRound={currentRound}
                         hoyoActivo={hoyoActivo}
                         activeHoleRound={activeHoleRound}
                       />
@@ -1130,7 +1112,6 @@ export default function App() {
 
             {activeTab === "equipos" && (
               <div className="equipos-lista">
-
                 <div className="table-header header-equipos">
                   <span className="th-rank">Pos</span>
                   <span className="th-team">Equipo</span>
@@ -1242,15 +1223,6 @@ export default function App() {
 
                               <div className="table-responsive">
                                 <div className="hole-grid">
-                                  {selectedHoleInfo && (
-                                    <div className="hole-preview-section">
-                                      <img
-                                        src={`/images/hoyos/hoyo-${selectedHoleInfo}.jpg`}
-                                        alt={`Hoyo ${selectedHoleInfo}`}
-                                        className="hole-preview-img"
-                                      />
-                                    </div>
-                                  )}
                                   <div className="hole-row header">
                                     <span className="hole-label">Hoyo</span>
                                     {Array.from(
@@ -1413,7 +1385,7 @@ export default function App() {
                       backgroundColor: "var(--bg-card)",
                       padding: "15px",
                       borderRadius: "10px",
-                      marginTop: "30px",
+                      marginTop: "20px",
                       marginBottom: "20px",
                       border: "1px solid var(--border)",
                     }}
