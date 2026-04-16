@@ -348,12 +348,10 @@ function PlayerModal({
 
         <div className="modal-header">
           <div className="modal-title-area">
-            {/* Título Principal: Arquetipo */}
             <h2 style={{ color: "var(--gold)", fontSize: "24px", margin: 0, textTransform: "uppercase", letterSpacing: "1px" }}>
               {player.ARQUETIPO || player.fll || player.FLL || "SIN ARQUETIPO"}
             </h2>
 
-            {/* Subtítulo: Nombre Real */}
             <span style={{ color: "var(--text2)", fontSize: "13px", fontWeight: "600", textTransform: "uppercase", marginTop: "4px", display: "block" }}>
               {player._CleanName || player.Jugador}
             </span>
@@ -466,7 +464,6 @@ function PlayerModal({
                   key={h}
                   style={{ gridTemplateColumns: "repeat(4, 1fr)" }}
                 >
-                  {/* Recuadro interactivo para el número de hoyo */}
                   <div className="hole-cell">
                     <button
                       type="button"
@@ -584,9 +581,7 @@ export default function App() {
   const [activeHoleRound, setActiveHoleRound] = useState("Ronda 1");
   const [currentRound, setCurrentRound] = useState("General");
 
-  const [theme, setTheme] = useState(() => {
-    return localStorage.getItem("app-theme") || "dark";
-  });
+  const [theme, setTheme] = useState("light");
 
   useEffect(() => {
     if (theme === "light") {
@@ -1121,7 +1116,6 @@ export default function App() {
             {activeTab === "equipos" && (
               <div className="equipos-lista">
 
-                {/* --- 1. CLASIFICACIÓN DE EQUIPOS (Módulo Principal) --- */}
                 <div className="table-header header-equipos">
                   <span className="th-rank">Pos</span>
                   <span className="th-team">Equipo</span>
@@ -1397,7 +1391,6 @@ export default function App() {
                   )}
                 </div>
 
-                {/* --- 2. ENFRENTAMIENTOS (Módulo Secundario - Movido abajo) --- */}
                 {matchPlayHtml && (
                   <div
                     className="marcador-enfrentamientos"
@@ -1405,7 +1398,7 @@ export default function App() {
                       backgroundColor: "var(--bg-card)",
                       padding: "15px",
                       borderRadius: "10px",
-                      marginTop: "30px", /* Cambio de margen para alejarlo de la tabla de arriba */
+                      marginTop: "30px",
                       marginBottom: "20px",
                       border: "1px solid var(--border)",
                     }}

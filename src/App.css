@@ -39,7 +39,6 @@ body.light-mode {
   --border2: rgba(0, 0, 0, 0.15);
   --text: #1a1a24;
   --text2: #6e6e80;
-  /* Los colores de acento (oro, verde, rojo, azul) se mantienen igual */
 }
 
 /* Ajustes de degradados para las tarjetas destacadas */
