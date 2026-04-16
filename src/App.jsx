@@ -1064,11 +1064,13 @@ export default function App() {
                         border: activeHoleRound === "Ronda 1" ? "1px solid var(--blue)" : "1px solid var(--border)",
                         background: activeHoleRound === "Ronda 1" ? "var(--blue)" : "transparent",
                         color: activeHoleRound === "Ronda 1" ? "#1a1a2e" : "var(--text2)",
+                        fontFamily: "'Barlow Condensed', sans-serif",
                         fontWeight: "700",
-                        fontSize: "12px",
+                        fontSize: "11px",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.1em",
                         cursor: "pointer",
                         transition: "all 0.2s ease",
-                        letterSpacing: "0.5px",
                       }}
                     >
                       R1
@@ -1081,11 +1083,13 @@ export default function App() {
                         border: activeHoleRound === "Ronda 2" ? "1px solid var(--blue)" : "1px solid var(--border)",
                         background: activeHoleRound === "Ronda 2" ? "var(--blue)" : "transparent",
                         color: activeHoleRound === "Ronda 2" ? "#1a1a2e" : "var(--text2)",
+                        fontFamily: "'Barlow Condensed', sans-serif",
                         fontWeight: "700",
-                        fontSize: "12px",
+                        fontSize: "11px",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.1em",
                         cursor: "pointer",
                         transition: "all 0.2s ease",
-                        letterSpacing: "0.5px",
                       }}
                     >
                       R2
