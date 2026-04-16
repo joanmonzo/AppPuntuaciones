@@ -1323,26 +1323,12 @@ export default function App() {
 
                                     if (!source) {
                                       return (
-                                        <div
-                                          className="hole-row player"
-                                          key={player.Jugador}
-                                        >
+                                        <div className="hole-row player" key={player.Jugador}>
                                           <span className="hole-label">
-                                            {esCapitan && (
-                                              <span className="cap-icon-mini">
-                                                (C)
-                                              </span>
-                                            )}{" "}
-                                            {nombre}
+                                            {nombre}{" "}
+                                            {esCapitan && <span className="cap-icon-mini">(C)</span>}
                                           </span>
-                                          <span
-                                            style={{
-                                              gridColumn: "span 19",
-                                              color: "var(--text2)",
-                                              fontStyle: "italic",
-                                              fontSize: "11px",
-                                            }}
-                                          >
+                                          <span style={{ gridColumn: "span 19", color: "var(--text2)", fontStyle: "italic", fontSize: "11px" }}>
                                             Sin datos en esta ronda
                                           </span>
                                         </div>
@@ -1355,12 +1341,12 @@ export default function App() {
                                         key={player.Jugador}
                                       >
                                         <span className="hole-label">
+                                          {nombre}{" "}
                                           {esCapitan && (
                                             <span className="cap-icon-mini">
                                               (C)
                                             </span>
-                                          )}{" "}
-                                          {nombre}
+                                          )}
                                         </span>
                                         {Array.from(
                                           { length: 18 },
