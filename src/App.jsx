@@ -204,8 +204,9 @@ function PlayerModal({
   dbRonda2,
   selectedHoleInfo,
   setSelectedHoleInfo,
+  initialRound,
 }) {
-  const [modalRound, setModalRound] = useState("Ronda 1");
+  const [modalRound, setModalRound] = useState(initialRound || "Ronda 1");
   const [editedData, setEditedData] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -221,6 +222,12 @@ function PlayerModal({
     : null;
 
   const hcpRow = activeDb.find((p) => p.Jugador === "HCP HOYO");
+  
+  useEffect(() => {
+    if (player && initialRound) {
+      setModalRound(initialRound);
+    }
+  }, [player, initialRound]);
 
   useEffect(() => {
     if (player) {
@@ -554,6 +561,10 @@ export default function App() {
     }
     localStorage.setItem("app-theme", theme);
   }, [theme]);
+
+  useEffect(() => {
+    setAccordionRound(activeHoleRound === "Ronda 1" ? "R1" : "R2");
+  }, [activeHoleRound]);
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
@@ -1462,6 +1473,7 @@ export default function App() {
         dbRonda2={dbRonda2}
         selectedHoleInfo={selectedHoleInfo}
         setSelectedHoleInfo={setSelectedHoleInfo}
+        initialRound={activeHoleRound}
       />
 
       <footer className="footer">
