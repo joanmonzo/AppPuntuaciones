@@ -1198,10 +1198,10 @@ export default function App() {
                                     key={idx}
                                     className={`player-mini-tag ${esCapitan ? "captain-tag" : ""}`}
                                   >
+                                    {nombre}{" "}
                                     {esCapitan && (
                                       <span className="cap-icon">(C)</span>
-                                    )}{" "}
-                                    {nombre}
+                                    )}
                                   </span>
                                 );
                               })}
