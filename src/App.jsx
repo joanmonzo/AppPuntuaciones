@@ -644,6 +644,11 @@ export default function App() {
       setError(null);
     } catch (e) {
       setError(e.message);
+      setDbRonda1([]);
+      setDbRonda2([]);
+      setDbGeneral([]);
+      setMarcadorInfo(null);
+      prevHashRef.current = null;
     } finally {
       setLoading(false);
     }
