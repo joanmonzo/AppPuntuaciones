@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import "./App.css";
 
-import fotoEquipos from "./the-golfos-on-tour-2026.jpeg";
+import appLogo from "./the-golfos-on-tour-2026-logo.ico";
 import imgFlyingCarajillos from "./flying-carajillos.png";
 import imgCarabassaSlice from "./carabassa-slice.jpeg";
 
@@ -924,8 +924,8 @@ export default function App() {
             </span>
             <span>
               <img
-                src={fotoEquipos}
-                alt="foto equipos"
+                src={appLogo}
+                alt="The Golfos On Tour 2026"
                 style={{
                   height: "100px",
                   verticalAlign: "middle",
