@@ -444,7 +444,7 @@ function PlayerModal({
                 currentEditedHole.golpes !== "" &&
                 currentEditedHole.par !== ""
               ) {
-                if (golpesNum < parNum) scoreClass = "score-under";
+                if (golpesNum > 0 && golpesNum < parNum) scoreClass = "score-under";
                 else if (golpesNum > parNum) scoreClass = "score-over";
               }
 
