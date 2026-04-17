@@ -633,7 +633,7 @@ body {
   border-bottom: 1px solid var(--border);
 }
 
-.equipo-row.leader {
+.equipo-row.leader.finished {
   border-left: 4px solid var(--gold);
   background: linear-gradient(90deg, rgba(212, 175, 55, 0.08) 0%, var(--bg2) 100%);
   padding: 18px 20px;
@@ -651,18 +651,18 @@ body {
   color: var(--gold);
 }
 
-.equipos-lista .team-accordion-wrapper:nth-child(2) .equipo-row {
+.equipos-lista .team-accordion-wrapper.finished:nth-child(2) .equipo-row {
   color: var(--silver);
 }
 
-.equipos-lista .team-accordion-wrapper:nth-child(2) .team-name-row,
-.equipos-lista .team-accordion-wrapper:nth-child(2) .score-val {
+.equipos-lista .team-accordion-wrapper.finished:nth-child(2) .team-name-row,
+.equipos-lista .team-accordion-wrapper.finished:nth-child(2) .score-val {
   color: var(--silver);
   font-weight: 700;
   text-shadow: 0 0 5px rgba(170, 170, 170, 0.2);
 }
 
-.equipos-lista .team-accordion-wrapper:nth-child(2) .row-rank {
+.equipos-lista .team-accordion-wrapper.finished:nth-child(2) .row-rank {
   color: var(--silver);
 }
 

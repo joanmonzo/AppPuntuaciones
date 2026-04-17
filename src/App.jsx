@@ -57,11 +57,13 @@ function isRealPlayer(p) {
   );
 }
 
-function RankBadge({ rank }) {
+function RankBadge({ rank, showMedal = true }) {
   let medalClass = "standard";
-  if (rank === 1) medalClass = "gold";
-  if (rank === 2) medalClass = "silver";
-  if (rank === 3) medalClass = "bronze";
+  if (showMedal) {
+    if (rank === 1) medalClass = "gold";
+    if (rank === 2) medalClass = "silver";
+    if (rank === 3) medalClass = "bronze";
+  }
 
   return <span className={`golf-ball-badge ${medalClass}`}>{rank}</span>;
 }
@@ -890,7 +892,12 @@ export default function App() {
         totalPuntos = puntosIndivTotal;
       }
 
-      return { equipo, jugadores, teamR1, teamR2, totalPuntos };
+      const isFinished = jugadores.length > 0 && jugadores.every(p => {
+        const h = p.Hoyo || p.HOYO;
+        return h === "F" || h === "18" || h === 18;
+      });
+
+      return { equipo, jugadores, teamR1, teamR2, totalPuntos, isFinished };
     })
     .sort((a, b) => b.totalPuntos - a.totalPuntos);
 
@@ -1157,10 +1164,10 @@ export default function App() {
                       return (
                         <div
                           key={eq.equipo}
-                          className={`team-accordion-wrapper ${isExpanded ? "expanded" : ""}`}
+                          className={`team-accordion-wrapper ${isExpanded ? "expanded" : ""} ${eq.isFinished ? "finished" : ""}`}
                         >
                           <div
-                            className={`equipo-row ${isLeader ? "leader" : ""} ${isExpanded ? "active" : ""}`}
+                            className={`equipo-row ${isLeader ? "leader" : ""} ${isExpanded ? "active" : ""} ${eq.isFinished ? "finished" : ""}`}
                             onClick={() =>
                               setExpandedTeam((prev) =>
                                 prev === eq.equipo ? null : eq.equipo,
@@ -1168,7 +1175,7 @@ export default function App() {
                             }
                           >
                             <div className="row-rank">
-                              <RankBadge rank={eq._rank} />
+                              <RankBadge rank={eq._rank} showMedal={eq.isFinished} />
                             </div>
                             <div className="row-team">
                               <div className="team-avatar-mini">
