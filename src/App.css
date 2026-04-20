@@ -1460,10 +1460,14 @@ body.light-mode .score-par {
   }
 
   .theme-toggle-btn {
+    position: absolute;
+    top: 20px;
+    right: 0;
     width: 36px;
     height: 36px;
     font-size: 16px;
-    margin-right: 8px;
+    margin-right: 0;
+    z-index: 10;
   }
 
   .status-text {
