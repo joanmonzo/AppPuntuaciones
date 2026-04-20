@@ -87,14 +87,11 @@ function PlayerRow({
   player,
   rank,
   colorIndex,
-  prevRank,
   onClick,
   hoyoActivo,
   activeHoleRound,
 }) {
   const color = AVATAR_COLORS[colorIndex % AVATAR_COLORS.length];
-  const rankDelta =
-    prevRank !== null && prevRank !== undefined ? prevRank - rank : 0;
 
   const equipo = player["EQUIPO"]?.trim() || "";
   const logoUrl = equipo
@@ -119,11 +116,6 @@ function PlayerRow({
     >
       <div className="row-rank">
         <RankBadge rank={rank} />
-        {rankDelta !== 0 && (
-          <span className={`rank-delta ${rankDelta > 0 ? "up" : "down"}`}>
-            {rankDelta > 0 ? `▲${rankDelta}` : `▼${Math.abs(rankDelta)}`}
-          </span>
-        )}
       </div>
 
       <div className="row-player">
@@ -202,7 +194,6 @@ function PlayerModal({
   onRefreshNeeded,
   dbRonda1,
   dbRonda2,
-  selectedHoleInfo,
   setSelectedHoleInfo,
   initialRound,
 }) {
@@ -547,7 +538,7 @@ export default function App() {
   const [expandedTeam, setExpandedTeam] = useState(null);
   const [accordionRound, setAccordionRound] = useState("R1");
   const [activeHoleRound, setActiveHoleRound] = useState("Ronda 1");
-  const [currentRound, setCurrentRound] = useState("General");
+  const [currentRound] = useState("General");
 
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem("app-theme") || "dark";
@@ -768,7 +759,6 @@ export default function App() {
       players.map((p) => p.EQUIPO).filter((e) => e && e.trim() !== ""),
     ),
   ];
-  const pDecorated = players;
 
   let matchPlayHtml = "";
 
@@ -831,17 +821,17 @@ export default function App() {
           }
         }
 
-        const pFlyData = pDecorated.find((p) =>
+        const pFlyData = players.find((p) =>
           (p._CleanName || p.Jugador).toUpperCase().includes(pFly.toUpperCase()),
         );
-        const pCarData = pDecorated.find((p) =>
+        const pCarData = players.find((p) =>
           (p._CleanName || p.Jugador).toUpperCase().includes(pCar.toUpperCase()),
         );
         const flyScore = pFlyData ? pFlyData._totalScore : "?";
         const carScore = pCarData ? pCarData._totalScore : "?";
 
         if (pCar2) {
-          const pCar2Data = pDecorated.find((p) =>
+          const pCar2Data = players.find((p) =>
             (p._CleanName || p.Jugador).toUpperCase().includes(pCar2.toUpperCase()),
           );
           const car2Score = pCar2Data ? pCar2Data._totalScore : "?";
@@ -870,7 +860,7 @@ export default function App() {
 
   const rawEquiposData = equiposUnicosMatch
     .map((equipo) => {
-      const rawJugadores = pDecorated.filter((p) => p.EQUIPO === equipo);
+      const rawJugadores = players.filter((p) => p.EQUIPO === equipo);
 
       const capitanNombre = TEAM_CAPTAINS[equipo.toUpperCase()] || "";
       const jugadores = [...rawJugadores].sort((a, b) => {
@@ -1471,7 +1461,6 @@ export default function App() {
         onRefreshNeeded={fetchData}
         dbRonda1={dbRonda1}
         dbRonda2={dbRonda2}
-        selectedHoleInfo={selectedHoleInfo}
         setSelectedHoleInfo={setSelectedHoleInfo}
         initialRound={activeHoleRound}
       />

@@ -1,8 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500&display=swap');
 
-/* ==========================================================================
-   1. RESET Y VARIABLES GLOBALES
-   ========================================================================== */
+
 *,
 *::before,
 *::after {
@@ -28,9 +26,7 @@
   --radius: 10px;
 }
 
-/* ==========================================================================
-   1.1 TEMA CLARO (LIGHT MODE)
-   ========================================================================== */
+
 body.light-mode {
   --bg: #f4f4f8;
   --bg2: #ffffff;
@@ -41,7 +37,7 @@ body.light-mode {
   --text2: #6e6e80;
 }
 
-/* Ajustes de degradados para las tarjetas destacadas */
+
 body.light-mode .player-row.highlight-top {
   background: linear-gradient(135deg, rgba(78, 216, 138, 0.1) 0%, rgba(255, 255, 255, 1) 100%);
 }
@@ -54,7 +50,7 @@ body.light-mode .equipo-card.leader {
   background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, #ffffff 100%);
 }
 
-/* Botón alternador de tema */
+
 .theme-toggle-btn {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--border);
@@ -98,9 +94,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ==========================================================================
-   2. ESTRUCTURA PRINCIPAL (LAYOUT)
-   ========================================================================== */
+
 .app {
   min-height: 100vh;
   display: flex;
@@ -131,9 +125,7 @@ body {
   text-align: center;
 }
 
-/* ==========================================================================
-   3. HEADER Y PESTAÑAS
-   ========================================================================== */
+
 .header {
   position: relative;
   z-index: 1;
@@ -245,9 +237,7 @@ body {
   border-color: #a43b28;
 }
 
-/* ==========================================================================
-   4. TABLA GENERAL Y COMPONENTES DE FILA
-   ========================================================================== */
+
 .table-header {
   display: grid;
   grid-template-columns: 60px 1fr 60px 180px 120px;
@@ -285,7 +275,7 @@ body {
   transform: translateX(3px);
 }
 
-/* Destacados Top 4 y Últimos 4 */
+
 .player-row.highlight-top {
   border-left: 3px solid rgba(78, 216, 138, 0.6);
   background: linear-gradient(135deg, rgba(78, 216, 138, 0.04) 0%, rgba(17, 17, 24, 1) 100%);
@@ -304,7 +294,7 @@ body {
   border-left-color: rgba(224, 91, 91, 0.9);
 }
 
-/* --- Información del Jugador --- */
+
 .row-player {
   display: flex;
   align-items: center;
@@ -383,7 +373,7 @@ body {
   letter-spacing: 0.05em;
 }
 
-/* --- Estadísticas --- */
+
 .header-r1r2 {
   display: flex !important;
   justify-content: center;
@@ -490,9 +480,7 @@ body {
   font-size: 14px;
 }
 
-/* ==========================================================================
-   5. MEDALLAS: TEXTURA PELOTA DE GOLF
-   ========================================================================== */
+
 .row-rank {
   display: flex;
   align-items: center;
@@ -564,15 +552,13 @@ body {
   color: var(--red);
 }
 
-/* ==========================================================================
-   6. VISTA DE EQUIPOS
-   ========================================================================== */
+
 .header-equipos {
   grid-template-columns: 60px 200px 1fr 50px 50px 120px !important;
   padding: 0 20px 10px !important;
 }
 
-/* Sincronización de textos numéricos en cabecera de equipos */
+
 .header-equipos .th-r1,
 .header-equipos .th-r2 {
   text-align: center;
@@ -596,7 +582,7 @@ body {
   color: var(--gold);
 }
 
-/* --- Acordeón Desplegable --- */
+
 .team-accordion-wrapper {
   margin-bottom: 8px;
   border-radius: var(--radius);
@@ -804,12 +790,9 @@ body {
   background-color: rgba(91, 196, 216, 0.1);
 }
 
-.info-ronda {
-  color: var(--text2);
-  font-size: 10px;
-}
 
-/* --- Tabla Hoyo a Hoyo --- */
+
+
 .table-responsive {
   width: 100%;
   overflow-x: auto;
@@ -888,7 +871,7 @@ body {
 
 .row-scores {
   display: contents;
-  /* Para que sus hijos hereden el grid del padre */
+
 }
 
 .score-val {
@@ -905,50 +888,9 @@ body {
   padding-right: 15px;
 }
 
-.equipo-detalle-header {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 24px;
-  padding-top: 10px;
-}
 
-.back-btn {
-  background: none;
-  border: 1px solid var(--border);
-  color: var(--text2);
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  padding: 6px 14px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
 
-.back-btn:hover {
-  color: var(--text);
-  border-color: var(--text2);
-  background: rgba(255, 255, 255, 0.05);
-}
 
-.equipo-detalle-header h2 {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 24px;
-  font-weight: 400;
-  color: var(--text2);
-  margin: 0;
-}
-
-.equipo-nombre-resaltado {
-  color: var(--gold);
-  font-weight: 700;
-}
-
-/* ==========================================================================
-   7. MODAL Y EDICIÓN
-   ========================================================================== */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -1119,7 +1061,7 @@ body {
   color: var(--text);
 }
 
-/* Edición */
+
 .header-actions {
   display: flex;
   align-items: center;
@@ -1228,9 +1170,7 @@ body {
   appearance: textfield;
 }
 
-/* ==========================================================================
-   8. ESTADOS GLOBALES (CARGANDO / ERROR)
-   ========================================================================== */
+
 .loading {
   display: flex;
   align-items: center;
@@ -1284,9 +1224,7 @@ body {
   font-size: 12px;
 }
 
-/* ==========================================================================
-   9. ANIMACIONES Y MEDIA QUERIES (RESPONSIVE)
-   ========================================================================== */
+
 @keyframes blink {
 
   0%,
@@ -1330,48 +1268,9 @@ body {
 }
 
 /* --- Selector de Hoyos --- */
-.hole-selector {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 15px 0 5px;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 8px 16px;
-  border-radius: 30px;
-  width: fit-content;
-  border: 1px solid var(--border);
-}
 
-.hole-num-header {
-  background: var(--bg3);
-  padding: 8px;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 11px;
-  text-transform: uppercase;
-  color: var(--text2);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-  transition: all 0.2s;
-}
 
-.hole-num-header:hover {
-  background: var(--blue);
-  color: #000;
-}
 
-.hole-eye-icon {
-  font-size: 12px;
-  opacity: 0.6;
-}
-
-.hole-edit-card.selected {
-  border-color: var(--blue);
-  box-shadow: 0 0 15px rgba(91, 196, 216, 0.2);
-}
-
-/* Overlay Vista Previa Hoyo */
 .hole-preview-overlay {
   position: fixed;
   top: 0;
@@ -1444,26 +1343,7 @@ body {
   }
 }
 
-.hole-click-trigger {
-  cursor: pointer;
-  font-weight: 800;
-  color: var(--blue);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  transition: all 0.2s;
-  padding: 4px 8px;
-  border-radius: 6px;
-  width: fit-content;
-  margin: 0 auto;
-}
 
-.hole-click-trigger:hover {
-  background: rgba(91, 196, 216, 0.1);
-  text-decoration: underline;
-  transform: translateY(-1px);
-}
 
 .hole-indicator-icon {
   font-size: 10px;
@@ -1478,56 +1358,17 @@ body {
   transform: scale(1.2);
 }
 
-/* --- Responsive Modal --- */
 
-.selector-label {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 11px;
-  text-transform: uppercase;
-  color: var(--text2);
-  letter-spacing: 0.1em;
-}
 
-.mini-toggle {
-  display: flex;
-  gap: 4px;
-}
 
-.mini-tab-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--text2);
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 4px 12px;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
 
-.mini-tab-btn.active {
-  background: var(--blue);
-  color: #000;
-  border-color: var(--blue);
-  box-shadow: 0 0 10px rgba(91, 196, 216, 0.2);
-}
-
-.mini-tab-btn:hover:not(.active) {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text);
-}
-
-/* Ajustes para Tablets */
-
-/* Ajustes para Móviles */
 @media (max-width: 640px) {
 
   .app {
     padding: 0 16px;
   }
 
-  /* --- Header Completo --- */
+
   .header {
     flex-direction: column;
     align-items: stretch;
@@ -1600,7 +1441,7 @@ body {
     font-size: 11px;
   }
 
-  /* --- Tabla Individual --- */
+
   .table-header {
     grid-template-columns: 38px 1fr 42px 80px 70px;
     padding: 0 8px 10px;
@@ -1645,7 +1486,7 @@ body {
     font-size: 13px;
   }
 
-  /* --- Jugador --- */
+
   .row-player {
     display: flex;
     flex-direction: row;
