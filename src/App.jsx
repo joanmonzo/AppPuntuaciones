@@ -203,330 +203,6 @@ function PlayerRow({
   );
 }
 
-function PlayerModal({
-  player,
-  onClose,
-  onRefreshNeeded,
-  dbRonda1,
-  dbRonda2,
-  setSelectedHoleInfo,
-  initialRound,
-}) {
-  const [modalRound, setModalRound] = useState(initialRound || "Ronda 1");
-  const [editedData, setEditedData] = useState({});
-  const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-
-  const holes = Array.from({ length: 18 }, (_, i) => i + 1);
-
-  const activeDb = modalRound === "Ronda 1" ? dbRonda1 : dbRonda2;
-  const roundPlayerData = player
-    ? activeDb.find((p) => p.Jugador === player.Jugador)
-    : null;
-  const parRow = roundPlayerData
-    ? activeDb.find((p) => p.Jugador === roundPlayerData._parName)
-    : null;
-
-  const hcpRow = activeDb.find((p) => p.Jugador === "HCP HOYO");
-
-  useEffect(() => {
-    if (player && initialRound) {
-      setModalRound(initialRound);
-    }
-  }, [player, initialRound]);
-
-  useEffect(() => {
-    if (player) {
-      const initial = {};
-      holes.forEach((h) => {
-        initial[h] = {
-          par: parRow && parRow[h] !== undefined ? parRow[h] : "",
-          golpes:
-            roundPlayerData && roundPlayerData[h] !== undefined
-              ? roundPlayerData[h]
-              : "",
-        };
-      });
-      setEditedData(initial);
-      setIsEditing(false);
-    }
-  }, [player, modalRound, parRow, roundPlayerData]);
-
-  if (!player) return null;
-
-  const handleInputChange = (hole, field, value) => {
-    setEditedData((prev) => ({
-      ...prev,
-      [hole]: { ...prev[hole], [field]: value },
-    }));
-  };
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    let nuevosGolpes = {};
-    let nuevosPares = {};
-
-    Object.keys(editedData).forEach((hole) => {
-      nuevosGolpes[hole] = editedData[hole].golpes;
-      nuevosPares[hole] = editedData[hole].par;
-    });
-
-    const enviarDatos = async (paquete) => {
-      try {
-        await fetch(API_URL, {
-          method: "POST",
-          body: JSON.stringify(paquete),
-          headers: { "Content-Type": "text/plain" },
-        });
-      } catch (error) {
-        console.log(`Error al guardar en Sheets`, error);
-      }
-    };
-
-    await Promise.all([
-      enviarDatos({
-        jugador: player.Jugador,
-        ronda: modalRound,
-        golpes: nuevosGolpes,
-      }),
-      enviarDatos({
-        jugador: parRow
-          ? parRow.Jugador
-          : `PAR ${String(player.Jugador).toUpperCase()}`,
-        ronda: modalRound,
-        golpes: nuevosPares,
-      }),
-    ]);
-
-    setIsEditing(false);
-    setIsSaving(false);
-    onClose();
-    setTimeout(() => {
-      if (onRefreshNeeded) onRefreshNeeded();
-    }, 2000);
-  };
-
-  const handleReset = async () => {
-    const confirmReset = window.confirm(
-      `⚠️ ¿Estás seguro de que quieres BORRAR todos los golpes de ${player._CleanName || player.Jugador} en la ${modalRound}?`,
-    );
-    if (!confirmReset) return;
-
-    setIsSaving(true);
-    let golpesVacios = {};
-    holes.forEach((hole) => {
-      golpesVacios[hole] = "";
-    });
-
-    const paqueteGolpes = {
-      jugador: player.Jugador,
-      ronda: modalRound,
-      golpes: golpesVacios,
-    };
-
-    try {
-      await fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify(paqueteGolpes),
-        headers: { "Content-Type": "text/plain" },
-      });
-    } catch (error) {
-      console.log(`Error al resetear en Sheets`, error);
-    }
-
-    setIsEditing(false);
-    setIsSaving(false);
-    onClose();
-    setTimeout(() => {
-      if (onRefreshNeeded) onRefreshNeeded();
-    }, 2000);
-  };
-
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <button className="close-btn" onClick={onClose} disabled={isSaving}>
-          &times;
-        </button>
-
-        <div className="modal-header">
-          <div className="modal-title-area">
-            <h2 style={{ color: "var(--gold)", fontSize: "24px", margin: 0, textTransform: "uppercase", letterSpacing: "1px" }}>
-              {player.ARQUETIPO || player.fll || player.FLL || "SIN ARQUETIPO"}
-            </h2>
-
-            <span style={{ color: "var(--text2)", fontSize: "13px", fontWeight: "600", textTransform: "uppercase", marginTop: "4px", display: "block" }}>
-              {player._CleanName || player.Jugador}
-            </span>
-
-            <div className="modal-tabs" style={{ marginTop: "12px" }}>
-              <button
-                className={`modal-tab-btn ${modalRound === "Ronda 1" ? "active" : ""}`}
-                onClick={() => {
-                  setModalRound("Ronda 1");
-                  setIsEditing(false);
-                }}
-              >
-                R1
-              </button>
-              <button
-                className={`modal-tab-btn ${modalRound === "Ronda 2" ? "active" : ""}`}
-                onClick={() => {
-                  setModalRound("Ronda 2");
-                  setIsEditing(false);
-                }}
-              >
-                R2
-              </button>
-            </div>
-          </div>
-
-          <div className="header-actions">
-            {isEditing ? (
-              <>
-                <button
-                  className="save-btn"
-                  onClick={handleSave}
-                  disabled={isSaving}
-                  style={
-                    isSaving
-                      ? { backgroundColor: "#95a5a6", cursor: "not-allowed" }
-                      : {}
-                  }
-                >
-                  {isSaving ? "..." : "GUARDAR"}
-                </button>
-                <button
-                  className="cancel-btn"
-                  onClick={() => setIsEditing(false)}
-                  disabled={isSaving}
-                >
-                  CAN
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  className="reset-btn"
-                  onClick={handleReset}
-                  disabled={isSaving}
-                  title="Reiniciar Partida"
-                >
-                  ↺
-                </button>
-                <button
-                  className="edit-btn"
-                  onClick={() => setIsEditing(true)}
-                  title="Editar"
-                >
-                  ✎
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-
-        <div className="modal-body">
-          <div className="stats-grid">
-            <div
-              className="stats-row header"
-              style={{ gridTemplateColumns: "repeat(4, 1fr)" }}
-            >
-              <span>Hoyo</span>
-              <span>PAR Hoyo</span>
-              <span>PAR Jug.</span>
-              <span>Golpes</span>
-            </div>
-            {holes.map((h) => {
-              const currentEditedHole = editedData[h] || {
-                par: "",
-                golpes: "",
-              };
-              const golpesNum = Number(currentEditedHole.golpes);
-              const parNum = Number(currentEditedHole.par);
-
-              const hcpHoyoVal =
-                hcpRow && hcpRow[h] !== undefined && hcpRow[h] !== ""
-                  ? hcpRow[h]
-                  : "-";
-
-              const scoreClass = getScoreClass(currentEditedHole.golpes, currentEditedHole.par);
-
-              return (
-                <div
-                  className="stats-row"
-                  key={h}
-                  style={{ gridTemplateColumns: "repeat(4, 1fr)" }}
-                >
-                  <div className="hole-cell">
-                    <button
-                      type="button"
-                      className="hole-btn-trigger"
-                      onClick={() => setSelectedHoleInfo(h)}
-                      title={`Ver info hoyo ${h}`}
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: "6px",
-                        padding: "5px 10px",
-                        backgroundColor: "var(--bg3)",
-                        border: "1px solid var(--border)",
-                        borderRadius: "6px",
-                        cursor: "pointer",
-                        fontSize: "13px",
-                        fontWeight: "600",
-                        color: "var(--text)",
-                        transition: "all 0.2s ease"
-                      }}
-                    >
-                      {h} <span className="hole-indicator-icon">🗺️</span>
-                    </button>
-                  </div>
-
-                  <span>{hcpHoyoVal}</span>
-
-                  {isEditing ? (
-                    <input
-                      type="number"
-                      className="edit-input"
-                      value={currentEditedHole.par}
-                      onChange={(e) =>
-                        handleInputChange(h, "par", e.target.value)
-                      }
-                      disabled={isSaving}
-                    />
-                  ) : (
-                    <span>{currentEditedHole.par || "-"}</span>
-                  )}
-
-                  {isEditing ? (
-                    <input
-                      type="number"
-                      className={`edit-input ${scoreClass}`}
-                      value={currentEditedHole.golpes}
-                      onChange={(e) =>
-                        handleInputChange(h, "golpes", e.target.value)
-                      }
-                      disabled={isSaving}
-                    />
-                  ) : (
-                    <span className={scoreClass}>
-                      {currentEditedHole.golpes === ""
-                        ? "-"
-                        : currentEditedHole.golpes}
-                    </span>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function App() {
   const [dbRonda1, setDbRonda1] = useState([]);
   const [dbRonda2, setDbRonda2] = useState([]);
@@ -541,6 +217,10 @@ export default function App() {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [selectedHoleInfo, setSelectedHoleInfo] = useState(null);
   const [activeTab, setActiveTab] = useState("clasificacion");
+  const [scoringPlayer, setScoringPlayer] = useState(null);
+  const [scoringRound, setScoringRound] = useState("Ronda 1");
+  const [scoringData, setScoringData] = useState({});
+  const [isSaving, setIsSaving] = useState(false);
   const [expandedTeam, setExpandedTeam] = useState(null);
   const [accordionRound, setAccordionRound] = useState("R1");
   const [activeHoleRound, setActiveHoleRound] = useState("Ronda 1");
@@ -611,6 +291,92 @@ export default function App() {
       }
     }
     return raw;
+  };
+
+  // Sincronizar scoringData solo cuando CAMBIA el jugador o la ronda (evitar resets por polling)
+  const lastScoringRef = useRef("");
+  useEffect(() => {
+    const key = `${scoringPlayer?.Jugador}-${scoringRound}`;
+    if (scoringPlayer && key !== lastScoringRef.current) {
+      lastScoringRef.current = key;
+      const activeDb = scoringRound === "Ronda 1" ? dbRonda1 : dbRonda2;
+      const roundPlayerData = activeDb.find((p) => p.Jugador === scoringPlayer.Jugador);
+      const parRow = roundPlayerData
+        ? activeDb.find((p) => p.Jugador === roundPlayerData._parName)
+        : null;
+
+      const initial = {};
+      const holes = Array.from({ length: 18 }, (_, i) => i + 1);
+      holes.forEach((h) => {
+        initial[h] = {
+          par: parRow && parRow[h] !== undefined ? parRow[h] : "",
+          golpes: roundPlayerData && roundPlayerData[h] !== undefined ? roundPlayerData[h] : "",
+        };
+      });
+      setScoringData(initial);
+    }
+  }, [scoringPlayer, scoringRound, dbRonda1, dbRonda2]);
+
+  const handleScoreChange = (hole, field, value) => {
+    setScoringData((prev) => ({
+      ...prev,
+      [hole]: { ...prev[hole], [field]: value },
+    }));
+  };
+
+  const saveScores = async () => {
+    if (!scoringPlayer) return;
+    setIsSaving(true);
+    let nuevosGolpes = {};
+    let nuevosPares = {};
+    Object.keys(scoringData).forEach((hole) => {
+      nuevosGolpes[hole] = scoringData[hole].golpes;
+      nuevosPares[hole] = scoringData[hole].par;
+    });
+
+    const activeDb = scoringRound === "Ronda 1" ? dbRonda1 : dbRonda2;
+    const roundPlayerData = activeDb.find((p) => p.Jugador === scoringPlayer.Jugador);
+    const parName = roundPlayerData?._parName || `PAR ${String(scoringPlayer.Jugador).toUpperCase()}`;
+
+    const enviarDatos = async (paquete) => {
+      try {
+        await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify(paquete),
+          headers: { "Content-Type": "text/plain" },
+        });
+      } catch (e) { }
+    };
+
+    await Promise.all([
+      enviarDatos({ jugador: scoringPlayer.Jugador, ronda: scoringRound, golpes: nuevosGolpes }),
+      enviarDatos({ jugador: parName, ronda: scoringRound, golpes: nuevosPares }),
+    ]);
+
+    setIsSaving(false);
+    fetchData();
+    alert("¡Puntuaciones guardadas correctamente!");
+  };
+
+  const resetScores = async () => {
+    if (!scoringPlayer) return;
+    const confirmReset = window.confirm(`⚠️ ¿Borrar todos los golpes de ${scoringPlayer._CleanName || scoringPlayer.Jugador} en ${scoringRound}?`);
+    if (!confirmReset) return;
+
+    setIsSaving(true);
+    let golpesVacios = {};
+    for (let i = 1; i <= 18; i++) golpesVacios[i] = "";
+
+    try {
+      await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ jugador: scoringPlayer.Jugador, ronda: scoringRound, golpes: golpesVacios }),
+        headers: { "Content-Type": "text/plain" },
+      });
+    } catch (e) { }
+
+    setIsSaving(false);
+    fetchData();
   };
 
   async function fetchData() {
@@ -884,24 +650,27 @@ export default function App() {
             </li>`,
           );
         } else {
+          // Contador para Fly 1, Fly 2...
+          const flyNum = html.filter(h => h.includes('<b>Fly ')).length + 1;
+          
           if (flyPts > carPts) {
             html.push(
               `<li>
-                <b>1v1:</b> <b style='color:var(--blue)'>${pFly}</b> (${flyScore} pts) gana a <span style='color:#e67e22'>${pCar}</span> (${carScore} pts). 
+                <b>Fly ${flyNum}:</b> <b style='color:var(--blue)'>${pFly}</b> (${flyScore} pts) gana a <span style='color:#e67e22'>${pCar}</span> (${carScore} pts). 
                 <br><span style='color:var(--blue); font-weight:bold;'>FLYING +${flyPts}</span>
               </li>`,
             );
           } else if (carPts > flyPts) {
             html.push(
               `<li>
-                <b>1v1:</b> <b style='color:#e67e22'>${pCar}</b> (${carScore} pts) gana a <span style='color:var(--blue)'>${pFly}</span> (${flyScore} pts). 
+                <b>Fly ${flyNum}:</b> <b style='color:#e67e22'>${pCar}</b> (${carScore} pts) gana a <span style='color:var(--blue)'>${pFly}</span> (${flyScore} pts). 
                 <br><span style='color:#e67e22; font-weight:bold;'>CARABASSA +${carPts}</span>
               </li>`,
             );
           } else {
             html.push(
               `<li>
-                <b>1v1:</b> <b>Empate</b> entre <span style='color:var(--blue)'>${pFly}</span> (${flyScore} pts) y <span style='color:#e67e22'>${pCar}</span> (${carScore} pts). 
+                <b>Fly ${flyNum}:</b> <b>Empate</b> entre <span style='color:var(--blue)'>${pFly}</span> (${flyScore} pts) y <span style='color:#e67e22'>${pCar}</span> (${carScore} pts). 
                 <br><span style='color:var(--text2); font-weight:bold;'>FLY +1 | CARA +1</span>
               </li>`,
             );
@@ -1013,9 +782,7 @@ export default function App() {
             <div className="tabs-container" style={{ marginTop: 0 }}>
               <button
                 className={`tab-btn ${activeTab === "clasificacion" ? "active" : ""}`}
-                onClick={() => {
-                  setActiveTab("clasificacion");
-                }}
+                onClick={() => setActiveTab("clasificacion")}
               >
                 Individuales
               </button>
@@ -1024,6 +791,13 @@ export default function App() {
                 onClick={() => setActiveTab("equipos")}
               >
                 Equipos
+              </button>
+              <button
+                className={`tab-btn ${activeTab === "anotar" ? "active" : ""}`}
+                onClick={() => setActiveTab("anotar")}
+                style={{ position: 'relative' }}
+              >
+                Anotar <span style={{ fontSize: '10px', verticalAlign: 'top', marginLeft: '2px' }}>✎</span>
               </button>
             </div>
           </div>
@@ -1187,7 +961,10 @@ export default function App() {
                         player={player}
                         rank={player._rank}
                         colorIndex={i}
-                        onClick={() => setSelectedPlayer(player)}
+                        onClick={() => {
+                          setScoringPlayer(player);
+                          setActiveTab("anotar");
+                        }}
                         hoyoActivo={hoyoActivo}
                         activeHoleRound={activeHoleRound}
                         totalPlayers={players.length}
@@ -1495,19 +1272,109 @@ export default function App() {
                 )}
               </div>
             )}
+
+            {activeTab === "anotar" && (
+              <div className="anotacion-tab slide-up">
+                <div className="scoring-controls-wrapper" style={{ marginBottom: '25px', display: 'grid', gridTemplateColumns: 'minmax(250px, 1fr) auto', gap: '20px', alignItems: 'flex-end' }}>
+                  <div className="control-group">
+                    <label style={{ display: 'block', fontSize: '11px', color: 'var(--text2)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Seleccionar Jugador</label>
+                    <select
+                      className="scoring-select"
+                      value={scoringPlayer?.Jugador || ""}
+                      onChange={(e) => {
+                        const p = players.find(pl => pl.Jugador === e.target.value);
+                        setScoringPlayer(p);
+                      }}
+                      style={{ width: '100%', padding: '12px', borderRadius: '10px', backgroundColor: 'var(--bg-card)', color: 'var(--text)', border: '1px solid var(--border)', fontSize: '15px', fontWeight: '600' }}
+                    >
+                      <option value="">— Elegir de la lista —</option>
+                      {players.map(p => (
+                        <option key={p.Jugador} value={p.Jugador}>{p._CleanName || p.Jugador} ({p.EQUIPO})</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button className="reset-btn" onClick={resetScores} disabled={!scoringPlayer || isSaving} title="Borrar ronda actual" style={{ width: '46px', height: '46px', borderRadius: '12px' }}>↺</button>
+                    <button className="save-btn" onClick={saveScores} disabled={!scoringPlayer || isSaving} style={{ padding: '0 30px', borderRadius: '12px', height: '46px', fontSize: '14px', fontWeight: '800', letterSpacing: '1px', boxShadow: '0 4px 15px rgba(91, 196, 216, 0.2)' }}>
+                      {isSaving ? "PROCESANDO..." : "GUARDAR CAMBIOS"}
+                    </button>
+                  </div>
+                </div>
+
+                {scoringPlayer ? (
+                  <div className="scoring-grid-container card-premium" style={{ backgroundColor: 'var(--bg-card)', borderRadius: '20px', border: '1px solid var(--border)', overflow: 'hidden' }}>
+                    <div className="card-header-scoring" style={{ padding: '25px', background: 'linear-gradient(to bottom, rgba(255,255,255,0.03), transparent)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                        <div className="avatar big" style={{ width: '50px', height: '50px', borderRadius: '12px', fontSize: '18px' }}>
+                          {getInitials(scoringPlayer._CleanName || scoringPlayer.Jugador)}
+                        </div>
+                        <div>
+                          <h2 style={{ color: 'var(--gold)', margin: 0, fontSize: '20px', letterSpacing: '0.5px' }}>
+                            {scoringPlayer.ARQUETIPO || "TARJETA INDIVIDUAL"}
+                          </h2>
+                          <div style={{ color: 'var(--text2)', fontSize: '13px', fontWeight: '600' }}>
+                            {scoringPlayer._CleanName || scoringPlayer.Jugador} • {scoringPlayer.EQUIPO}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="modal-tabs round-selector-tab" style={{ margin: 0 }}>
+                        <button className={`modal-tab-btn ${scoringRound === "Ronda 1" ? "active" : ""}`} onClick={() => setScoringRound("Ronda 1")}>R1</button>
+                        <button className={`modal-tab-btn ${scoringRound === "Ronda 2" ? "active" : ""}`} onClick={() => setScoringRound("Ronda 2")}>R2</button>
+                      </div>
+                    </div>
+
+                    <div style={{ padding: '20px' }}>
+                      <div className="stats-grid">
+                        <div className="stats-row header" style={{ gridTemplateColumns: '80px 1fr 1fr 1fr', padding: '10px 15px' }}>
+                          <span>Hoyo</span>
+                          <span>HCP</span>
+                          <span>PAR</span>
+                          <span>GOLPES</span>
+                        </div>
+                        <div className="scrollable-grid" style={{ maxHeight: '60vh', overflowY: 'auto', paddingRight: '5px' }}>
+                          {Array.from({ length: 18 }, (_, i) => i + 1).map((h) => {
+                            const data = scoringData[h] || { par: "", golpes: "" };
+                            const activeDb = scoringRound === "Ronda 1" ? dbRonda1 : dbRonda2;
+                            const hcpRow = activeDb.find(p => p.Jugador === "HCP HOYO");
+                            const hcpVal = hcpRow?.[h] || "-";
+                            const scoreClass = getScoreClass(data.golpes, data.par);
+
+                            return (
+                              <div className="stats-row" key={h} style={{ gridTemplateColumns: '80px 1fr 1fr 1fr', padding: '12px 15px', marginBottom: '4px' }}>
+                                <div className="hole-cell">
+                                  <button className="hole-btn-trigger" onClick={() => setSelectedHoleInfo(h)} style={{ padding: '6px 12px', fontSize: '12px', background: 'var(--bg3)', borderRadius: '8px', border: '1px solid var(--border)', color: 'var(--text)', fontWeight: '700' }}>
+                                    {h} 🗺️
+                                  </button>
+                                </div>
+                                <span style={{ color: 'var(--text2)', alignSelf: 'center', fontWeight: '600' }}>{hcpVal}</span>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  <span style={{ color: 'var(--text2)', fontWeight: '600' }}>{data.par || "-"}</span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  <input type="number" className={`edit-input ${scoreClass}`} value={data.golpes} onChange={(e) => handleScoreChange(h, "golpes", e.target.value)} disabled={isSaving} placeholder="-" />
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="empty-state-container" style={{ textAlign: 'center', padding: '80px 20px', backgroundColor: 'var(--bg-card)', borderRadius: '20px', border: '1px dashed var(--border)' }}>
+                    <div style={{ fontSize: '50px', marginBottom: '20px' }}>📋</div>
+                    <h3 style={{ color: 'var(--text)', marginBottom: '10px' }}>Sistema de Anotación</h3>
+                    <p style={{ color: 'var(--text2)', maxWidth: '400px', margin: '0 auto', fontSize: '14px', lineHeight: '1.6' }}>
+                      Selecciona un jugador del menú superior o haz clic en cualquier nombre de la clasificación para empezar a editar su tarjeta de puntuación.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
           </>
         )}
       </main>
-
-      <PlayerModal
-        player={selectedPlayer}
-        onClose={() => setSelectedPlayer(null)}
-        onRefreshNeeded={fetchData}
-        dbRonda1={dbRonda1}
-        dbRonda2={dbRonda2}
-        setSelectedHoleInfo={setSelectedHoleInfo}
-        initialRound={activeHoleRound}
-      />
 
       <footer className="footer">
         <span>Actualización automática cada {POLL_INTERVAL / 1000}s</span>
