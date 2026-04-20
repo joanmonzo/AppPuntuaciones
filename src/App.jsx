@@ -45,6 +45,20 @@ function getInitials(name) {
     .slice(0, 2);
 }
 
+function getScoreClass(strokes, par) {
+  if (!strokes || !par || strokes === "" || isNaN(strokes) || isNaN(par)) return "score-par";
+  const s = Number(strokes);
+  const p = Number(par);
+  if (s <= 0) return "score-par";
+  const diff = s - p;
+
+  if (s === 1 || diff <= -2) return "score-eagle";
+  if (diff === -1) return "score-under";
+  if (diff === 0) return "score-par";
+  if (diff === 1) return "score-bogey";
+  return "score-double-bogey";
+}
+
 function isRealPlayer(p) {
   return (
     p.Jugador &&
@@ -90,6 +104,7 @@ function PlayerRow({
   onClick,
   hoyoActivo,
   activeHoleRound,
+  totalPlayers,
 }) {
   const color = AVATAR_COLORS[colorIndex % AVATAR_COLORS.length];
 
@@ -99,7 +114,7 @@ function PlayerRow({
     : null;
 
   const isTop4 = rank <= 4;
-  const isWorst4 = rank >= 8;
+  const isWorst4 = totalPlayers > 4 && rank > totalPlayers - 4;
   const highlightClass = isTop4
     ? "highlight-top"
     : isWorst4
@@ -213,7 +228,7 @@ function PlayerModal({
     : null;
 
   const hcpRow = activeDb.find((p) => p.Jugador === "HCP HOYO");
-  
+
   useEffect(() => {
     if (player && initialRound) {
       setModalRound(initialRound);
@@ -435,16 +450,7 @@ function PlayerModal({
                   ? hcpRow[h]
                   : "-";
 
-              let scoreClass = "score-par";
-              if (
-                !isNaN(parNum) &&
-                !isNaN(golpesNum) &&
-                currentEditedHole.golpes !== "" &&
-                currentEditedHole.par !== ""
-              ) {
-                if (golpesNum > 0 && golpesNum < parNum) scoreClass = "score-under";
-                else if (golpesNum > parNum) scoreClass = "score-over";
-              }
+              const scoreClass = getScoreClass(currentEditedHole.golpes, currentEditedHole.par);
 
               return (
                 <div
@@ -574,12 +580,20 @@ export default function App() {
         let foundPar = false;
         let foundStable = false;
 
+        // Por defecto saca el HCP de la fila principal (si lo hubiera)
+        let hcpValue = parseFloat(String(row.HCP).replace(",", ".")) || 0;
+
         for (let j = i + 1; j < i + 6 && j < raw.length; j++) {
           const subRow = raw[j];
           if (!subRow) continue;
 
           if (!foundPar && String(subRow.Jugador).startsWith("PAR ")) {
             row._parName = subRow.Jugador;
+
+            // REGLA CLAVE: Cogemos el HCP de la fila del PAR JUGADOR
+            const hcpPar = parseFloat(String(subRow.HCP).replace(",", "."));
+            if (!isNaN(hcpPar)) hcpValue = hcpPar;
+
             foundPar = true;
           }
           if (!foundStable && subRow.Jugador === "STABLE RESULTADO") {
@@ -588,6 +602,9 @@ export default function App() {
           }
           if (isRealPlayer(subRow)) break;
         }
+
+        row._hcpGuardado = hcpValue;
+
         if (!foundStable) {
           row._stableResultado = row["RESULTADO ACTUAL"];
         }
@@ -617,7 +634,7 @@ export default function App() {
       try {
         rawMarcador = await resMarcador.json();
         setMarcadorInfo(rawMarcador);
-      } catch (e) {}
+      } catch (e) { }
 
       const processedR1 = procesarHoja(raw1);
       const processedR2 = procesarHoja(raw2);
@@ -677,6 +694,7 @@ export default function App() {
       _cleanR1: valR1,
       _cleanR2: "-",
       _totalScore: valR1 !== "-" ? valR1 : 0,
+      _hcpGuardado: p._hcpGuardado,
     });
   });
 
@@ -694,6 +712,10 @@ export default function App() {
       const score2 = valR2 !== "-" ? valR2 : 0;
       existing._totalScore = score1 + score2;
 
+      if (!existing._hcpGuardado && p._hcpGuardado) {
+        existing._hcpGuardado = p._hcpGuardado;
+      }
+
       if (p.Hoyo && Number(p.Hoyo) > 0) {
         existing.Hoyo = p.Hoyo;
       }
@@ -704,6 +726,7 @@ export default function App() {
         _cleanR1: "-",
         _cleanR2: valR2,
         _totalScore: valR2 !== "-" ? valR2 : 0,
+        _hcpGuardado: p._hcpGuardado,
       });
     }
   });
@@ -727,7 +750,7 @@ export default function App() {
             : 0;
         ptsTot =
           pGen["PUNTOS INDIV. TOTAL"] !== "" &&
-          pGen["PUNTOS INDIV. TOTAL"] !== undefined
+            pGen["PUNTOS INDIV. TOTAL"] !== undefined
             ? Number(pGen["PUNTOS INDIV. TOTAL"])
             : 0;
       }
@@ -739,18 +762,30 @@ export default function App() {
         _puntosIndivTotal: ptsTot,
       };
     })
-    .sort(
-      (a, b) => (Number(b._totalScore) || 0) - (Number(a._totalScore) || 0),
-    );
+    .sort((a, b) => {
+      const scoreA = Number(a._totalScore) || 0;
+      const scoreB = Number(b._totalScore) || 0;
+      if (scoreB !== scoreA) {
+        return scoreB - scoreA;
+      }
+
+      const hcpA = Number(a._hcpGuardado) || 0;
+      const hcpB = Number(b._hcpGuardado) || 0;
+      return hcpA - hcpB;
+    });
 
   let currentRank = 0;
   let lastScore = null;
+  let lastHcp = null;
   const players = sortedPlayers.map((p, i) => {
     const score = p._totalScore;
-    if (score !== lastScore) {
+    const hcp = p._hcpGuardado;
+
+    if (score !== lastScore || hcp !== lastHcp) {
       currentRank = i + 1;
     }
     lastScore = score;
+    lastHcp = hcp;
     return { ...p, _rank: currentRank };
   });
 
@@ -836,20 +871,39 @@ export default function App() {
           );
           const car2Score = pCar2Data ? pCar2Data._totalScore : "?";
           html.push(
-            `<li class='trio' style='margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc;'><b>El Trío Final:</b> ${pFly} (${flyScore} pts) vs ${pCar} (${carScore} pts) y ${pCar2} (${car2Score} pts).<br> <b>+${flyPts}</b> puntos para FLYING | <b>+${carPts}</b> puntos para CARABASSA <br><span style='color:#e67e22; font-weight:bold;'>(Incluye +1 minoría FLY)</span></li>`,
+            `<li class='trio' style='margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border);'>
+              <b>El Trío Final:</b> <span style='color:var(--blue)'>${pFly}</span> (${flyScore}) 
+              vs 
+              <span style='color:#e67e22'>${pCar}</span> (${carScore}) 
+              y 
+              <span style='color:#e67e22'>${pCar2}</span> (${car2Score}).
+              <br> 
+              <span style='color:var(--blue); font-weight:bold;'>FLYING +${flyPts}</span> | 
+              <span style='color:#e67e22; font-weight:bold;'>CARABASSA +${carPts}</span> 
+              <br><span style='color:#e67e22; font-size:11px; font-weight:bold;'>(Incluye +1 minoría FLY)</span>
+            </li>`,
           );
         } else {
           if (flyPts > carPts) {
             html.push(
-              `<li><b>1v1:</b> <b>${pFly}</b> (${flyScore} pts) gana a ${pCar} (${carScore} pts). <br><span style='color:#e67e22; font-weight:bold;'>+${flyPts} FLYING CARAJILLOS</span></li>`,
+              `<li>
+                <b>1v1:</b> <b style='color:var(--blue)'>${pFly}</b> (${flyScore} pts) gana a <span style='color:#e67e22'>${pCar}</span> (${carScore} pts). 
+                <br><span style='color:var(--blue); font-weight:bold;'>FLYING +${flyPts}</span>
+              </li>`,
             );
           } else if (carPts > flyPts) {
             html.push(
-              `<li><b>1v1:</b> <b>${pCar}</b> (${carScore} pts) gana a ${pFly} (${flyScore} pts). <br><span style='color:#e67e22; font-weight:bold;'>+${carPts} CARABASSA SLICE FOCKERS</span></li>`,
+              `<li>
+                <b>1v1:</b> <b style='color:#e67e22'>${pCar}</b> (${carScore} pts) gana a <span style='color:var(--blue)'>${pFly}</span> (${flyScore} pts). 
+                <br><span style='color:#e67e22; font-weight:bold;'>CARABASSA +${carPts}</span>
+              </li>`,
             );
           } else {
             html.push(
-              `<li><b>1v1:</b> <b>Empate</b> entre ${pFly} (${flyScore} pts) y ${pCar} (${carScore} pts). <br><span style='color:#e67e22; font-weight:bold;'>+1 cada equipo</span></li>`,
+              `<li>
+                <b>1v1:</b> <b>Empate</b> entre <span style='color:var(--blue)'>${pFly}</span> (${flyScore} pts) y <span style='color:#e67e22'>${pCar}</span> (${carScore} pts). 
+                <br><span style='color:var(--text2); font-weight:bold;'>FLY +1 | CARA +1</span>
+              </li>`,
             );
           }
         }
@@ -992,10 +1046,10 @@ export default function App() {
               ? "Sin conexión"
               : lastUpdate
                 ? lastUpdate.toLocaleTimeString("es-ES", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    second: "2-digit",
-                  })
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                })
                 : "Conectando…"}
           </span>
         </div>
@@ -1136,6 +1190,7 @@ export default function App() {
                         onClick={() => setSelectedPlayer(player)}
                         hoyoActivo={hoyoActivo}
                         activeHoleRound={activeHoleRound}
+                        totalPlayers={players.length}
                       />
                     );
                   })}
@@ -1371,18 +1426,7 @@ export default function App() {
                                           const par = Number(parRow?.[h]);
                                           totalStrokes += strokes || 0;
 
-                                          let scoreClass = "";
-                                          if (
-                                            strokesRaw !== "" &&
-                                            strokes &&
-                                            par
-                                          ) {
-                                            if (strokes < par)
-                                              scoreClass = "score-under";
-                                            else if (strokes > par)
-                                              scoreClass = "score-over";
-                                            else scoreClass = "score-par";
-                                          }
+                                          const scoreClass = getScoreClass(strokesRaw, par);
 
                                           return (
                                             <span

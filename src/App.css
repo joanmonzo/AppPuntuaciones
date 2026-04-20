@@ -23,6 +23,8 @@
   --green: #4ed88a;
   --red: #e05b5b;
   --blue: #5bc4d8;
+  --bogey: #e05b5b;
+  --double-bogey: #1a2a6c;
   --radius: 10px;
 }
 
@@ -1052,13 +1054,33 @@ body {
   font-weight: 700;
 }
 
-.score-over {
-  color: var(--red);
-  font-weight: 700;
+.score-eagle {
+  color: var(--gold);
+  font-weight: 800;
+  text-shadow: 0 0 5px rgba(212, 175, 55, 0.4);
 }
 
 .score-par {
   color: var(--text);
+}
+
+body.light-mode .score-par {
+  color: #000000;
+  font-weight: 600;
+}
+
+.score-over,
+.score-bogey {
+  color: var(--bogey);
+  font-weight: 700;
+}
+
+.score-double-bogey {
+  color: var(--double-bogey);
+  font-weight: 800;
+  background: rgba(26, 42, 108, 0.15);
+  padding: 2px 4px;
+  border-radius: 4px;
 }
 
 
