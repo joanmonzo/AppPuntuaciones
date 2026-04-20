@@ -217,6 +217,7 @@ export default function App() {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [selectedHoleInfo, setSelectedHoleInfo] = useState(null);
   const [activeTab, setActiveTab] = useState("clasificacion");
+  const [scoringTeamFilter, setScoringTeamFilter] = useState("");
   const [scoringPlayer, setScoringPlayer] = useState(null);
   const [scoringRound, setScoringRound] = useState("Ronda 1");
   const [scoringData, setScoringData] = useState({});
@@ -284,6 +285,7 @@ export default function App() {
         }
 
         row._hcpGuardado = hcpValue;
+        row.ARQUETIPO = row.FLL || row.fll || row.ARQUETIPO || "";
 
         if (!foundStable) {
           row._stableResultado = row["RESULTADO ACTUAL"];
@@ -793,7 +795,7 @@ export default function App() {
                 Equipos
               </button>
               <button
-                className={`tab-btn ${activeTab === "anotar" ? "active" : ""}`}
+                className={`tab-btn ${activeTab === "anotar" ? "active anotar" : ""}`}
                 onClick={() => setActiveTab("anotar")}
                 style={{ position: 'relative' }}
               >
@@ -962,6 +964,7 @@ export default function App() {
                         rank={player._rank}
                         colorIndex={i}
                         onClick={() => {
+                          setScoringTeamFilter(player.EQUIPO || "");
                           setScoringPlayer(player);
                           setActiveTab("anotar");
                         }}
@@ -1275,7 +1278,26 @@ export default function App() {
 
             {activeTab === "anotar" && (
               <div className="anotacion-tab slide-up">
-                <div className="scoring-controls-wrapper" style={{ marginBottom: '25px', display: 'grid', gridTemplateColumns: 'minmax(250px, 1fr) auto', gap: '20px', alignItems: 'flex-end' }}>
+                <div className="scoring-controls-wrapper" style={{ marginBottom: '25px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', alignItems: 'flex-end' }}>
+                  
+                  <div className="control-group">
+                    <label style={{ display: 'block', fontSize: '11px', color: 'var(--text2)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Filtrar por Equipo</label>
+                    <select
+                      className="scoring-select"
+                      value={scoringTeamFilter}
+                      onChange={(e) => {
+                        setScoringTeamFilter(e.target.value);
+                        setScoringPlayer(null); // Resetear jugador al cambiar equipo
+                      }}
+                      style={{ width: '100%', padding: '12px', borderRadius: '10px', backgroundColor: 'var(--bg-card)', color: 'var(--text)', border: '1px solid var(--border)', fontSize: '14px', fontWeight: '600' }}
+                    >
+                      <option value="">— Todos los Equipos —</option>
+                      {equiposUnicosMatch.map(eq => (
+                        <option key={eq} value={eq}>{eq}</option>
+                      ))}
+                    </select>
+                  </div>
+
                   <div className="control-group">
                     <label style={{ display: 'block', fontSize: '11px', color: 'var(--text2)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Seleccionar Jugador</label>
                     <select
@@ -1285,15 +1307,20 @@ export default function App() {
                         const p = players.find(pl => pl.Jugador === e.target.value);
                         setScoringPlayer(p);
                       }}
-                      style={{ width: '100%', padding: '12px', borderRadius: '10px', backgroundColor: 'var(--bg-card)', color: 'var(--text)', border: '1px solid var(--border)', fontSize: '15px', fontWeight: '600' }}
+                      style={{ width: '100%', padding: '12px', borderRadius: '10px', backgroundColor: 'var(--bg-card)', color: 'var(--text)', border: '1px solid var(--border)', fontSize: '14px', fontWeight: '600' }}
                     >
-                      <option value="">— Elegir de la lista —</option>
-                      {players.map(p => (
-                        <option key={p.Jugador} value={p.Jugador}>{p._CleanName || p.Jugador} ({p.EQUIPO})</option>
-                      ))}
+                      <option value="">— Elegir jugador —</option>
+                      {players
+                        .filter(p => !scoringTeamFilter || p.EQUIPO === scoringTeamFilter)
+                        .map(p => (
+                          <option key={p.Jugador} value={p.Jugador}>
+                            {p._CleanName || p.Jugador} ({p.ARQUETIPO || "Sin Arquetipo"})
+                          </option>
+                        ))}
                     </select>
                   </div>
-                  <div style={{ display: 'flex', gap: '10px' }}>
+
+                  <div style={{ display: 'flex', gap: '10px', gridColumn: 'span 1 / -1', justifyContent: 'flex-end' }}>
                     <button className="reset-btn" onClick={resetScores} disabled={!scoringPlayer || isSaving} title="Borrar ronda actual" style={{ width: '46px', height: '46px', borderRadius: '12px' }}>↺</button>
                     <button className="save-btn" onClick={saveScores} disabled={!scoringPlayer || isSaving} style={{ padding: '0 30px', borderRadius: '12px', height: '46px', fontSize: '14px', fontWeight: '800', letterSpacing: '1px', boxShadow: '0 4px 15px rgba(91, 196, 216, 0.2)' }}>
                       {isSaving ? "PROCESANDO..." : "GUARDAR CAMBIOS"}

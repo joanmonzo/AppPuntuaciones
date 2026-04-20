@@ -239,6 +239,13 @@ body {
   border-color: #a43b28;
 }
 
+.tab-btn.active.anotar {
+  background: var(--gold);
+  color: #1a1500;
+  border-color: var(--gold);
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
 
 .table-header {
   display: grid;
