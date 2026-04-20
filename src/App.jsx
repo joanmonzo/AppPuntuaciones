@@ -261,7 +261,6 @@ export default function App() {
         let foundPar = false;
         let foundStable = false;
 
-        // Por defecto saca el HCP de la fila principal (si lo hubiera)
         let hcpValue = parseFloat(String(row.HCP).replace(",", ".")) || 0;
 
         for (let j = i + 1; j < i + 6 && j < raw.length; j++) {
@@ -271,7 +270,6 @@ export default function App() {
           if (!foundPar && String(subRow.Jugador).startsWith("PAR ")) {
             row._parName = subRow.Jugador;
 
-            // REGLA CLAVE: Cogemos el HCP de la fila del PAR JUGADOR
             const hcpPar = parseFloat(String(subRow.HCP).replace(",", "."));
             if (!isNaN(hcpPar)) hcpValue = hcpPar;
 
@@ -295,7 +293,6 @@ export default function App() {
     return raw;
   };
 
-  // Sincronizar scoringData solo cuando CAMBIA el jugador o la ronda (evitar resets por polling)
   const lastScoringRef = useRef("");
   useEffect(() => {
     const key = `${scoringPlayer?.Jugador}-${scoringRound}`;
@@ -652,9 +649,8 @@ export default function App() {
             </li>`,
           );
         } else {
-          // Contador para Fly 1, Fly 2...
           const flyNum = html.filter(h => h.includes('<b>Fly ')).length + 1;
-          
+
           if (flyPts > carPts) {
             html.push(
               `<li>
@@ -1279,7 +1275,7 @@ export default function App() {
             {activeTab === "anotar" && (
               <div className="anotacion-tab slide-up">
                 <div className="scoring-controls-wrapper" style={{ marginBottom: '25px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', alignItems: 'flex-end' }}>
-                  
+
                   <div className="control-group">
                     <label style={{ display: 'block', fontSize: '11px', color: 'var(--text2)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Filtrar por Equipo</label>
                     <select
@@ -1287,7 +1283,7 @@ export default function App() {
                       value={scoringTeamFilter}
                       onChange={(e) => {
                         setScoringTeamFilter(e.target.value);
-                        setScoringPlayer(null); // Resetear jugador al cambiar equipo
+                        setScoringPlayer(null);
                       }}
                       style={{ width: '100%', padding: '12px', borderRadius: '10px', backgroundColor: 'var(--bg-card)', color: 'var(--text)', border: '1px solid var(--border)', fontSize: '14px', fontWeight: '600' }}
                     >
@@ -1344,7 +1340,7 @@ export default function App() {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="modal-tabs round-selector-tab" style={{ margin: 0 }}>
                         <button className={`modal-tab-btn ${scoringRound === "Ronda 1" ? "active" : ""}`} onClick={() => setScoringRound("Ronda 1")}>R1</button>
                         <button className={`modal-tab-btn ${scoringRound === "Ronda 2" ? "active" : ""}`} onClick={() => setScoringRound("Ronda 2")}>R2</button>
