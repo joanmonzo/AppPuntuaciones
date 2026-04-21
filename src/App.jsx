@@ -59,6 +59,23 @@ function getScoreClass(strokes, par) {
   return "score-double-bogey";
 }
 
+function checkIfOnFire(playerData, parData) {
+  if (!playerData || !parData) return false;
+
+  let completedHoles = [];
+  for (let i = 1; i <= 18; i++) {
+    const strokes = playerData[i];
+    if (strokes !== undefined && strokes !== null && strokes !== "") {
+      completedHoles.push({ strokes: Number(strokes), par: Number(parData[i]) });
+    }
+  }
+
+  if (completedHoles.length < 2) return false;
+
+  const lastTwo = completedHoles.slice(-2);
+  return lastTwo.every((h) => !isNaN(h.strokes) && !isNaN(h.par) && h.strokes < h.par);
+}
+
 function isRealPlayer(p) {
   return (
     p.Jugador &&
@@ -164,6 +181,7 @@ function PlayerRow({
         <div className="player-info">
           <span className="player-name">
             {player._CleanName || player.Jugador}
+            {player._onFire && <span className="on-fire-icon" title="¡En racha (últimos 2 hoyos bajo el par)!">🔥</span>}
           </span>
           {equipo && (
             <div className="player-team">
@@ -327,6 +345,31 @@ export default function App() {
     }));
   };
 
+  const applyOptimisticUpdate = (jugadorName, ronda, nuevosGolpes, nuevosPares) => {
+    const updateFn = (prevDb) => {
+      const newDb = [...prevDb];
+      const pIdx = newDb.findIndex((p) => p.Jugador === jugadorName);
+      if (pIdx !== -1) {
+        newDb[pIdx] = { ...newDb[pIdx], ...nuevosGolpes };
+        
+        if (nuevosPares) {
+          const parName = newDb[pIdx]._parName || `PAR ${String(jugadorName).toUpperCase()}`;
+          const parIdx = newDb.findIndex((p) => p.Jugador === parName);
+          if (parIdx !== -1) {
+            newDb[parIdx] = { ...newDb[parIdx], ...nuevosPares };
+          }
+        }
+      }
+      return newDb;
+    };
+
+    if (ronda === "Ronda 1") {
+      setDbRonda1(updateFn);
+    } else {
+      setDbRonda2(updateFn);
+    }
+  };
+
   const saveScores = async () => {
     if (!scoringPlayer) return;
     setIsSaving(true);
@@ -344,12 +387,15 @@ export default function App() {
     const paqueteGolpes = { jugador: scoringPlayer.Jugador, ronda: scoringRound, golpes: nuevosGolpes };
     const paquetePares = { jugador: parName, ronda: scoringRound, golpes: nuevosPares };
 
+    // Actualización Optimista Inmediata
+    applyOptimisticUpdate(scoringPlayer.Jugador, scoringRound, nuevosGolpes, nuevosPares);
+    setActiveTab("clasificacion");
+    setIsSaving(false);
+
     if (!navigator.onLine) {
       const qs = [...syncQueue, paqueteGolpes, paquetePares];
       setSyncQueue(qs);
       localStorage.setItem("sync_queue", JSON.stringify(qs));
-      setIsSaving(false);
-      alert("Guardado offline. Se sincronizará en cuanto recuperes la conexión.");
       return;
     }
 
@@ -363,14 +409,10 @@ export default function App() {
       } catch (e) { }
     };
 
-    await Promise.all([
+    Promise.all([
       enviarDatos(paqueteGolpes),
       enviarDatos(paquetePares),
-    ]);
-
-    setIsSaving(false);
-    fetchData();
-    alert("¡Puntuaciones guardadas correctamente!");
+    ]).then(() => fetchData());
   };
 
   const resetScores = async () => {
@@ -384,25 +426,25 @@ export default function App() {
 
     const paqueteReset = { jugador: scoringPlayer.Jugador, ronda: scoringRound, golpes: golpesVacios };
 
+    // Actualización Optimista Inmediata
+    applyOptimisticUpdate(scoringPlayer.Jugador, scoringRound, golpesVacios, null);
+    setActiveTab("clasificacion");
+    setIsSaving(false);
+
     if (!navigator.onLine) {
       const qs = [...syncQueue, paqueteReset];
       setSyncQueue(qs);
       localStorage.setItem("sync_queue", JSON.stringify(qs));
-      setIsSaving(false);
-      alert("Reseteo offline. Se sincronizará en cuanto recuperes la conexión.");
       return;
     }
 
-    try {
-      await fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify(paqueteReset),
-        headers: { "Content-Type": "text/plain" },
-      });
-    } catch (e) { }
-
-    setIsSaving(false);
-    fetchData();
+    fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify(paqueteReset),
+      headers: { "Content-Type": "text/plain" },
+    })
+      .then(() => fetchData())
+      .catch(() => {});
   };
 
   async function fetchData() {
@@ -623,11 +665,22 @@ export default function App() {
             : 0;
       }
 
+      let isOnFire = false;
+      const r2Played = p._cleanR2 !== "-" && p._r2Data;
+      const activeData = r2Played ? p._r2Data : p._r1Data;
+      const activeDb = r2Played ? dbRonda2 : dbRonda1;
+      const parRow = activeDb.find(r => r.Jugador === activeData?._parName);
+      
+      if (activeData && parRow) {
+        isOnFire = checkIfOnFire(activeData, parRow);
+      }
+
       return {
         ...p,
         _puntosDia1: ptsR1,
         _puntosDia2: ptsR2,
         _puntosIndivTotal: ptsTot,
+        _onFire: isOnFire,
       };
     })
     .sort((a, b) => {
