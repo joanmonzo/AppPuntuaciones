@@ -1,0 +1,17 @@
+{
+  "name": "The Golfos On Tour 2026",
+  "short_name": "Golf Leaderboard",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#1a1a2e",
+  "description": "Aplicación de Puntuaciones The Golfos On Tour 2026",
+  "icons": [
+    {
+      "src": "/the-golfos-on-tour-2026-logo.ico",
+      "sizes": "256x256",
+      "type": "image/x-icon",
+      "purpose": "any maskable"
+    }
+  ]
+}

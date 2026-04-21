@@ -204,6 +204,10 @@ function PlayerRow({
 }
 
 export default function App() {
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [syncQueue, setSyncQueue] = useState(() => JSON.parse(localStorage.getItem("sync_queue") || "[]"));
+  const [isSyncing, setIsSyncing] = useState(false);
+
   const [dbRonda1, setDbRonda1] = useState([]);
   const [dbRonda2, setDbRonda2] = useState([]);
   const [dbGeneral, setDbGeneral] = useState([]);
@@ -337,6 +341,18 @@ export default function App() {
     const roundPlayerData = activeDb.find((p) => p.Jugador === scoringPlayer.Jugador);
     const parName = roundPlayerData?._parName || `PAR ${String(scoringPlayer.Jugador).toUpperCase()}`;
 
+    const paqueteGolpes = { jugador: scoringPlayer.Jugador, ronda: scoringRound, golpes: nuevosGolpes };
+    const paquetePares = { jugador: parName, ronda: scoringRound, golpes: nuevosPares };
+
+    if (!navigator.onLine) {
+      const qs = [...syncQueue, paqueteGolpes, paquetePares];
+      setSyncQueue(qs);
+      localStorage.setItem("sync_queue", JSON.stringify(qs));
+      setIsSaving(false);
+      alert("Guardado offline. Se sincronizará en cuanto recuperes la conexión.");
+      return;
+    }
+
     const enviarDatos = async (paquete) => {
       try {
         await fetch(API_URL, {
@@ -348,8 +364,8 @@ export default function App() {
     };
 
     await Promise.all([
-      enviarDatos({ jugador: scoringPlayer.Jugador, ronda: scoringRound, golpes: nuevosGolpes }),
-      enviarDatos({ jugador: parName, ronda: scoringRound, golpes: nuevosPares }),
+      enviarDatos(paqueteGolpes),
+      enviarDatos(paquetePares),
     ]);
 
     setIsSaving(false);
@@ -366,10 +382,21 @@ export default function App() {
     let golpesVacios = {};
     for (let i = 1; i <= 18; i++) golpesVacios[i] = "";
 
+    const paqueteReset = { jugador: scoringPlayer.Jugador, ronda: scoringRound, golpes: golpesVacios };
+
+    if (!navigator.onLine) {
+      const qs = [...syncQueue, paqueteReset];
+      setSyncQueue(qs);
+      localStorage.setItem("sync_queue", JSON.stringify(qs));
+      setIsSaving(false);
+      alert("Reseteo offline. Se sincronizará en cuanto recuperes la conexión.");
+      return;
+    }
+
     try {
       await fetch(API_URL, {
         method: "POST",
-        body: JSON.stringify({ jugador: scoringPlayer.Jugador, ronda: scoringRound, golpes: golpesVacios }),
+        body: JSON.stringify(paqueteReset),
         headers: { "Content-Type": "text/plain" },
       });
     } catch (e) { }
@@ -405,9 +432,10 @@ export default function App() {
       const processedR2 = procesarHoja(raw2);
       const processedGen = procesarHoja(rawGen);
 
-      const hash = JSON.stringify({ r1: raw1, r2: raw2, rg: rawGen });
+      const hash = JSON.stringify({ r1: raw1, r2: raw2, rg: rawGen, rm: rawMarcador });
       if (hash === prevHashRef.current) return;
       prevHashRef.current = hash;
+      localStorage.setItem("last_db_cache", hash);
 
       processedGen.forEach((pGen) => {
         if (isRealPlayer(pGen)) {
@@ -429,6 +457,35 @@ export default function App() {
       setTimeout(() => setPulse(false), 800);
       setError(null);
     } catch (e) {
+      const cached = localStorage.getItem("last_db_cache");
+      if (cached) {
+        try {
+          const { r1, r2, rg, rm } = JSON.parse(cached);
+          const processedR1 = procesarHoja(r1);
+          const processedR2 = procesarHoja(r2);
+          const processedGen = procesarHoja(rg);
+          processedGen.forEach((pGen) => {
+            if (isRealPlayer(pGen)) {
+              const pBase =
+                processedR1.find((p) => p.Jugador === pGen.Jugador) ||
+                processedR2.find((p) => p.Jugador === pGen.Jugador);
+              if (pBase) {
+                pGen["EQUIPO"] = pBase["EQUIPO"];
+              }
+            }
+          });
+          setDbRonda1(processedR1);
+          setDbRonda2(processedR2);
+          setDbGeneral(processedGen);
+          if (rm) setMarcadorInfo(rm);
+          setError("Modo Offline: Usando datos locales");
+          setLoading(false);
+          return;
+        } catch (err) {
+          console.error("Error parsing cached data", err);
+        }
+      }
+
       setError(e.message);
       setDbRonda1([]);
       setDbRonda2([]);
@@ -439,6 +496,52 @@ export default function App() {
       setLoading(false);
     }
   }
+
+  const flushQueue = async () => {
+    const queue = JSON.parse(localStorage.getItem("sync_queue") || "[]");
+    if (queue.length === 0) return;
+    
+    setIsSyncing(true);
+    let failed = false;
+    let newQueue = [...queue];
+
+    for (let i = 0; i < queue.length; i++) {
+       try {
+         await fetch(API_URL, {
+           method: "POST",
+           body: JSON.stringify(queue[i]),
+           headers: { "Content-Type": "text/plain" },
+         });
+         newQueue.shift();
+         localStorage.setItem("sync_queue", JSON.stringify(newQueue));
+         setSyncQueue([...newQueue]);
+       } catch (e) {
+         failed = true;
+         break;
+       }
+    }
+    
+    setIsSyncing(false);
+    if (!failed) {
+      fetchData();
+    }
+  };
+
+  useEffect(() => {
+    const goOnline = () => { setIsOffline(false); flushQueue(); };
+    const goOffline = () => setIsOffline(true);
+    
+    window.addEventListener('online', goOnline);
+    window.addEventListener('offline', goOffline);
+    
+    // Attempt initial flush in case it came online before listener
+    if (navigator.onLine) flushQueue();
+    
+    return () => {
+      window.removeEventListener('online', goOnline);
+      window.removeEventListener('offline', goOffline);
+    };
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -811,18 +914,23 @@ export default function App() {
             {theme === "dark" ? "☀️" : "🌙"}
           </button>
           <div
-            className={`status-dot ${error ? "error" : "ok"} ${pulse ? "pulse" : ""}`}
+            className={`status-dot ${isOffline ? "offline" : error ? "error" : "ok"} ${pulse ? "pulse" : ""}`}
+            style={isOffline ? { backgroundColor: 'orange', boxShadow: '0 0 10px orange' } : {}}
           />
           <span className="status-text">
-            {error
-              ? "Sin conexión"
-              : lastUpdate
-                ? lastUpdate.toLocaleTimeString("es-ES", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                })
-                : "Conectando…"}
+            {isSyncing || syncQueue.length > 0
+              ? `Sincronizando cambios pendientes... (${syncQueue.length})`
+              : isOffline
+                ? "Modo Offline"
+                : error
+                  ? "Error de conexión"
+                  : lastUpdate
+                    ? lastUpdate.toLocaleTimeString("es-ES", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                    })
+                    : "Conectando…"}
           </span>
         </div>
       </header>
