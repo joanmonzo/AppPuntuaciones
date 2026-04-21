@@ -1,0 +1,144 @@
+import React from 'react';
+import { getInitials, getScoreClass } from '../utils/helpers';
+
+export default function PlayerModal({
+  equiposUnicosMatch,
+  scoringTeamFilter,
+  setScoringTeamFilter,
+  scoringPlayer,
+  setScoringPlayer,
+  players,
+  resetScores,
+  saveScores,
+  isSaving,
+  scoringRound,
+  setScoringRound,
+  scoringData,
+  dbRonda1,
+  dbRonda2,
+  setSelectedHoleInfo,
+  handleScoreChange
+}) {
+  return (
+    <div className="anotacion-tab slide-up">
+      <div className="scoring-controls-wrapper" style={{ marginBottom: '25px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', alignItems: 'flex-end' }}>
+        <div className="control-group">
+          <label style={{ display: 'block', fontSize: '11px', color: 'var(--text2)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Filtrar por Equipo</label>
+          <select
+            className="scoring-select"
+            value={scoringTeamFilter}
+            onChange={(e) => {
+              setScoringTeamFilter(e.target.value);
+              setScoringPlayer(null);
+            }}
+            style={{ width: '100%', padding: '12px', borderRadius: '10px', backgroundColor: 'var(--bg-card)', color: 'var(--text)', border: '1px solid var(--border)', fontSize: '14px', fontWeight: '600' }}
+          >
+            <option value="">— Todos los Equipos —</option>
+            {equiposUnicosMatch.map(eq => (
+              <option key={eq} value={eq}>{eq}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="control-group">
+          <label style={{ display: 'block', fontSize: '11px', color: 'var(--text2)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Seleccionar Jugador</label>
+          <select
+            className="scoring-select"
+            value={scoringPlayer?.Jugador || ""}
+            onChange={(e) => {
+              const p = players.find(pl => pl.Jugador === e.target.value);
+              setScoringPlayer(p);
+            }}
+            style={{ width: '100%', padding: '12px', borderRadius: '10px', backgroundColor: 'var(--bg-card)', color: 'var(--text)', border: '1px solid var(--border)', fontSize: '14px', fontWeight: '600' }}
+          >
+            <option value="">— Elegir jugador —</option>
+            {players
+              .filter(p => !scoringTeamFilter || p.EQUIPO === scoringTeamFilter)
+              .map(p => (
+                <option key={p.Jugador} value={p.Jugador}>
+                  {p._CleanName || p.Jugador} ({p.ARQUETIPO || "Sin Arquetipo"})
+                </option>
+              ))}
+          </select>
+        </div>
+
+        <div style={{ display: 'flex', gap: '10px', gridColumn: 'span 1 / -1', justifyContent: 'flex-end' }}>
+          <button className="reset-btn" onClick={resetScores} disabled={!scoringPlayer || isSaving} title="Borrar ronda actual" style={{ width: '46px', height: '46px', borderRadius: '12px' }}>↺</button>
+          <button className="save-btn" onClick={saveScores} disabled={!scoringPlayer || isSaving} style={{ padding: '0 30px', borderRadius: '12px', height: '46px', fontSize: '14px', fontWeight: '800', letterSpacing: '1px', boxShadow: '0 4px 15px rgba(91, 196, 216, 0.2)' }}>
+            {isSaving ? "PROCESANDO..." : "GUARDAR CAMBIOS"}
+          </button>
+        </div>
+      </div>
+
+      {scoringPlayer ? (
+        <div className="scoring-grid-container card-premium" style={{ backgroundColor: 'var(--bg-card)', borderRadius: '20px', border: '1px solid var(--border)', overflow: 'hidden' }}>
+          <div className="card-header-scoring" style={{ padding: '25px', background: 'linear-gradient(to bottom, rgba(255,255,255,0.03), transparent)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+              <div className="avatar big" style={{ width: '50px', height: '50px', borderRadius: '12px', fontSize: '18px' }}>
+                {getInitials(scoringPlayer._CleanName || scoringPlayer.Jugador)}
+              </div>
+              <div>
+                <h2 style={{ color: 'var(--gold)', margin: 0, fontSize: '20px', letterSpacing: '0.5px' }}>
+                  {scoringPlayer.ARQUETIPO || "TARJETA INDIVIDUAL"}
+                </h2>
+                <div style={{ color: 'var(--text2)', fontSize: '13px', fontWeight: '600' }}>
+                  {scoringPlayer._CleanName || scoringPlayer.Jugador} • {scoringPlayer.EQUIPO}
+                </div>
+              </div>
+            </div>
+
+            <div className="modal-tabs round-selector-tab" style={{ margin: 0 }}>
+              <button className={`modal-tab-btn ${scoringRound === "Ronda 1" ? "active" : ""}`} onClick={() => setScoringRound("Ronda 1")}>R1</button>
+              <button className={`modal-tab-btn ${scoringRound === "Ronda 2" ? "active" : ""}`} onClick={() => setScoringRound("Ronda 2")}>R2</button>
+            </div>
+          </div>
+
+          <div style={{ padding: '20px' }}>
+            <div className="stats-grid">
+              <div className="stats-row header" style={{ gridTemplateColumns: '80px 1fr 1fr 1fr', padding: '10px 15px' }}>
+                <span>Hoyo</span>
+                <span>HCP</span>
+                <span>PAR</span>
+                <span>GOLPES</span>
+              </div>
+              <div className="scrollable-grid" style={{ maxHeight: '60vh', overflowY: 'auto', paddingRight: '5px' }}>
+                {Array.from({ length: 18 }, (_, i) => i + 1).map((h) => {
+                  const data = scoringData[h] || { par: "", golpes: "" };
+                  const activeDb = scoringRound === "Ronda 1" ? dbRonda1 : dbRonda2;
+                  const hcpRow = activeDb.find(p => p.Jugador === "HCP HOYO");
+                  const hcpVal = hcpRow?.[h] || "-";
+                  const scoreClass = getScoreClass(data.golpes, data.par);
+
+                  return (
+                    <div className="stats-row" key={h} style={{ gridTemplateColumns: '80px 1fr 1fr 1fr', padding: '12px 15px', marginBottom: '4px' }}>
+                      <div className="hole-cell">
+                        <button className="hole-btn-trigger" onClick={() => setSelectedHoleInfo(h)} style={{ padding: '6px 12px', fontSize: '12px', background: 'var(--bg3)', borderRadius: '8px', border: '1px solid var(--border)', color: 'var(--text)', fontWeight: '700' }}>
+                          {h} 🗺️
+                        </button>
+                      </div>
+                      <span style={{ color: 'var(--text2)', alignSelf: 'center', fontWeight: '600' }}>{hcpVal}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <span style={{ color: 'var(--text2)', fontWeight: '600' }}>{data.par || "-"}</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <input type="number" className={`edit-input ${scoreClass}`} value={data.golpes} onChange={(e) => handleScoreChange(h, "golpes", e.target.value)} disabled={isSaving} placeholder="-" />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="empty-state-container" style={{ textAlign: 'center', padding: '80px 20px', backgroundColor: 'var(--bg-card)', borderRadius: '20px', border: '1px dashed var(--border)' }}>
+          <div style={{ fontSize: '50px', marginBottom: '20px' }}>📋</div>
+          <h3 style={{ color: 'var(--text)', marginBottom: '10px' }}>Sistema de Anotación</h3>
+          <p style={{ color: 'var(--text2)', maxWidth: '400px', margin: '0 auto', fontSize: '14px', lineHeight: '1.6' }}>
+            Selecciona un jugador del menú superior o haz clic en cualquier nombre de la clasificación para empezar a editar su tarjeta de puntuación.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
