@@ -376,9 +376,32 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    fetchData();
-    const id = setInterval(fetchData, POLL_INTERVAL);
-    return () => clearInterval(id);
+    let intervalId;
+
+    const startPolling = () => {
+      fetchData();
+      intervalId = setInterval(fetchData, POLL_INTERVAL);
+    };
+
+    const stopPolling = () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        stopPolling();
+      } else {
+        startPolling();
+      }
+    };
+
+    startPolling();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      stopPolling();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, []);
 
   const playerMap = new Map();
