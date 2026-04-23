@@ -177,7 +177,6 @@ export default function App() {
     const paqueteGolpes = { jugador: scoringPlayer.Jugador, ronda: scoringRound, golpes: nuevosGolpes };
     const paquetePares = { jugador: parName, ronda: scoringRound, golpes: nuevosPares };
 
-    // Actualización Optimista Inmediata
     applyOptimisticUpdate(scoringPlayer.Jugador, scoringRound, nuevosGolpes, nuevosPares);
     setActiveTab("clasificacion");
     setIsSaving(false);
@@ -216,7 +215,6 @@ export default function App() {
 
     const paqueteReset = { jugador: scoringPlayer.Jugador, ronda: scoringRound, golpes: golpesVacios };
 
-    // Actualización Optimista Inmediata
     applyOptimisticUpdate(scoringPlayer.Jugador, scoringRound, golpesVacios, null);
     setActiveTab("clasificacion");
     setIsSaving(false);
@@ -366,7 +364,6 @@ export default function App() {
     window.addEventListener('online', goOnline);
     window.addEventListener('offline', goOffline);
 
-    // Attempt initial flush in case it came online before listener
     if (navigator.onLine) flushQueue();
 
     return () => {
@@ -623,7 +620,7 @@ export default function App() {
               <span style='color:#e67e22'>${pCar2}</span> (${car2Score}).
               <br> 
               <span style='color:var(--blue); font-weight:bold;'>FLYING +${flyPts}</span> | 
-              <span style='color:#e67e22; font-weight:bold;'>CARABASSA +${carPts}</span> 
+              <span style='color:#e67e22; font-weight:bold;'>SLICE +${carPts}</span> 
               <br><span style='color:#e67e22; font-size:11px; font-weight:bold;'>(Incluye +1 minoría FLY)</span>
             </li>`,
           );
@@ -641,14 +638,14 @@ export default function App() {
             html.push(
               `<li>
                 <b>Fly ${flyNum}:</b> <b style='color:#e67e22'>${pCar}</b> (${carScore} pts) gana a <span style='color:var(--blue)'>${pFly}</span> (${flyScore} pts). 
-                <br><span style='color:#e67e22; font-weight:bold;'>CARABASSA +${carPts}</span>
+                <br><span style='color:#e67e22; font-weight:bold;'>SLICE +${carPts}</span>
               </li>`,
             );
           } else {
             html.push(
               `<li>
                 <b>Fly ${flyNum}:</b> <b>Empate</b> entre <span style='color:var(--blue)'>${pFly}</span> (${flyScore} pts) y <span style='color:#e67e22'>${pCar}</span> (${carScore} pts). 
-                <br><span style='color:var(--text2); font-weight:bold;'>FLY +1 | CARA +1</span>
+                <br><span style='color:var(--text2); font-weight:bold;'>FLYING +1 | SLICE +1</span>
               </li>`,
             );
           }

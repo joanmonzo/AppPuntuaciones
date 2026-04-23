@@ -1,5 +1,6 @@
 import React from 'react';
 import { getInitials, getScoreClass } from '../utils/helpers';
+import { TEAM_AVATAR_IMAGES } from '../utils/constants';
 
 export default function PlayerModal({
   equiposUnicosMatch,
@@ -19,6 +20,8 @@ export default function PlayerModal({
   setSelectedHoleInfo,
   handleScoreChange
 }) {
+  const teamLogo = scoringPlayer ? TEAM_AVATAR_IMAGES[scoringPlayer.EQUIPO] : null;
+
   return (
     <div className="anotacion-tab slide-up">
       <div className="scoring-controls-wrapper" style={{ marginBottom: '25px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', alignItems: 'flex-end' }}>
@@ -73,17 +76,30 @@ export default function PlayerModal({
       {scoringPlayer ? (
         <div className="scoring-grid-container card-premium" style={{ backgroundColor: 'var(--bg-card)', borderRadius: '20px', border: '1px solid var(--border)', overflow: 'hidden' }}>
           <div className="card-header-scoring" style={{ padding: '25px', background: 'linear-gradient(to bottom, rgba(255,255,255,0.03), transparent)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-              <div className="avatar big" style={{ width: '50px', height: '50px', borderRadius: '12px', fontSize: '18px' }}>
-                {getInitials(scoringPlayer._CleanName || scoringPlayer.Jugador)}
+            <div style={{ display: 'grid', gridTemplateColumns: '60px minmax(100px, 1fr) 2fr', alignItems: 'center', gap: '30px', flex: 1 }}>
+              <div className="team-logo-modal" style={{ width: '60px', height: '60px', borderRadius: '12px', overflow: 'hidden', border: '2px solid var(--border2)', flexShrink: 0 }}>
+                {teamLogo ? (
+                  <img src={teamLogo} alt={scoringPlayer.EQUIPO} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <div style={{ width: '100%', height: '100%', background: 'var(--bg3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', color: 'var(--gold)' }}>
+                    {getInitials(scoringPlayer.EQUIPO)}
+                  </div>
+                )}
               </div>
-              <div>
-                <h2 style={{ color: 'var(--gold)', margin: 0, fontSize: '20px', letterSpacing: '0.5px' }}>
-                  {scoringPlayer.ARQUETIPO || "TARJETA INDIVIDUAL"}
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span style={{ color: 'var(--text2)', fontSize: '10px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>Arquetipo</span>
+                <span style={{ color: 'var(--gold)', fontSize: '14px', fontWeight: '800', textTransform: 'uppercase' }}>
+                  {scoringPlayer.ARQUETIPO || "—"}
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                <span style={{ color: 'var(--text2)', fontSize: '10px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>Jugador</span>
+                <h2 style={{ color: 'var(--text)', margin: 0, fontSize: '22px', letterSpacing: '0.5px', fontWeight: '700', lineHeight: '1.1' }}>
+                  {scoringPlayer._CleanName || scoringPlayer.Jugador}
                 </h2>
-                <div style={{ color: 'var(--text2)', fontSize: '13px', fontWeight: '600' }}>
-                  {scoringPlayer._CleanName || scoringPlayer.Jugador} • {scoringPlayer.EQUIPO}
-                </div>
+                <span style={{ color: 'var(--gold)', fontSize: '11px', fontWeight: '600' }}>{scoringPlayer.EQUIPO}</span>
               </div>
             </div>
 
@@ -98,34 +114,47 @@ export default function PlayerModal({
               <div className="stats-row header" style={{ gridTemplateColumns: '80px 1fr 1fr 1fr', padding: '10px 15px' }}>
                 <span>Hoyo</span>
                 <span>HCP</span>
-                <span>PAR</span>
+                <span>PAR Total</span>
                 <span>GOLPES</span>
               </div>
               <div className="scrollable-grid" style={{ maxHeight: '60vh', overflowY: 'auto', paddingRight: '5px' }}>
-                {Array.from({ length: 18 }, (_, i) => i + 1).map((h) => {
-                  const data = scoringData[h] || { par: "", golpes: "" };
+                {(() => {
                   const activeDb = scoringRound === "Ronda 1" ? dbRonda1 : dbRonda2;
+                  const parCampoRow = activeDb.find(p => p.Jugador === "PAR CAMPO");
+                  const parJugadorRow = activeDb.find(p => p.Jugador === scoringPlayer?._parName);
                   const hcpRow = activeDb.find(p => p.Jugador === "HCP HOYO");
-                  const hcpVal = hcpRow?.[h] || "-";
-                  const scoreClass = getScoreClass(data.golpes, data.par);
 
-                  return (
-                    <div className="stats-row" key={h} style={{ gridTemplateColumns: '80px 1fr 1fr 1fr', padding: '12px 15px', marginBottom: '4px' }}>
-                      <div className="hole-cell">
-                        <button className="hole-btn-trigger" onClick={() => setSelectedHoleInfo(h)} style={{ padding: '6px 12px', fontSize: '12px', background: 'var(--bg3)', borderRadius: '8px', border: '1px solid var(--border)', color: 'var(--text)', fontWeight: '700' }}>
-                          {h} 🗺️
-                        </button>
+                  return Array.from({ length: 18 }, (_, i) => i + 1).map((h) => {
+                    const data = scoringData[h] || { par: "", golpes: "" };
+                    const hcpVal = hcpRow?.[h] || "-";
+                    
+                    // Cálculo del PAR Total: PAR CAMPO + Hándicap del Jugador
+                    const parCampo = Number(parCampoRow?.[h]) || 0;
+                    const hándicap = Number(parJugadorRow?.[h]) || 0;
+                    const parTotal = parCampo + hándicap;
+                    
+                    const scoreClass = getScoreClass(data.golpes, parTotal);
+
+                    return (
+                      <div className="stats-row" key={h} style={{ gridTemplateColumns: '80px 1fr 1fr 1fr', padding: '12px 15px', marginBottom: '4px' }}>
+                        <div className="hole-cell">
+                          <button className="hole-btn-trigger" onClick={() => setSelectedHoleInfo(h)} style={{ padding: '6px 12px', fontSize: '12px', background: 'var(--bg3)', borderRadius: '8px', border: '1px solid var(--border)', color: 'var(--text)', fontWeight: '700' }}>
+                            {h} 🗺️
+                          </button>
+                        </div>
+                        <span style={{ color: 'var(--text2)', alignSelf: 'center', fontWeight: '600' }}>{hcpVal}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <span style={{ color: 'var(--text2)', fontWeight: '600' }}>
+                            {parTotal > 0 ? parTotal : "-"}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <input type="number" className={`edit-input ${scoreClass}`} value={data.golpes} onChange={(e) => handleScoreChange(h, "golpes", e.target.value)} disabled={isSaving} placeholder="-" />
+                        </div>
                       </div>
-                      <span style={{ color: 'var(--text2)', alignSelf: 'center', fontWeight: '600' }}>{hcpVal}</span>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span style={{ color: 'var(--text2)', fontWeight: '600' }}>{data.par || "-"}</span>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <input type="number" className={`edit-input ${scoreClass}`} value={data.golpes} onChange={(e) => handleScoreChange(h, "golpes", e.target.value)} disabled={isSaving} placeholder="-" />
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  });
+                })()}
               </div>
             </div>
           </div>
