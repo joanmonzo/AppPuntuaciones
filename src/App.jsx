@@ -511,7 +511,7 @@ export default function App() {
   let currentRank = 0;
   let lastScore = null;
   let lastHcp = null;
-  const players = sortedPlayers.map((p, i) => {
+  const playersBase = sortedPlayers.map((p, i) => {
     const score = p._totalScore;
     const hcp = p._hcpGuardado;
 
@@ -522,6 +522,16 @@ export default function App() {
     lastHcp = hcp;
     return { ...p, _rank: currentRank };
   });
+
+  const allFinished = playersBase.length > 0 && playersBase.every(p => {
+    const h = p.Hoyo || p.HOYO;
+    return h === "F" || h === "18" || h === 18;
+  });
+
+  const players = playersBase.map((p, i) => ({
+    ...p,
+    _woodenSpoon: allFinished ? (i === playersBase.length - 1) : (i >= playersBase.length - 4)
+  }));
 
   const equiposUnicosMatch = [
     ...new Set(

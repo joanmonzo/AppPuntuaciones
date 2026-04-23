@@ -71,6 +71,7 @@ export default function PlayerRow({
           <span className="player-name">
             {player._CleanName || player.Jugador}
             {player._onFire && <span className="on-fire-icon" title="¡En racha (últimos 2 hoyos bajo el par)!">🔥</span>}
+            {player._woodenSpoon && <span className="wooden-spoon-icon" style={{ marginLeft: '6px', display: 'inline-block' }} title="Cuchara de madera">🥄</span>}
           </span>
           {equipo && (
             <div className="player-team">
