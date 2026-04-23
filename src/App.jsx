@@ -141,7 +141,7 @@ export default function App() {
       const pIdx = newDb.findIndex((p) => p.Jugador === jugadorName);
       if (pIdx !== -1) {
         newDb[pIdx] = { ...newDb[pIdx], ...nuevosGolpes };
-        
+
         if (nuevosPares) {
           const parName = newDb[pIdx]._parName || `PAR ${String(jugadorName).toUpperCase()}`;
           const parIdx = newDb.findIndex((p) => p.Jugador === parName);
@@ -234,7 +234,7 @@ export default function App() {
       headers: { "Content-Type": "text/plain" },
     })
       .then(() => fetchData())
-      .catch(() => {});
+      .catch(() => { });
   };
 
   async function fetchData() {
@@ -332,27 +332,27 @@ export default function App() {
   const flushQueue = async () => {
     const queue = JSON.parse(localStorage.getItem("sync_queue") || "[]");
     if (queue.length === 0) return;
-    
+
     setIsSyncing(true);
     let failed = false;
     let newQueue = [...queue];
 
     for (let i = 0; i < queue.length; i++) {
-       try {
-         await fetch(API_URL, {
-           method: "POST",
-           body: JSON.stringify(queue[i]),
-           headers: { "Content-Type": "text/plain" },
-         });
-         newQueue.shift();
-         localStorage.setItem("sync_queue", JSON.stringify(newQueue));
-         setSyncQueue([...newQueue]);
-       } catch (e) {
-         failed = true;
-         break;
-       }
+      try {
+        await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify(queue[i]),
+          headers: { "Content-Type": "text/plain" },
+        });
+        newQueue.shift();
+        localStorage.setItem("sync_queue", JSON.stringify(newQueue));
+        setSyncQueue([...newQueue]);
+      } catch (e) {
+        failed = true;
+        break;
+      }
     }
-    
+
     setIsSyncing(false);
     if (!failed) {
       fetchData();
@@ -362,13 +362,13 @@ export default function App() {
   useEffect(() => {
     const goOnline = () => { setIsOffline(false); flushQueue(); };
     const goOffline = () => setIsOffline(true);
-    
+
     window.addEventListener('online', goOnline);
     window.addEventListener('offline', goOffline);
-    
+
     // Attempt initial flush in case it came online before listener
     if (navigator.onLine) flushQueue();
-    
+
     return () => {
       window.removeEventListener('online', goOnline);
       window.removeEventListener('offline', goOffline);
@@ -483,7 +483,7 @@ export default function App() {
       const activeData = r2Played ? p._r2Data : p._r1Data;
       const activeDb = r2Played ? dbRonda2 : dbRonda1;
       const parRow = activeDb.find(r => r.Jugador === activeData?._parName);
-      
+
       if (activeData && parRow) {
         isOnFire = checkIfOnFire(activeData, parRow);
       }
@@ -1069,7 +1069,7 @@ export default function App() {
                                     ).map((h) => (
                                       <span
                                         key={h}
-                                        className="hole-num"
+                                        className="hole-num score-box"
                                         onClick={() =>
                                           setSelectedHoleInfo(
                                             selectedHoleInfo === h ? null : h,
@@ -1106,7 +1106,7 @@ export default function App() {
                                               Number(parRow?.[h]) || 0;
                                             parSum += pVal;
                                             return (
-                                              <span key={h}>{pVal || "-"}</span>
+                                              <span key={h} className="score-box">{pVal || "-"}</span>
                                             );
                                           })}
                                           <span className="hole-total">
@@ -1181,7 +1181,7 @@ export default function App() {
                                           return (
                                             <span
                                               key={h}
-                                              className={scoreClass}
+                                              className={`score-box ${scoreClass}`}
                                             >
                                               {strokesRaw || "-"}
                                             </span>

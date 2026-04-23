@@ -848,12 +848,39 @@ body {
 
 .hole-row span {
   background: var(--bg2);
-  padding: 8px 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 14px;
+}
+
+.score-box {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  border: 1px solid var(--border);
+  background-color: rgba(255, 255, 255, 0.05); /* Fondo base sutil */
+  color: var(--text2);
+  box-sizing: border-box;
+}
+
+.hole-row.header .score-box {
+  background: transparent;
+  border: none;
+  font-weight: 700;
+  color: var(--text2);
+}
+
+.hole-row.par .score-box {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: var(--border);
+  color: var(--text);
+  font-weight: 700;
 }
 
 .hole-row.header span {
@@ -1066,38 +1093,38 @@ body {
   margin-bottom: 4px;
 }
 
-.score-under {
-  color: var(--green);
-  font-weight: 700;
+.score-eagle, .score-hio {
+  background-color: var(--gold) !important;
+  color: #000 !important;
+  border-color: rgba(0, 0, 0, 0.2) !important;
+  font-weight: 800 !important;
 }
 
-.score-eagle {
-  color: var(--gold);
-  font-weight: 800;
-  text-shadow: 0 0 5px rgba(212, 175, 55, 0.4);
+.score-under, .score-birdie {
+  background-color: var(--green) !important;
+  color: #000 !important;
+  border-color: rgba(0, 0, 0, 0.2) !important;
+  font-weight: 700 !important;
 }
 
 .score-par {
-  color: var(--text);
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
 }
 
-body.light-mode .score-par {
-  color: #000000;
-  font-weight: 600;
-}
-
-.score-over,
 .score-bogey {
-  color: var(--bogey);
-  font-weight: 700;
+  background-color: var(--red) !important;
+  color: #fff !important;
+  border-color: rgba(0, 0, 0, 0.2) !important;
+  font-weight: 700 !important;
 }
 
-.score-double-bogey {
-  color: var(--double-bogey);
-  font-weight: 800;
-  background: rgba(26, 42, 108, 0.15);
-  padding: 2px 4px;
-  border-radius: 4px;
+.score-double, .score-double-bogey {
+  background-color: #1a2a6c !important;
+  color: #fff !important;
+  border-color: rgba(0, 0, 0, 0.2) !important;
+  font-weight: 800 !important;
 }
 
 
