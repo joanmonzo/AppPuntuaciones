@@ -76,7 +76,7 @@ export default function PlayerModal({
       {scoringPlayer ? (
         <div className="scoring-grid-container card-premium" style={{ backgroundColor: 'var(--bg-card)', borderRadius: '20px', border: '1px solid var(--border)', overflow: 'hidden' }}>
           <div className="card-header-scoring" style={{ padding: '25px', background: 'linear-gradient(to bottom, rgba(255,255,255,0.03), transparent)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '60px minmax(100px, 1fr) 2fr', alignItems: 'center', gap: '30px', flex: 1 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '60px 2fr minmax(100px, 1fr)', alignItems: 'center', gap: '30px', flex: 1 }}>
               <div className="team-logo-modal" style={{ width: '60px', height: '60px', borderRadius: '12px', overflow: 'hidden', border: '2px solid var(--border2)', flexShrink: 0 }}>
                 {teamLogo ? (
                   <img src={teamLogo} alt={scoringPlayer.EQUIPO} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -87,16 +87,16 @@ export default function PlayerModal({
                 )}
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <span style={{ color: 'var(--gold)', fontSize: '14px', fontWeight: '800', textTransform: 'uppercase' }}>
-                  {scoringPlayer.ARQUETIPO || "—"}
-                </span>
-              </div>
-
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                 <h2 style={{ color: 'var(--text)', margin: 0, fontSize: '22px', letterSpacing: '0.5px', fontWeight: '700', lineHeight: '1.1' }}>
                   {scoringPlayer._CleanName || scoringPlayer.Jugador}
                 </h2>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span style={{ color: 'var(--gold)', fontSize: '14px', fontWeight: '800', textTransform: 'uppercase' }}>
+                  {scoringPlayer.ARQUETIPO || "—"}
+                </span>
               </div>
             </div>
 
@@ -110,8 +110,8 @@ export default function PlayerModal({
             <div className="stats-grid">
               <div className="stats-row header" style={{ gridTemplateColumns: '80px 1fr 1fr 1fr', padding: '10px 15px' }}>
                 <span>Hoyo</span>
-                <span>PAR</span>
-                <span>PAR REGALO</span>
+                <span>HCP</span>
+                <span>PAR JUEGO</span>
                 <span>GOLPES</span>
               </div>
               <div className="scrollable-grid" style={{ maxHeight: '60vh', overflowY: 'auto', marginRight: '-25px' }}>
