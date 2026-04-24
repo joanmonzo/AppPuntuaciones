@@ -231,6 +231,8 @@ export default function App() {
     applyOptimisticUpdate(scoringPlayer.Jugador, scoringRound, golpesVacios, null);
     setActiveTab("clasificacion");
     setIsSaving(false);
+    // Limpiamos la referencia para que el modal se vacíe al volver a abrirlo
+    lastScoringRef.current = ""; 
 
     if (!navigator.onLine) {
       const qs = [...syncQueue, paqueteReset];

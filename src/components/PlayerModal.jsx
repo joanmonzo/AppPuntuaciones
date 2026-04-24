@@ -73,6 +73,11 @@ export default function PlayerModal({
             <option value="">— Elegir jugador —</option>
             {players
               .filter(p => !scoringTeamFilter || p.EQUIPO === scoringTeamFilter)
+              .sort((a, b) => {
+                const nameA = (a._CleanName || a.Jugador || "").toUpperCase();
+                const nameB = (b._CleanName || b.Jugador || "").toUpperCase();
+                return nameA.localeCompare(nameB);
+              })
               .map(p => (
                 <option key={p.Jugador} value={p.Jugador}>
                   {p._CleanName || p.Jugador} ({p.ARQUETIPO || "Sin Arquetipo"})
