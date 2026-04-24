@@ -1754,7 +1754,7 @@ body.light-mode .desplegable-header {
   }
 
   .player-name {
-    font-size: 14px;
+    font-size: 15px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1765,17 +1765,17 @@ body.light-mode .desplegable-header {
   }
 
   .team-name {
-    font-size: 9px;
+    display: none;
   }
 
   .team-logo {
-    width: 12px;
-    height: 12px;
+    width: 25px;
+    height: 25px;
   }
 
   .golf-ball-badge {
-    width: 26px;
-    height: 26px;
+    width: 25px;
+    height: 25px;
     font-size: 13px;
   }
 
@@ -1796,8 +1796,8 @@ body.light-mode .desplegable-header {
   }
 
   .resultado {
-    font-size: 15px;
-    padding: 3px 6px;
+    font-size: 14px;
+    padding: 2px 10px;
   }
 
   .modal-content {
