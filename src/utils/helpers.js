@@ -9,17 +9,20 @@ export function getInitials(name) {
 }
 
 export function getScoreClass(strokes, par) {
-  if (!strokes || !par || strokes === "" || isNaN(strokes) || isNaN(par)) return "score-par";
+  if (!strokes || !par || strokes === "" || strokes === "R") return "";
   const s = Number(strokes);
   const p = Number(par);
-  if (s <= 0) return "score-par";
+  if (isNaN(s) || isNaN(p) || s <= 0) return "";
+
   const diff = s - p;
 
-  if (s === 1 || diff <= -2) return "score-eagle";
-  if (diff === -1) return "score-under";
+  if (s === 1 || diff <= -3) return "score-albatross";
+  if (diff === -2) return "score-eagle";
+  if (diff === -1) return "score-birdie";
   if (diff === 0) return "score-par";
   if (diff === 1) return "score-bogey";
-  return "score-double-bogey";
+  if (diff === 2) return "score-double";
+  return "score-triple";
 }
 
 export function checkIfOnFire(playerData, parData) {

@@ -24,6 +24,22 @@ export default function PlayerModal({
 
   return (
     <div className="anotacion-tab slide-up">
+      {!scoringPlayer && (
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.05)',
+          border: '1px solid var(--border)',
+          borderRadius: '12px',
+          padding: '15px 20px',
+          marginBottom: '20px',
+          color: 'var(--text2)',
+          fontSize: '14px',
+          textAlign: 'center',
+          fontWeight: '500'
+        }}>
+          💡 Selecciona un jugador del menú superior o haz clic en cualquier nombre de la clasificación para empezar a introducir los resultados
+        </div>
+      )}
+
       <div className="scoring-controls-wrapper" style={{ marginBottom: '25px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', alignItems: 'flex-end' }}>
         <div className="control-group">
           <label style={{ display: 'block', fontSize: '11px', color: 'var(--text2)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Filtrar por Equipo</label>
@@ -73,7 +89,7 @@ export default function PlayerModal({
         </div>
       </div>
 
-      {scoringPlayer ? (
+      {scoringPlayer && (
         <div className="scoring-grid-container card-premium" style={{ backgroundColor: 'var(--bg-card)', borderRadius: '20px', border: '1px solid var(--border)', overflow: 'hidden' }}>
           <div className="card-header-scoring" style={{ padding: '25px', background: 'linear-gradient(to bottom, rgba(255,255,255,0.03), transparent)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '60px 2fr minmax(100px, 1fr)', alignItems: 'center', gap: '30px', flex: 1 }}>
@@ -110,7 +126,7 @@ export default function PlayerModal({
             <div className="stats-grid">
               <div className="stats-row header" style={{ gridTemplateColumns: '80px 1fr 1fr 1fr', padding: '10px 15px' }}>
                 <span>Hoyo</span>
-                <span>HCP</span>
+                <span>PAR</span>
                 <span>PAR JUEGO</span>
                 <span>GOLPES</span>
               </div>
@@ -145,7 +161,15 @@ export default function PlayerModal({
                           </span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <input type="number" className={`edit-input ${scoreClass}`} value={data.golpes} onChange={(e) => handleScoreChange(h, "golpes", e.target.value)} disabled={isSaving} placeholder="-" />
+                          <input 
+                            type="text" 
+                            inputMode="text"
+                            className={`edit-input ${scoreClass}`} 
+                            value={data.golpes} 
+                            onChange={(e) => handleScoreChange(h, "golpes", e.target.value)} 
+                            disabled={isSaving} 
+                            placeholder="-" 
+                          />
                         </div>
                       </div>
                     );
@@ -154,14 +178,6 @@ export default function PlayerModal({
               </div>
             </div>
           </div>
-        </div>
-      ) : (
-        <div className="empty-state-container" style={{ textAlign: 'center', padding: '80px 20px', backgroundColor: 'var(--bg-card)', borderRadius: '20px', border: '1px dashed var(--border)' }}>
-          <div style={{ fontSize: '50px', marginBottom: '20px' }}>📋</div>
-          <h3 style={{ color: 'var(--text)', marginBottom: '10px' }}>Sistema de Anotación</h3>
-          <p style={{ color: 'var(--text2)', maxWidth: '400px', margin: '0 auto', fontSize: '14px', lineHeight: '1.6' }}>
-            Selecciona un jugador del menú superior o haz clic en cualquier nombre de la clasificación para empezar a editar su tarjeta de puntuación.
-          </p>
         </div>
       )}
     </div>

@@ -32,8 +32,15 @@ export default function App() {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [selectedHoleInfo, setSelectedHoleInfo] = useState(null);
   const [activeTab, setActiveTab] = useState("clasificacion");
+  const [showIndividualNotice, setShowIndividualNotice] = useState(true);
   const [scoringTeamFilter, setScoringTeamFilter] = useState("");
   const [scoringPlayer, setScoringPlayer] = useState(null);
+
+  useEffect(() => {
+    if (activeTab !== "clasificacion" || scoringPlayer !== null) {
+      setShowIndividualNotice(false);
+    }
+  }, [activeTab, scoringPlayer]);
   const [scoringRound, setScoringRound] = useState("Ronda 1");
   const [scoringData, setScoringData] = useState({});
   const [isSaving, setIsSaving] = useState(false);
@@ -169,7 +176,9 @@ export default function App() {
     let nuevosGolpes = {};
     let nuevosPares = {};
     Object.keys(scoringData).forEach((hole) => {
-      nuevosGolpes[hole] = scoringData[hole].golpes;
+      let val = scoringData[hole].golpes;
+      if (val === "0" || val === 0) val = "R";
+      nuevosGolpes[hole] = val;
       nuevosPares[hole] = scoringData[hole].par;
     });
 
@@ -183,6 +192,7 @@ export default function App() {
     applyOptimisticUpdate(scoringPlayer.Jugador, scoringRound, nuevosGolpes, nuevosPares);
     setActiveTab("clasificacion");
     setIsSaving(false);
+    lastScoringRef.current = "";
 
     if (!navigator.onLine) {
       const qs = [...syncQueue, paqueteGolpes, paquetePares];
@@ -786,6 +796,7 @@ export default function App() {
                 setActiveHoleRound={setActiveHoleRound}
                 dbRonda1={dbRonda1}
                 dbRonda2={dbRonda2}
+                showIndividualNotice={showIndividualNotice}
                 setSelectedPlayer={(jugador) => {
                   setScoringPlayer(jugador);
                   setActiveTab("anotar");

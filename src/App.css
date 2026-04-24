@@ -1200,40 +1200,51 @@ body.light-mode .desplegable-header {
   margin-bottom: 4px;
 }
 
-.score-eagle,
-.score-hio {
-  background-color: var(--gold) !important;
-  color: #000 !important;
-  border-color: rgba(0, 0, 0, 0.2) !important;
+.score-albatross {
+  background-color: #001f3f !important; /* Azul Marino */
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
   font-weight: 800 !important;
 }
 
-.score-under,
+.score-eagle {
+  background-color: #0074d9 !important; /* Azul */
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  font-weight: 700 !important;
+}
+
 .score-birdie {
-  background-color: var(--green) !important;
-  color: #000 !important;
-  border-color: rgba(0, 0, 0, 0.2) !important;
+  background-color: #87ceeb !important; /* Azul Cielo */
+  color: #000000 !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
   font-weight: 700 !important;
 }
 
 .score-par {
-  background-color: rgba(255, 255, 255, 0.08) !important;
+  background-color: rgba(255, 255, 255, 0.1) !important; /* Par (Blanco/Transparente) */
   color: var(--text) !important;
   border-color: var(--border) !important;
 }
 
 .score-bogey {
-  background-color: var(--red) !important;
-  color: #fff !important;
-  border-color: rgba(0, 0, 0, 0.2) !important;
+  background-color: #e1ad01 !important; /* Amarillo Mostaza */
+  color: #000000 !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  font-weight: 600 !important;
+}
+
+.score-double {
+  background-color: #ff4136 !important; /* Rojo */
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
   font-weight: 700 !important;
 }
 
-.score-double,
-.score-double-bogey {
-  background-color: #1a2a6c !important;
-  color: #fff !important;
-  border-color: rgba(0, 0, 0, 0.2) !important;
+.score-triple {
+  background-color: #85144b !important; /* Rojo Oscuro (Maroon-like) */
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
   font-weight: 800 !important;
 }
 

@@ -7,11 +7,26 @@ export default function IndividualStandings({
     setActiveHoleRound,
     dbRonda1,
     dbRonda2,
-    setSelectedPlayer
+    setSelectedPlayer,
+    showIndividualNotice
 }) {
     return (
         <div className="clasificacion-tab slide-up">
-            <div className="table-header header-individual">
+            {showIndividualNotice && (
+                <div style={{ 
+                    background: 'rgba(255, 255, 255, 0.05)', 
+                    border: '1px solid var(--border)', 
+                    borderRadius: '12px', 
+                    padding: '12px 20px', 
+                    marginBottom: '20px',
+                    color: 'var(--text2)',
+                    fontSize: '14px',
+                    textAlign: 'center',
+                    fontWeight: '500'
+                }}>
+                    💡 Haz clic en cualquier jugador para ver su tarjeta detallada o introducir resultados
+                </div>
+            )}            <div className="table-header header-individual">
                 <span className="th-rank">#</span>
                 <span className="th-player">Jugador</span>
 
