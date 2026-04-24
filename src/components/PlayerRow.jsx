@@ -16,7 +16,7 @@ export default function PlayerRow({
 
   const equipo = player["EQUIPO"]?.trim() || "";
   const logoUrl = equipo
-    ? `/logos/${equipo.toLowerCase().replace(/\s+/g, "-")}.jpeg`
+    ? `/${equipo.toLowerCase().replace(/\s+/g, "-")}.jpeg`
     : null;
 
   const isTop4 = rank <= 4;
@@ -70,7 +70,7 @@ export default function PlayerRow({
         <div className="player-info">
           <span className="player-name">
             {player._CleanName || player.Jugador}
-            {player._onFire && <span className="on-fire-icon" title="¡En racha (últimos 2 hoyos bajo el par)!">🔥</span>}
+            {player._onFire && <span className="on-fire-icon" title="¡En racha!">🔥</span>}
             {player._woodenSpoon && <span className="wooden-spoon-icon" style={{ marginLeft: '6px', display: 'inline-block' }} title="Cuchara de madera">🥄</span>}
           </span>
           {equipo && (
