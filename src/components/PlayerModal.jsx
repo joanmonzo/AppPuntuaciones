@@ -88,18 +88,15 @@ export default function PlayerModal({
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <span style={{ color: 'var(--text2)', fontSize: '10px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>Arquetipo</span>
                 <span style={{ color: 'var(--gold)', fontSize: '14px', fontWeight: '800', textTransform: 'uppercase' }}>
                   {scoringPlayer.ARQUETIPO || "—"}
                 </span>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                <span style={{ color: 'var(--text2)', fontSize: '10px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>Jugador</span>
                 <h2 style={{ color: 'var(--text)', margin: 0, fontSize: '22px', letterSpacing: '0.5px', fontWeight: '700', lineHeight: '1.1' }}>
                   {scoringPlayer._CleanName || scoringPlayer.Jugador}
                 </h2>
-                <span style={{ color: 'var(--gold)', fontSize: '11px', fontWeight: '600' }}>{scoringPlayer.EQUIPO}</span>
               </div>
             </div>
 
@@ -127,12 +124,11 @@ export default function PlayerModal({
                   return Array.from({ length: 18 }, (_, i) => i + 1).map((h) => {
                     const data = scoringData[h] || { par: "", golpes: "" };
                     const hcpVal = hcpRow?.[h] || "-";
-                    
-                    // Cálculo del PAR Total: PAR CAMPO + Hándicap del Jugador
+
                     const parCampo = Number(parCampoRow?.[h]) || 0;
                     const hándicap = Number(parJugadorRow?.[h]) || 0;
                     const parTotal = parCampo + hándicap;
-                    
+
                     const scoreClass = getScoreClass(data.golpes, parTotal);
 
                     return (
