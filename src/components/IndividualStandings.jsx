@@ -4,6 +4,7 @@ import PlayerRow from './PlayerRow';
 export default function IndividualStandings({
     players,
     activeHoleRound,
+    setActiveHoleRound,
     dbRonda1,
     dbRonda2,
     setSelectedPlayer
@@ -13,11 +14,38 @@ export default function IndividualStandings({
             <div className="table-header header-individual">
                 <span className="th-rank">#</span>
                 <span className="th-player">Jugador</span>
-                <span className="th-hoyo">Hoyo</span>
-                <div className="th-stats header-r1r2">
-                    <span className={activeHoleRound === "Ronda 1" ? "active-th" : ""}>R1</span>
-                    <span className={activeHoleRound === "Ronda 2" ? "active-th" : ""}>R2</span>
+
+                {/* 1. Etiqueta del Hoyo conectada a tu clase "modal-tab-btn active" */}
+                <span className="th-hoyo" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
+                    <span>Hoyo</span>
+                    <div className="modal-tabs mini">
+                        <span
+                            className="modal-tab-btn active"
+                            style={{ padding: "1px 6px", fontSize: "10px", minWidth: "auto", cursor: "default" }}
+                        >
+                            {activeHoleRound === "Ronda 1" ? "R1" : "R2"}
+                        </span>
+                    </div>
+                </span>
+
+                {/* 2. Botones reales usando tus clases correctas: "modal-tabs mini" y "modal-tab-btn" */}
+                <div className="th-stats header-r1r2" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div className="modal-tabs mini">
+                        <button
+                            className={`modal-tab-btn ${activeHoleRound === "Ronda 1" ? "active" : ""}`}
+                            onClick={() => setActiveHoleRound("Ronda 1")}
+                        >
+                            R1
+                        </button>
+                        <button
+                            className={`modal-tab-btn ${activeHoleRound === "Ronda 2" ? "active" : ""}`}
+                            onClick={() => setActiveHoleRound("Ronda 2")}
+                        >
+                            R2
+                        </button>
+                    </div>
                 </div>
+
                 <span className="th-resultado">TOTAL</span>
             </div>
 

@@ -860,6 +860,7 @@ export default function App() {
               <IndividualStandings
                 players={players}
                 activeHoleRound={activeHoleRound}
+                setActiveHoleRound={setActiveHoleRound}
                 dbRonda1={dbRonda1}
                 dbRonda2={dbRonda2}
                 setSelectedPlayer={(jugador) => {
