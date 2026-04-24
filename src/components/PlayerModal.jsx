@@ -110,11 +110,11 @@ export default function PlayerModal({
             <div className="stats-grid">
               <div className="stats-row header" style={{ gridTemplateColumns: '80px 1fr 1fr 1fr', padding: '10px 15px' }}>
                 <span>Hoyo</span>
-                <span>HCP</span>
-                <span>PAR Total</span>
+                <span>PAR</span>
+                <span>PAR REGALO</span>
                 <span>GOLPES</span>
               </div>
-              <div className="scrollable-grid" style={{ maxHeight: '60vh', overflowY: 'auto', paddingRight: '5px' }}>
+              <div className="scrollable-grid" style={{ maxHeight: '60vh', overflowY: 'auto', marginRight: '-25px' }}>
                 {(() => {
                   const activeDb = scoringRound === "Ronda 1" ? dbRonda1 : dbRonda2;
                   const parCampoRow = activeDb.find(p => p.Jugador === "PAR CAMPO");
