@@ -128,6 +128,7 @@ body {
 }
 
 
+/* --- APP HEADER --- */
 .header {
   position: relative;
   z-index: 1;
@@ -247,6 +248,7 @@ body {
 }
 
 
+/* --- TABLAS & CLASIFICACIONES --- */
 .table-header {
   display: grid;
   grid-template-columns: 60px 1fr 60px 180px 120px;
@@ -599,6 +601,7 @@ body {
 }
 
 
+/* EQUIPOS */
 .header-equipos {
   grid-template-columns: 60px 200px 1fr 50px 50px 120px !important;
   padding: 0 20px 10px !important;
@@ -971,7 +974,6 @@ body.light-mode .desplegable-header {
   transition: all 0.2s ease;
   border: 1px solid var(--border);
   background-color: rgba(255, 255, 255, 0.05);
-  /* Fondo base sutil */
   color: var(--text2);
   box-sizing: border-box;
 }
@@ -1202,7 +1204,6 @@ body.light-mode .desplegable-header {
 
 .score-albatross {
   background-color: #001f3f !important;
-  /* Azul Marino */
   color: #ffffff !important;
   border-color: rgba(255, 255, 255, 0.2) !important;
   font-weight: 800 !important;
@@ -1210,7 +1211,6 @@ body.light-mode .desplegable-header {
 
 .score-eagle {
   background-color: #0074d9 !important;
-  /* Azul */
   color: #ffffff !important;
   border-color: rgba(255, 255, 255, 0.2) !important;
   font-weight: 700 !important;
@@ -1218,7 +1218,6 @@ body.light-mode .desplegable-header {
 
 .score-birdie {
   background-color: #87ceeb !important;
-  /* Azul Cielo */
   color: #000000 !important;
   border-color: rgba(0, 0, 0, 0.1) !important;
   font-weight: 700 !important;
@@ -1226,14 +1225,12 @@ body.light-mode .desplegable-header {
 
 .score-par {
   background-color: rgba(255, 255, 255, 0.1) !important;
-  /* Par (Blanco/Transparente) */
   color: var(--text) !important;
   border-color: var(--border) !important;
 }
 
 .score-bogey {
   background-color: #e1ad01 !important;
-  /* Amarillo Mostaza */
   color: #000000 !important;
   border-color: rgba(0, 0, 0, 0.1) !important;
   font-weight: 600 !important;
@@ -1241,7 +1238,6 @@ body.light-mode .desplegable-header {
 
 .score-double {
   background-color: #ff4136 !important;
-  /* Rojo */
   color: #ffffff !important;
   border-color: rgba(255, 255, 255, 0.2) !important;
   font-weight: 700 !important;
@@ -1249,7 +1245,6 @@ body.light-mode .desplegable-header {
 
 .score-triple {
   background-color: #85144b !important;
-  /* Rojo Oscuro (Maroon-like) */
   color: #ffffff !important;
   border-color: rgba(255, 255, 255, 0.2) !important;
   font-weight: 800 !important;
@@ -1547,6 +1542,7 @@ body.light-mode .desplegable-header {
   transform: scale(1.2);
 }
 
+/* MÓVIL */
 @media (max-width: 640px) {
 
   .app {
@@ -1853,7 +1849,6 @@ body.light-mode .desplegable-header {
     font-size: 20px;
   }
 
-  /* --- Equipos --- */
   .header-equipos,
   .equipo-row {
     grid-template-columns: 35px 1fr 30px 30px 60px !important;
@@ -1913,7 +1908,6 @@ body.light-mode .desplegable-header {
     text-align: center;
   }
 
-  /* --- Desplegable equipos en móvil --- */
   .equipo-desplegable {
     padding: 12px;
   }

@@ -15,6 +15,7 @@ import TeamStandings from "./components/TeamStandings";
 import AppHeader from "./components/AppHeader";
 
 export default function App() {
+  // ESTADO: Sincronización
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [syncQueue, setSyncQueue] = useState(() => JSON.parse(localStorage.getItem("sync_queue") || "[]"));
   const [isSyncing, setIsSyncing] = useState(false);
@@ -24,6 +25,7 @@ export default function App() {
   const [dbGeneral, setDbGeneral] = useState([]);
   const [marcadorInfo, setMarcadorInfo] = useState(null);
 
+  // ESTADO UI
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastUpdate, setLastUpdate] = useState(null);
@@ -72,6 +74,7 @@ export default function App() {
 
   const prevHashRef = useRef(null);
 
+  // DATOS
   const procesarHoja = (raw) => {
     if (!raw || raw.error) return [];
     for (let i = 0; i < raw.length; i++) {
@@ -115,6 +118,7 @@ export default function App() {
     return raw;
   };
 
+  // PUNTUACIONES
   const lastScoringRef = useRef("");
   useEffect(() => {
     const key = `${scoringPlayer?.Jugador}-${scoringRound}`;
@@ -231,8 +235,7 @@ export default function App() {
     applyOptimisticUpdate(scoringPlayer.Jugador, scoringRound, golpesVacios, null);
     setActiveTab("clasificacion");
     setIsSaving(false);
-    // Limpiamos la referencia para que el modal se vacíe al volver a abrirlo
-    lastScoringRef.current = ""; 
+    lastScoringRef.current = "";
 
     if (!navigator.onLine) {
       const qs = [...syncQueue, paqueteReset];
@@ -250,6 +253,7 @@ export default function App() {
       .catch(() => { });
   };
 
+  // SINCRONIZACIÓN (API)
   async function fetchData() {
     try {
       const t = new Date().getTime();
@@ -416,6 +420,7 @@ export default function App() {
     };
   }, []);
 
+  // CLASIFICACIONES
   const playerMap = new Map();
 
   dbRonda1.filter(isRealPlayer).forEach((p) => {
@@ -727,6 +732,7 @@ export default function App() {
   const maxPuntosEquipos =
     equiposData.length > 0 ? equiposData[0].totalPuntos : 0;
 
+  // RENDERIZADO
   return (
     <div className="app">
       <AppHeader

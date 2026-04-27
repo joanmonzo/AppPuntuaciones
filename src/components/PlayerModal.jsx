@@ -40,6 +40,7 @@ export default function PlayerModal({
         </div>
       )}
 
+      {/* Controles de selección: Equipo, Jugador y Acciones (Guardar/Reset) */}
       <div className="scoring-controls-wrapper" style={{ marginBottom: '25px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', alignItems: 'flex-end' }}>
         <div className="control-group">
           <label style={{ display: 'block', fontSize: '11px', color: 'var(--text2)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Filtrar por Equipo</label>
@@ -94,6 +95,7 @@ export default function PlayerModal({
         </div>
       </div>
 
+      {/* Anotación de golpes */}
       {scoringPlayer && (
         <div className="scoring-grid-container card-premium" style={{ backgroundColor: 'var(--bg-card)', borderRadius: '20px', border: '1px solid var(--border)', overflow: 'hidden' }}>
           <div className="card-header-scoring" style={{ padding: '25px', background: 'linear-gradient(to bottom, rgba(255,255,255,0.03), transparent)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -166,14 +168,14 @@ export default function PlayerModal({
                           </span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             inputMode="text"
-                            className={`edit-input ${scoreClass}`} 
-                            value={data.golpes} 
-                            onChange={(e) => handleScoreChange(h, "golpes", e.target.value)} 
-                            disabled={isSaving} 
-                            placeholder="-" 
+                            className={`edit-input ${scoreClass}`}
+                            value={data.golpes}
+                            onChange={(e) => handleScoreChange(h, "golpes", e.target.value)}
+                            disabled={isSaving}
+                            placeholder="-"
                           />
                         </div>
                       </div>

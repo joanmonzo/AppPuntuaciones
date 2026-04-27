@@ -13,11 +13,11 @@ export default function IndividualStandings({
     return (
         <div className="clasificacion-tab slide-up">
             {showIndividualNotice && (
-                <div style={{ 
-                    background: 'rgba(255, 255, 255, 0.05)', 
-                    border: '1px solid var(--border)', 
-                    borderRadius: '12px', 
-                    padding: '12px 20px', 
+                <div style={{
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '12px',
+                    padding: '12px 20px',
                     marginBottom: '20px',
                     color: 'var(--text2)',
                     fontSize: '14px',
@@ -26,11 +26,13 @@ export default function IndividualStandings({
                 }}>
                     💡 Haz clic en cualquier jugador para ver su tarjeta detallada o introducir resultados
                 </div>
-            )}            <div className="table-header header-individual">
+            )}
+
+            {/*Cabecera*/}
+            <div className="table-header header-individual">
                 <span className="th-rank">#</span>
                 <span className="th-player">Jugador</span>
 
-                {/* 1. Etiqueta del Hoyo conectada a tu clase "modal-tab-btn active" */}
                 <span className="th-hoyo" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
                     <span>Hoyo</span>
                     <div className="modal-tabs mini">
@@ -43,7 +45,6 @@ export default function IndividualStandings({
                     </div>
                 </span>
 
-                {/* 2. Botones reales usando tus clases correctas: "modal-tabs mini" y "modal-tab-btn" */}
                 <div className="th-stats header-r1r2" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <div className="modal-tabs mini">
                         <button
@@ -64,6 +65,7 @@ export default function IndividualStandings({
                 <span className="th-resultado">TOTAL</span>
             </div>
 
+            {/*Listado de jugadores*/}
             <div className="table-body">
                 {players.map((p, i) => {
                     const rData = activeHoleRound === "Ronda 1"
