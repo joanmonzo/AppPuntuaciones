@@ -1201,48 +1201,55 @@ body.light-mode .desplegable-header {
 }
 
 .score-albatross {
-  background-color: #001f3f !important; /* Azul Marino */
+  background-color: #001f3f !important;
+  /* Azul Marino */
   color: #ffffff !important;
   border-color: rgba(255, 255, 255, 0.2) !important;
   font-weight: 800 !important;
 }
 
 .score-eagle {
-  background-color: #0074d9 !important; /* Azul */
+  background-color: #0074d9 !important;
+  /* Azul */
   color: #ffffff !important;
   border-color: rgba(255, 255, 255, 0.2) !important;
   font-weight: 700 !important;
 }
 
 .score-birdie {
-  background-color: #87ceeb !important; /* Azul Cielo */
+  background-color: #87ceeb !important;
+  /* Azul Cielo */
   color: #000000 !important;
   border-color: rgba(0, 0, 0, 0.1) !important;
   font-weight: 700 !important;
 }
 
 .score-par {
-  background-color: rgba(255, 255, 255, 0.1) !important; /* Par (Blanco/Transparente) */
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  /* Par (Blanco/Transparente) */
   color: var(--text) !important;
   border-color: var(--border) !important;
 }
 
 .score-bogey {
-  background-color: #e1ad01 !important; /* Amarillo Mostaza */
+  background-color: #e1ad01 !important;
+  /* Amarillo Mostaza */
   color: #000000 !important;
   border-color: rgba(0, 0, 0, 0.1) !important;
   font-weight: 600 !important;
 }
 
 .score-double {
-  background-color: #ff4136 !important; /* Rojo */
+  background-color: #ff4136 !important;
+  /* Rojo */
   color: #ffffff !important;
   border-color: rgba(255, 255, 255, 0.2) !important;
   font-weight: 700 !important;
 }
 
 .score-triple {
-  background-color: #85144b !important; /* Rojo Oscuro (Maroon-like) */
+  background-color: #85144b !important;
+  /* Rojo Oscuro (Maroon-like) */
   color: #ffffff !important;
   border-color: rgba(255, 255, 255, 0.2) !important;
   font-weight: 800 !important;
@@ -1709,9 +1716,9 @@ body.light-mode .desplegable-header {
   }
 
   .table-header {
-    grid-template-columns: 38px 1fr 42px 80px 70px;
-    padding: 0 8px 10px;
-    gap: 6px;
+    grid-template-columns: 28px 1fr 38px 75px 65px;
+    padding: 0 6px 10px 6px;
+    gap: 5px;
     font-size: 10px;
     align-items: center;
   }
@@ -1735,9 +1742,9 @@ body.light-mode .desplegable-header {
   }
 
   .player-row {
-    grid-template-columns: 38px 1fr 42px 80px 70px;
-    padding: 10px 8px;
-    gap: 6px;
+    grid-template-columns: 28px 1fr 38px 76px 64px;
+    padding: 10px 6px;
+    gap: 5px;
     align-items: center;
   }
 
@@ -1809,10 +1816,26 @@ body.light-mode .desplegable-header {
 
   .th-hoyo {
     font-size: 10px !important;
+    transform: translateX(6px);
+  }
+
+  .row-hoyo {
+    transform: translateX(6px);
   }
 
   .row-hoyo .stat-val {
     font-size: 13px;
+  }
+
+  .table-header .th-stats,
+  .table-header .header-r1r2,
+  .row-stats {
+    transform: translateX(6px);
+  }
+
+  .th-resultado,
+  .row-resultado {
+    transform: translateX(-4px);
   }
 
   .resultado {
