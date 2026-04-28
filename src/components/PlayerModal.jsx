@@ -133,7 +133,7 @@ export default function PlayerModal({
             <div className="stats-grid">
               <div className="stats-row header" style={{ gridTemplateColumns: '80px 1fr 1fr 1fr', padding: '10px 15px' }}>
                 <span>Hoyo</span>
-                <span>PAR</span>
+                <span>PAR CAMPO</span>
                 <span>PAR JUEGO</span>
                 <span>GOLPES</span>
               </div>
@@ -161,7 +161,7 @@ export default function PlayerModal({
                             {h} 🗺️
                           </button>
                         </div>
-                        <span style={{ color: 'var(--text2)', alignSelf: 'center', fontWeight: '600' }}>{hcpVal}</span>
+                        <span style={{ color: 'var(--text2)', alignSelf: 'center', fontWeight: '600' }}>{parCampo > 0 ? parCampo : "-"}</span>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           <span style={{ color: 'var(--text2)', fontWeight: '600' }}>
                             {parTotal > 0 ? parTotal : "-"}
