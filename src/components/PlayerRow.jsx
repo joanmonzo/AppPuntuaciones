@@ -15,9 +15,6 @@ export default function PlayerRow({
   const color = AVATAR_COLORS[colorIndex % AVATAR_COLORS.length];
 
   const equipo = player["EQUIPO"]?.trim() || "";
-  const logoUrl = equipo
-    ? `/${equipo.toLowerCase().replace(/\s+/g, "-")}.jpeg`
-    : null;
 
   const isTop4 = rank <= 4;
   const isWorst4 = totalPlayers > 4 && rank > totalPlayers - 4;
@@ -73,13 +70,12 @@ export default function PlayerRow({
             {player._onFire && <span className="on-fire-icon" title="¡En racha!">🔥</span>}
             {player._woodenSpoon && <span className="wooden-spoon-icon" style={{ marginLeft: '6px', display: 'inline-block' }} title="Cuchara de madera">🥄</span>}
           </span>
-          {equipo && (
+          {equipo && avatarImageUrl && (
             <div className="player-team">
               <img
-                src={logoUrl}
+                src={avatarImageUrl}
                 alt={equipo}
                 className="team-logo"
-                onError={(e) => (e.target.style.display = "none")}
               />
               <span className="team-name">{equipo}</span>
             </div>
