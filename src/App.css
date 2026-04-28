@@ -1849,6 +1849,39 @@ body.light-mode .desplegable-header {
     font-size: 20px;
   }
 
+  .card-header-scoring {
+    padding: 15px !important;
+    flex-direction: column !important;
+    gap: 15px !important;
+    align-items: stretch !important;
+  }
+
+  .card-header-scoring>div:first-child {
+    grid-template-columns: 45px 1fr auto !important;
+    gap: 15px !important;
+  }
+
+  .round-selector-tab {
+    justify-content: center;
+    margin-top: 5px !important;
+  }
+
+  .round-selector-tab .modal-tab-btn {
+    flex: 1;
+    text-align: center;
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+  }
+
+  .team-logo-modal {
+    width: 45px !important;
+    height: 45px !important;
+  }
+
+  .card-header-scoring h2 {
+    font-size: 18px !important;
+  }
+
   .header-equipos,
   .equipo-row {
     grid-template-columns: 35px 1fr 30px 30px 60px !important;
