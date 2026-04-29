@@ -193,24 +193,32 @@ export default function TeamStandings({
             </div>
 
             {matchPlayHtml && (
-                <div
-                    className="marcador-enfrentamientos"
-                    style={{
-                        backgroundColor: "var(--bg-card)",
-                        padding: "15px",
-                        borderRadius: "10px",
-                        marginTop: "20px",
-                        marginBottom: "20px",
-                        border: "1px solid var(--border)",
-                    }}
-                >
-                    <h3 style={{ marginTop: 0, marginBottom: "15px", textAlign: "center", color: "var(--gold)", fontSize: "16px" }}>
-                        Puntos en Juego (Match Play)
-                    </h3>
-                    <ul
-                        style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "10px", fontSize: "14px", lineHeight: "1.4" }}
-                        dangerouslySetInnerHTML={{ __html: matchPlayHtml }}
-                    />
+                <div className="marcador-enfrentamientos slide-up" style={{
+                    marginTop: '25px',
+                    marginBottom: '20px',
+                    backgroundColor: 'var(--bg-card)',
+                    borderRadius: '15px',
+                    border: '1px solid var(--border)',
+                    overflow: 'hidden'
+                }}>
+                    <div style={{
+                        padding: '15px',
+                        background: 'linear-gradient(to bottom, rgba(255,255,255,0.03), transparent)',
+                        borderBottom: '1px solid var(--border)',
+                        textAlign: 'center'
+                    }}>
+                        <h3 style={{ margin: 0, color: 'var(--gold)', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '800' }}>
+                            ⚔️ Puntos en Juego (Match Play)
+                        </h3>
+                    </div>
+
+                    <div style={{ padding: '15px' }}>
+                        <ul
+                            className="matchplay-list"
+                            style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "10px" }}
+                            dangerouslySetInnerHTML={{ __html: matchPlayHtml }}
+                        />
+                    </div>
                 </div>
             )}
         </div>

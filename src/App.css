@@ -1542,6 +1542,38 @@ body.light-mode .desplegable-header {
   transform: scale(1.2);
 }
 
+.matchplay-list {
+  display: grid;
+  gap: 12px;
+}
+
+.matchplay-list li {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--gold);
+  border-radius: 8px;
+  padding: 16px 12px;
+  text-align: center;
+  font-size: 15px;
+  color: var(--text);
+  font-weight: 600;
+  line-height: 1.8;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.matchplay-list li strong {
+  display: inline-block;
+  background: var(--blue);
+  color: #000;
+  font-size: 17px;
+  font-weight: 800;
+  margin: 0 8px;
+  padding: 2px 12px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(91, 196, 216, 0.4);
+  vertical-align: middle;
+}
+
 /* MÓVIL */
 @media (max-width: 640px) {
 
