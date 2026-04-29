@@ -751,35 +751,46 @@ export default function App() {
         lastUpdate={lastUpdate}
       />
 
-      {selectedHoleInfo && (
-        <div
-          className="hole-preview-overlay"
-          onClick={() => setSelectedHoleInfo(null)}
-        >
+      {/* MODAL DE IMAGEN DEL HOYO */}
+      {selectedHoleInfo && (() => {
+        const currentRoundView = activeTab === "anotar" ? scoringRound : activeHoleRound;
+        const isRonda1 = currentRoundView === "Ronda 1";
+        const imagePath = isRonda1
+          ? `/images/hoyos/ronda1/hoyo${selectedHoleInfo}.png`
+          : `/images/hoyos/ronda2/hoyo${selectedHoleInfo}.jpg`;
+
+        return (
           <div
-            className="hole-preview-content"
-            onClick={(e) => e.stopPropagation()}
+            className="hole-preview-overlay"
+            onClick={() => setSelectedHoleInfo(null)}
           >
-            <button
-              className="close-preview"
-              onClick={() => setSelectedHoleInfo(null)}
+            <div
+              className="hole-preview-content"
+              onClick={(e) => e.stopPropagation()}
             >
-              ×
-            </button>
-            <h3>Información Hoyo {selectedHoleInfo}</h3>
-            <img
-              src={`/images/hoyos/hoyo-${selectedHoleInfo}.jpg`}
-              alt={`Hoyo ${selectedHoleInfo}`}
-              className="hole-map-image"
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.src =
-                  "https://via.placeholder.com/400x300?text=Imagen+No+Disponible";
-              }}
-            />
+              <button
+                className="close-preview"
+                onClick={() => setSelectedHoleInfo(null)}
+              >
+                ×
+              </button>
+
+              {/* Título actualizado para indicar la ronda */}
+              <h3>Información Hoyo {selectedHoleInfo} - {isRonda1 ? "R1" : "R2"}</h3>
+
+              <img
+                src={imagePath}
+                alt={`Mapa del Hoyo ${selectedHoleInfo}`}
+                className="hole-map-image"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "https://via.placeholder.com/400x300?text=Imagen+No+Disponible";
+                }}
+              />
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       <main className="main">
         {loading ? (
