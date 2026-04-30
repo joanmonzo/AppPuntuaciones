@@ -1,4 +1,3 @@
-/** Iniciales */
 export function getInitials(name) {
   if (!name) return "?";
   return String(name)
@@ -9,7 +8,6 @@ export function getInitials(name) {
     .slice(0, 2);
 }
 
-/** Diferencia de golpes respecto al par */
 export function getScoreClass(strokes, par) {
   if (!strokes || !par || strokes === "" || strokes === "R") return "";
   const s = Number(strokes);
@@ -27,7 +25,6 @@ export function getScoreClass(strokes, par) {
   return "score-triple";
 }
 
-/** Birdies o mejor en los últimos 2 hoyos */
 export function checkIfOnFire(playerData, parData) {
   if (!playerData || !parData) return false;
 
@@ -45,7 +42,6 @@ export function checkIfOnFire(playerData, parData) {
   return lastTwo.every((h) => !isNaN(h.strokes) && !isNaN(h.par) && h.strokes < h.par);
 }
 
-/** Jugadores reales */
 export function isRealPlayer(p) {
   return (
     p.Jugador &&
