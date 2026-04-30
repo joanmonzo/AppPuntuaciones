@@ -327,7 +327,7 @@ export default function App() {
           setDbRonda2(processedR2);
           setDbGeneral(processedGen);
           if (rm) setMarcadorInfo(rm);
-          setError("Modo Offline: Usando datos locales");
+          setError(null); // No es error fatal si hay cache
           setLoading(false);
           return;
         } catch (err) {
@@ -632,43 +632,58 @@ export default function App() {
           );
           const car2Score = pCar2Data ? pCar2Data._totalScore : "?";
           html.push(
-            `<li class='trio' style='margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border);'>
-              <b>El Trío Final:</b> <span style='color:var(--blue)'>${pFly}</span> (${flyScore}) 
-              vs 
-              <span style='color:#e67e22'>${pCar}</span> (${carScore}) 
-              y 
-              <span style='color:#e67e22'>${pCar2}</span> (${car2Score}).
-              <br> 
-              <span style='color:var(--blue); font-weight:bold;'>FLYING +${flyPts}</span> | 
-              <span style='color:#e67e22; font-weight:bold;'>SLICE +${carPts}</span> 
-              <br><span style='color:#e67e22; font-size:11px; font-weight:bold;'>(Incluye +1 minoría FLY)</span>
-            </li>`,
+            `<div class='match-card trio' style='margin-bottom: 12px; padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--border);'>
+              <div style='font-size: 11px; text-transform: uppercase; color: var(--gold); font-weight: 800; margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px;'>🏆 El Trío Final</div>
+              <div style='display: flex; flex-direction: column; gap: 8px;'>
+                <div style='display: flex; justify-content: space-between; align-items: center;'>
+                  <span style='color:var(--blue); font-weight: 700;'>${pFly}</span>
+                  <span style='font-size: 12px; color: var(--text2)'>(${flyScore} pts)</span>
+                </div>
+                <div style='display: flex; justify-content: space-between; align-items: center;'>
+                  <span style='color:#e67e22; font-weight: 700;'>${pCar}</span>
+                  <span style='font-size: 12px; color: var(--text2)'>(${carScore} pts)</span>
+                </div>
+                <div style='display: flex; justify-content: space-between; align-items: center;'>
+                  <span style='color:#e67e22; font-weight: 700;'>${pCar2}</span>
+                  <span style='font-size: 12px; color: var(--text2)'>(${car2Score} pts)</span>
+                </div>
+                <div style='margin-top: 4px; padding-top: 8px; border-top: 1px dashed var(--border); display: flex; justify-content: space-around; font-size: 12px;'>
+                  <span style='color:var(--blue); font-weight:bold;'>FLYING +${flyPts}</span>
+                  <span style='color:#e67e22; font-weight:bold;'>SLICE +${carPts}</span>
+                </div>
+                <div style='color:#e67e22; font-size:10px; text-align: center; opacity: 0.8;'>(Incluye +1 minoría FLY)</div>
+              </div>
+            </div>`,
           );
         } else {
-          const flyNum = html.filter(h => h.includes('<b>Fly ')).length + 1;
+          const flyNum = html.length + 1;
+          const winner = flyPts > carPts ? 'fly' : carPts > flyPts ? 'car' : 'draw';
 
-          if (flyPts > carPts) {
-            html.push(
-              `<li>
-                <b>Fly ${flyNum}:</b> <b style='color:var(--blue)'>${pFly}</b> (${flyScore} pts) gana a <span style='color:#e67e22'>${pCar}</span> (${carScore} pts). 
-                <br><span style='color:var(--blue); font-weight:bold;'>FLYING +${flyPts}</span>
-              </li>`,
-            );
-          } else if (carPts > flyPts) {
-            html.push(
-              `<li>
-                <b>Fly ${flyNum}:</b> <b style='color:#e67e22'>${pCar}</b> (${carScore} pts) gana a <span style='color:var(--blue)'>${pFly}</span> (${flyScore} pts). 
-                <br><span style='color:#e67e22; font-weight:bold;'>SLICE +${carPts}</span>
-              </li>`,
-            );
-          } else {
-            html.push(
-              `<li>
-                <b>Fly ${flyNum}:</b> <b>Empate</b> entre <span style='color:var(--blue)'>${pFly}</span> (${flyScore} pts) y <span style='color:#e67e22'>${pCar}</span> (${carScore} pts). 
-                <br><span style='color:var(--text2); font-weight:bold;'>FLYING +1 | SLICE +1</span>
-              </li>`,
-            );
-          }
+          html.push(
+            `<div class='match-card' style='margin-bottom: 8px; padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--border);'>
+              <div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;'>
+                <span style='font-size: 10px; color: var(--text2); font-weight: 700;'>FLY ${flyNum}</span>
+                <span style='font-size: 10px; font-weight: 800; color: ${winner === 'draw' ? 'var(--text2)' : winner === 'fly' ? 'var(--blue)' : '#e67e22'}'>
+                  ${winner === 'draw' ? 'EMPATE' : 'GANADOR ' + (winner === 'fly' ? 'FLY' : 'SLICE')}
+                </span>
+              </div>
+              <div style='display: flex; align-items: center; gap: 8px; justify-content: space-between;'>
+                <div style='flex: 1; display: flex; flex-direction: column; align-items: flex-start;'>
+                  <span style='color:${winner === 'fly' ? 'var(--blue)' : 'var(--text)'}; font-weight: ${winner === 'fly' ? '800' : '600'}; font-size: 13px;'>${pFly}</span>
+                  <span style='font-size: 11px; color: var(--text2)'>${flyScore} pts</span>
+                </div>
+                <div style='font-weight: 800; color: var(--text2); font-size: 12px;'>VS</div>
+                <div style='flex: 1; display: flex; flex-direction: column; align-items: flex-end;'>
+                  <span style='color:${winner === 'car' ? '#e67e22' : 'var(--text)'}; font-weight: ${winner === 'car' ? '800' : '600'}; font-size: 13px;'>${pCar}</span>
+                  <span style='font-size: 11px; color: var(--text2)'>${carScore} pts</span>
+                </div>
+              </div>
+              <div style='margin-top: 8px; display: flex; justify-content: center; gap: 12px; font-size: 11px; font-weight: 700;'>
+                <span style='color:var(--blue); padding: 2px 8px; border-radius: 4px; background: ${winner === 'fly' ? 'rgba(91, 196, 216, 0.15)' : 'transparent'}'>FLYING +${flyPts}</span>
+                <span style='color:#e67e22; padding: 2px 8px; border-radius: 4px; background: ${winner === 'car' ? 'rgba(230, 126, 34, 0.15)' : 'transparent'}'>SLICE +${carPts}</span>
+              </div>
+            </div>`,
+          );
         }
       }
     }
@@ -798,16 +813,32 @@ export default function App() {
             <div className="spinner" />
             <span>Cargando datos…</span>
           </div>
-        ) : error ? (
+        ) : (error && dbGeneral.length === 0) ? (
           <div className="error-box">
             <span className="error-icon">!</span>
             <div>
               <p className="error-title">Error al cargar</p>
               <p className="error-msg">{error}</p>
+              <button onClick={() => fetchData()} className="tab-btn" style={{marginTop: '10px'}}>Reintentar</button>
             </div>
           </div>
         ) : (
           <>
+            {isOffline && (
+              <div style={{
+                background: 'rgba(255, 165, 0, 0.1)',
+                border: '1px solid orange',
+                color: 'orange',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                marginBottom: '16px',
+                fontSize: '13px',
+                textAlign: 'center',
+                fontWeight: '600'
+              }}>
+                ⚠️ Estás en modo sin conexión. Los datos mostrados pueden no estar actualizados.
+              </div>
+            )}
             {activeTab === "clasificacion" && (
               <IndividualStandings
                 players={players}
