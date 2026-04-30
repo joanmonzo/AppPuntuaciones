@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import "./App.css";
 
 import appLogo from "./the-golfos-on-tour-2026-logo.ico";
-import imgFlyingCarajillos from "./flying-carajillos.png";
+import imgFlyingCarajillos from "./flying-carajillos.jpeg";
 import imgCarabassaSlice from "./carabassa-slice.jpeg";
 
 import { API_URL, POLL_INTERVAL, TEAM_CAPTAINS, TEAM_AVATAR_IMAGES } from "./utils/constants";

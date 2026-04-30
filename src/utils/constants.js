@@ -1,4 +1,4 @@
-import imgFlyingCarajillos from "../flying-carajillos.png";
+import imgFlyingCarajillos from "../flying-carajillos.jpeg";
 import imgCarabassaSlice from "../carabassa-slice.jpeg";
 
 export const API_URL = "https://script.google.com/macros/s/AKfycbx0hO-6xi53Siyr86zYkBPSVF2hKaYEgRw0Y-IjvjS5I1EOpegSj498XHQZr0xEqhXcfA/exec";
