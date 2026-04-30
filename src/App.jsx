@@ -563,130 +563,70 @@ export default function App() {
 
   if (marcadorInfo && Array.isArray(marcadorInfo)) {
     let html = [];
-    let isBottomSection = false;
+    const seenMatches = new Set();
 
-    const dividerIdx = marcadorInfo.findIndex((r) =>
-      Object.values(r).some((v) =>
-        String(v).toUpperCase().includes("TOTAL FLY"),
-      ),
-    );
-
+    // Buscamos las filas de enfrentamientos reales
     for (let i = 0; i < marcadorInfo.length; i++) {
       const row = marcadorInfo[i];
-      const stringFilaEntera = JSON.stringify(row).toUpperCase();
+      
+      // Extraemos nombres de jugadores (soportando varios posibles nombres de columna)
+      const pFly = String(row.FLYING || row.FLY || "").trim();
+      const pCar = String(row.SLICE || row.CAR || "").trim();
 
-      if (
-        stringFilaEntera.includes("SUMA TOTAL") ||
-        stringFilaEntera.includes("EMPAREJAMIENTO")
-      ) {
-        sumaTotalFly = Number(row.STABLEFORD) || 0;
-        sumaTotalCar = Number(row.POSICION) || 0;
-        continue;
-      }
+      // Saltamos filas que no son enfrentamientos (cabeceras, totales o vacías)
+      if (!pFly || !pCar) continue;
+      if (pFly.toUpperCase().includes("FLYING") || pFly.toUpperCase().includes("TOTAL")) continue;
+      if (pCar.toUpperCase().includes("SLICE") || pCar.toUpperCase().includes("TOTAL")) continue;
 
-      if (
-        !row.FLY ||
-        String(row.FLY).trim() === "" ||
-        String(row.FLY).toUpperCase() === "FLY"
-      ) {
-        isBottomSection = true;
-        continue;
-      }
+      // Evitamos duplicados (si la hoja tiene la misma tabla dos veces)
+      const matchKey = `${pFly}-${pCar}`.toUpperCase();
+      if (seenMatches.has(matchKey)) continue;
+      seenMatches.add(matchKey);
 
-      if (isBottomSection && row.FLY && dividerIdx !== -1) {
-        const pFly = String(row.FLY).trim();
-        const flyPts = Number(row.STABLEFORD) || 0;
-        const carPts = Number(row.POSICION) || 0;
+      // Puntos de Match Play
+      const flyPts = Number(row["TOTAL FLY"]) || 0;
+      const carPts = Number(row["TOTAL CAR"] || row["TOTAL SLICE"]) || 0;
 
-        const upperRowIdx = marcadorInfo.findIndex(
-          (r) => String(r.FLY).trim().toUpperCase() === pFly.toUpperCase(),
-        );
-        let pCar = "Rival";
-        let pCar2 = null;
+      // Buscamos info extra de los jugadores en el ranking general
+      const pFlyData = players.find((p) =>
+        (p._CleanName || p.Jugador || "").toUpperCase().includes(pFly.toUpperCase()),
+      );
+      const pCarData = players.find((p) =>
+        (p._CleanName || p.Jugador || "").toUpperCase().includes(pCar.toUpperCase()),
+      );
 
-        if (upperRowIdx !== -1 && upperRowIdx < i) {
-          pCar = String(marcadorInfo[upperRowIdx].CAR).trim();
+      const flyScore = pFlyData ? pFlyData._totalScore : "?";
+      const carScore = pCarData ? pCarData._totalScore : "?";
 
-          const nextUpper = marcadorInfo[upperRowIdx + 1];
-          if (
-            nextUpper &&
-            (!nextUpper.FLY || String(nextUpper.FLY).trim() === "") &&
-            nextUpper.CAR
-          ) {
-            pCar2 = String(nextUpper.CAR).trim();
-          }
-        }
+      const flyNum = html.length + 1;
+      const winner = flyPts > carPts ? 'fly' : carPts > flyPts ? 'car' : 'draw';
 
-        const pFlyData = players.find((p) =>
-          (p._CleanName || p.Jugador).toUpperCase().includes(pFly.toUpperCase()),
-        );
-        const pCarData = players.find((p) =>
-          (p._CleanName || p.Jugador).toUpperCase().includes(pCar.toUpperCase()),
-        );
-        const flyScore = pFlyData ? pFlyData._totalScore : "?";
-        const carScore = pCarData ? pCarData._totalScore : "?";
-
-        if (pCar2) {
-          const pCar2Data = players.find((p) =>
-            (p._CleanName || p.Jugador).toUpperCase().includes(pCar2.toUpperCase()),
-          );
-          const car2Score = pCar2Data ? pCar2Data._totalScore : "?";
-          html.push(
-            `<div class='match-card trio' style='margin-bottom: 8px; padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--border);'>
-              <div style='font-size: 10px; text-transform: uppercase; color: var(--gold); font-weight: 800; margin-bottom: 6px; text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 4px;'>🏆 El Trío Final</div>
-              <div style='display: flex; flex-direction: column; gap: 4px;'>
-                <div style='display: flex; justify-content: space-between; align-items: center;'>
-                  <span style='color:var(--blue); font-weight: 700; font-size: 13px;'>${pFly}</span>
-                  <span style='font-size: 11px; color: var(--text2)'>(${flyScore} pts)</span>
-                </div>
-                <div style='display: flex; justify-content: space-between; align-items: center;'>
-                  <span style='color:#e67e22; font-weight: 700; font-size: 13px;'>${pCar}</span>
-                  <span style='font-size: 11px; color: var(--text2)'>(${carScore} pts)</span>
-                </div>
-                <div style='display: flex; justify-content: space-between; align-items: center;'>
-                  <span style='color:#e67e22; font-weight: 700; font-size: 13px;'>${pCar2}</span>
-                  <span style='font-size: 11px; color: var(--text2)'>(${car2Score} pts)</span>
-                </div>
-                <div style='margin-top: 4px; padding-top: 6px; border-top: 1px dashed var(--border); display: flex; justify-content: space-around; font-size: 11px;'>
-                  <span style='color:var(--blue); font-weight:bold;'>FLYING +${flyPts}</span>
-                  <span style='color:#e67e22; font-weight:bold;'>SLICE +${carPts}</span>
-                </div>
-                <div style='color:#e67e22; font-size:9px; text-align: center; opacity: 0.8;'>(Incluye +1 minoría FLY)</div>
-              </div>
-            </div>`,
-          );
-        } else {
-          const flyNum = html.length + 1;
-          const winner = flyPts > carPts ? 'fly' : carPts > flyPts ? 'car' : 'draw';
-
-          html.push(
-            `<div class='match-card' style='margin-bottom: 6px; padding: 8px; border-radius: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--border);'>
-              <div style='display: grid; grid-template-columns: 40px 1fr 40px; align-items: center; margin-bottom: 4px;'>
-                <span style='font-size: 9px; color: var(--text2); font-weight: 700;'>FLY ${flyNum}</span>
-                <span style='font-size: 10px; font-weight: 800; text-align: center; color: ${winner === 'draw' ? 'var(--text2)' : winner === 'fly' ? 'var(--blue)' : '#e67e22'}'>
-                  ${winner === 'draw' ? 'EMPATE' : 'GANADOR ' + (winner === 'fly' ? 'FLY' : 'SLICE')}
-                </span>
-                <span></span>
-              </div>
-              <div style='display: flex; align-items: center; gap: 4px; justify-content: space-between;'>
-                <div style='flex: 1; display: flex; flex-direction: column; align-items: flex-start; line-height: 1.2;'>
-                  <span style='color:${winner === 'fly' ? 'var(--blue)' : 'var(--text)'}; font-weight: ${winner === 'fly' ? '800' : '600'}; font-size: 13px;'>${pFly}</span>
-                  <span style='font-size: 10px; color: var(--text2)'>${flyScore} pts</span>
-                </div>
-                <div style='font-weight: 800; color: var(--text2); font-size: 10px; opacity: 0.5;'>VS</div>
-                <div style='flex: 1; display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2;'>
-                  <span style='color:${winner === 'car' ? '#e67e22' : 'var(--text)'}; font-weight: ${winner === 'car' ? '800' : '600'}; font-size: 13px;'>${pCar}</span>
-                  <span style='font-size: 10px; color: var(--text2)'>${carScore} pts</span>
-                </div>
-              </div>
-              <div style='margin-top: 6px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.03); display: flex; justify-content: center; gap: 10px; font-size: 10px; font-weight: 700;'>
-                <span style='color:var(--blue);'>FLYING +${flyPts}</span>
-                <span style='color:#e67e22;'>SLICE +${carPts}</span>
-              </div>
-            </div>`,
-          );
-        }
-      }
+      html.push(
+        `<div class='match-card' style='margin-bottom: 6px; padding: 8px; border-radius: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--border);'>
+          <div style='display: grid; grid-template-columns: 40px 1fr 40px; align-items: center; margin-bottom: 4px;'>
+            <span style='font-size: 9px; color: var(--text2); font-weight: 700;'>FLY ${flyNum}</span>
+            <span style='font-size: 10px; font-weight: 800; text-align: center; color: ${winner === 'draw' ? 'var(--text2)' : winner === 'fly' ? 'var(--blue)' : '#e67e22'}'>
+              ${winner === 'draw' ? 'EMPATE' : 'GANADOR ' + (winner === 'fly' ? 'FLY' : 'SLICE')}
+            </span>
+            <span></span>
+          </div>
+          <div style='display: flex; align-items: center; gap: 4px; justify-content: space-between;'>
+            <div style='flex: 1; display: flex; flex-direction: column; align-items: flex-start; line-height: 1.2;'>
+              <span style='color:${winner === 'fly' ? 'var(--blue)' : 'var(--text)'}; font-weight: ${winner === 'fly' ? '800' : '600'}; font-size: 13px;'>${pFly}</span>
+              <span style='font-size: 10px; color: var(--text2)'>${flyScore} pts</span>
+            </div>
+            <div style='font-weight: 800; color: var(--text2); font-size: 10px; opacity: 0.5;'>VS</div>
+            <div style='flex: 1; display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2;'>
+              <span style='color:${winner === 'car' ? '#e67e22' : 'var(--text)'}; font-weight: ${winner === 'car' ? '800' : '600'}; font-size: 13px;'>${pCar}</span>
+              <span style='font-size: 10px; color: var(--text2)'>${carScore} pts</span>
+            </div>
+          </div>
+          <div style='margin-top: 6px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.03); display: flex; justify-content: center; gap: 10px; font-size: 10px; font-weight: 700;'>
+            <span style='color:var(--blue);'>FLYING +${flyPts}</span>
+            <span style='color:#e67e22;'>SLICE +${carPts}</span>
+          </div>
+        </div>`,
+      );
     }
     matchPlayHtml = html.join("");
   }
