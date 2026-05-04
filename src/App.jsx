@@ -565,65 +565,73 @@ export default function App() {
     let html = [];
     const seenMatches = new Set();
 
-    // Buscamos las filas de enfrentamientos reales
     for (let i = 0; i < marcadorInfo.length; i++) {
       const row = marcadorInfo[i];
-      
-      // Extraemos nombres de jugadores (soportando varios posibles nombres de columna)
+
       const pFly = String(row.FLYING || row.FLY || "").trim();
       const pCar = String(row.SLICE || row.CAR || "").trim();
 
-      // Saltamos filas que no son enfrentamientos (cabeceras, totales o vacías)
       if (!pFly || !pCar) continue;
-      if (pFly.toUpperCase().includes("FLYING") || pFly.toUpperCase().includes("TOTAL")) continue;
-      if (pCar.toUpperCase().includes("SLICE") || pCar.toUpperCase().includes("TOTAL")) continue;
+      const pFlyUpper = pFly.toUpperCase();
+      const pCarUpper = pCar.toUpperCase();
+      if (pFlyUpper.includes("FLYING") || pFlyUpper.includes("TOTAL")) continue;
+      if (pCarUpper.includes("SLICE") || pCarUpper.includes("TOTAL")) continue;
 
-      // Evitamos duplicados (si la hoja tiene la misma tabla dos veces)
-      const matchKey = `${pFly}-${pCar}`.toUpperCase();
+      const matchKey = [pFlyUpper, pCarUpper].sort().join("-");
       if (seenMatches.has(matchKey)) continue;
-      seenMatches.add(matchKey);
 
-      // Puntos de Match Play
+      if (html.length >= 5) break;
+
+      seenMatches.add(matchKey);
       const flyPts = Number(row["TOTAL FLY"]) || 0;
       const carPts = Number(row["TOTAL CAR"] || row["TOTAL SLICE"]) || 0;
-
-      // Buscamos info extra de los jugadores en el ranking general
-      const pFlyData = players.find((p) =>
-        (p._CleanName || p.Jugador || "").toUpperCase().includes(pFly.toUpperCase()),
-      );
-      const pCarData = players.find((p) =>
-        (p._CleanName || p.Jugador || "").toUpperCase().includes(pCar.toUpperCase()),
-      );
-
-      const flyScore = pFlyData ? pFlyData._totalScore : "?";
-      const carScore = pCarData ? pCarData._totalScore : "?";
+      const flyStableford = row["STABLEFOR FLYING"] || row["STABLEFOR"] || row["STABLEFORD FLYING"] || row["STABLEFORD"];
+      const carStableford = row["STABLEFOR SLICE"] || row["STABLEFOR_1"] || row["STABLEFORD SLICE"] || row["STABLEFORD_1"];
+      const pFlyData = players.find(p => (p._CleanName || p.Jugador || "").toUpperCase().includes(pFlyUpper));
+      const pCarData = players.find(p => (p._CleanName || p.Jugador || "").toUpperCase().includes(pCarUpper));
+      const flyDisplayScore = (flyStableford !== undefined && flyStableford !== "") ? flyStableford : (pFlyData ? pFlyData._totalScore : "?");
+      const carDisplayScore = (carStableford !== undefined && carStableford !== "") ? carStableford : (pCarData ? pCarData._totalScore : "?");
 
       const flyNum = html.length + 1;
       const winner = flyPts > carPts ? 'fly' : carPts > flyPts ? 'car' : 'draw';
 
       html.push(
-        `<div class='match-card' style='margin-bottom: 6px; padding: 8px; border-radius: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--border);'>
-          <div style='display: grid; grid-template-columns: 40px 1fr 40px; align-items: center; margin-bottom: 4px;'>
-            <span style='font-size: 9px; color: var(--text2); font-weight: 700;'>FLY ${flyNum}</span>
-            <span style='font-size: 10px; font-weight: 800; text-align: center; color: ${winner === 'draw' ? 'var(--text2)' : winner === 'fly' ? 'var(--blue)' : '#e67e22'}'>
-              ${winner === 'draw' ? 'EMPATE' : 'GANADOR ' + (winner === 'fly' ? 'FLY' : 'SLICE')}
+        `<div class='match-card' style='margin-bottom: 6px; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.2);'>
+          <div style='display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 6px;'>
+            <span style='font-size: 9px; color: var(--text2); font-weight: 800; letter-spacing: 0.05em;'>FLY ${flyNum}</span>
+            <span style='font-size: 11px; font-weight: 900; text-align: center; color: ${winner === 'draw' ? 'var(--text2)' : winner === 'fly' ? 'var(--blue)' : '#e67e22'}; text-transform: uppercase; letter-spacing: 0.5px;'>
+              ${winner === 'draw' ? '— EMPATE —' : '🏆 GANADOR ' + (winner === 'fly' ? 'FLY' : 'SLICE')}
             </span>
             <span></span>
           </div>
-          <div style='display: flex; align-items: center; gap: 4px; justify-content: space-between;'>
-            <div style='flex: 1; display: flex; flex-direction: column; align-items: flex-start; line-height: 1.2;'>
-              <span style='color:${winner === 'fly' ? 'var(--blue)' : 'var(--text)'}; font-weight: ${winner === 'fly' ? '800' : '600'}; font-size: 13px;'>${pFly}</span>
-              <span style='font-size: 10px; color: var(--text2)'>${flyScore} pts</span>
+          <div style='display: flex; align-items: center; justify-content: space-between; gap: 10px;'>
+            <div style='flex: 1; display: flex; flex-direction: column; align-items: flex-start;'>
+              <span style='color:${winner === 'fly' ? 'var(--blue)' : 'var(--text)'}; font-weight: ${winner === 'fly' ? '800' : '600'}; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px;'>${pFly}</span>
+              <span style='font-size: 11px; color: var(--text2); font-weight: 500;'>${flyDisplayScore} pts</span>
             </div>
-            <div style='font-weight: 800; color: var(--text2); font-size: 10px; opacity: 0.5;'>VS</div>
-            <div style='flex: 1; display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2;'>
-              <span style='color:${winner === 'car' ? '#e67e22' : 'var(--text)'}; font-weight: ${winner === 'car' ? '800' : '600'}; font-size: 13px;'>${pCar}</span>
-              <span style='font-size: 10px; color: var(--text2)'>${carScore} pts</span>
+            <div style='font-weight: 900; color: var(--text2); font-size: 12px; opacity: 0.3; font-style: italic;'>VS</div>
+            <div style='flex: 1; display: flex; flex-direction: column; align-items: flex-end;'>
+              <span style='color:${winner === 'car' ? '#e67e22' : 'var(--text)'}; font-weight: ${winner === 'car' ? '800' : '600'}; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px;'>${pCar}</span>
+              <span style='font-size: 11px; color: var(--text2); font-weight: 500;'>${carDisplayScore} pts</span>
             </div>
           </div>
-          <div style='margin-top: 6px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.03); display: flex; justify-content: center; gap: 10px; font-size: 10px; font-weight: 700;'>
-            <span style='color:var(--blue);'>FLYING +${flyPts}</span>
-            <span style='color:#e67e22;'>SLICE +${carPts}</span>
+          <div style='margin-top: 10px; display: flex; justify-content: center; gap: 15px;'>
+            ${winner === 'draw' ? `
+              <div style='display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; background: rgba(91, 196, 216, 0.1); border: 1px solid rgba(91, 196, 216, 0.2);'>
+                <span style='font-size: 10px; color: var(--blue); font-weight: 800;'>FLYING +1</span>
+              </div>
+              <div style='display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; background: rgba(230, 126, 34, 0.1); border: 1px solid rgba(230, 126, 34, 0.2);'>
+                <span style='font-size: 10px; color: #e67e22; font-weight: 800;'>SLICE +1</span>
+              </div>
+            ` : (winner === 'fly' ? `
+              <div style='display: flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 6px; background: rgba(91, 196, 216, 0.1); border: 1px solid rgba(91, 196, 216, 0.2);'>
+                <span style='font-size: 11px; color: var(--blue); font-weight: 900;'>FLYING +${flyPts}</span>
+              </div>
+            ` : `
+              <div style='display: flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 6px; background: rgba(230, 126, 34, 0.1); border: 1px solid rgba(230, 126, 34, 0.2);'>
+                <span style='font-size: 11px; color: #e67e22; font-weight: 900;'>SLICE +${carPts}</span>
+              </div>
+            `)}
           </div>
         </div>`,
       );
@@ -760,7 +768,7 @@ export default function App() {
             <div>
               <p className="error-title">Error al cargar</p>
               <p className="error-msg">{error}</p>
-              <button onClick={() => fetchData()} className="tab-btn" style={{marginTop: '10px'}}>Reintentar</button>
+              <button onClick={() => fetchData()} className="tab-btn" style={{ marginTop: '10px' }}>Reintentar</button>
             </div>
           </div>
         ) : (
