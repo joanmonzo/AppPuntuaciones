@@ -34,7 +34,6 @@ export default function IndividualStandings({
                 <span className="th-player">Jugador</span>
 
                 <span className="th-hoyo" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
-                    <span>Hoyo</span>
                     <div className="modal-tabs mini">
                         <span
                             className="modal-tab-btn active"
@@ -43,6 +42,7 @@ export default function IndividualStandings({
                             {activeHoleRound === "Ronda 1" ? "R1" : "R2"}
                         </span>
                     </div>
+                    <span>Hoyo</span>
                 </span>
 
                 <div className="th-stats header-r1r2" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
