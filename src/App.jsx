@@ -563,78 +563,129 @@ export default function App() {
 
   if (marcadorInfo && Array.isArray(marcadorInfo)) {
     let html = [];
-    const seenMatches = new Set();
+    let isBottomSection = false;
+
+    const dividerIdx = marcadorInfo.findIndex((r) =>
+      Object.values(r).some((v) =>
+        String(v).toUpperCase().includes("TOTAL FLY"),
+      ),
+    );
 
     for (let i = 0; i < marcadorInfo.length; i++) {
       const row = marcadorInfo[i];
+      const stringFilaEntera = JSON.stringify(row).toUpperCase();
 
-      const pFly = String(row.FLYING || row.FLY || "").trim();
-      const pCar = String(row.SLICE || row.CAR || "").trim();
+      if (
+        stringFilaEntera.includes("SUMA TOTAL") ||
+        stringFilaEntera.includes("EMPAREJAMIENTO")
+      ) {
+        sumaTotalFly = Number(row.STABLEFORD) || 0;
+        sumaTotalCar = Number(row.POSICION) || 0;
+        continue;
+      }
 
-      if (!pFly || !pCar) continue;
-      const pFlyUpper = pFly.toUpperCase();
-      const pCarUpper = pCar.toUpperCase();
-      if (pFlyUpper.includes("FLYING") || pFlyUpper.includes("TOTAL")) continue;
-      if (pCarUpper.includes("SLICE") || pCarUpper.includes("TOTAL")) continue;
+      if (
+        !row.FLY ||
+        String(row.FLY).trim() === "" ||
+        String(row.FLY).toUpperCase() === "FLY"
+      ) {
+        isBottomSection = true;
+        continue;
+      }
 
-      const matchKey = [pFlyUpper, pCarUpper].sort().join("-");
-      if (seenMatches.has(matchKey)) continue;
+      if (isBottomSection && row.FLY && dividerIdx !== -1) {
+        const pFly = String(row.FLY).trim();
+        const flyPts = Number(row.STABLEFORD) || 0;
+        const carPts = Number(row.POSICION) || 0;
 
-      if (html.length >= 5) break;
+        const upperRowIdx = marcadorInfo.findIndex(
+          (r) => String(r.FLY).trim().toUpperCase() === pFly.toUpperCase(),
+        );
+        let pCar = "Rival";
+        let pCar2 = null;
 
-      seenMatches.add(matchKey);
-      const flyPts = Number(row["TOTAL FLY"]) || 0;
-      const carPts = Number(row["TOTAL CAR"] || row["TOTAL SLICE"]) || 0;
-      const flyStableford = row["STABLEFOR FLYING"] || row["STABLEFOR"] || row["STABLEFORD FLYING"] || row["STABLEFORD"];
-      const carStableford = row["STABLEFOR SLICE"] || row["STABLEFOR_1"] || row["STABLEFORD SLICE"] || row["STABLEFORD_1"];
-      const pFlyData = players.find(p => (p._CleanName || p.Jugador || "").toUpperCase().includes(pFlyUpper));
-      const pCarData = players.find(p => (p._CleanName || p.Jugador || "").toUpperCase().includes(pCarUpper));
-      const flyDisplayScore = (flyStableford !== undefined && flyStableford !== "") ? flyStableford : (pFlyData ? pFlyData._totalScore : "?");
-      const carDisplayScore = (carStableford !== undefined && carStableford !== "") ? carStableford : (pCarData ? pCarData._totalScore : "?");
+        if (upperRowIdx !== -1 && upperRowIdx < i) {
+          pCar = String(marcadorInfo[upperRowIdx].CAR).trim();
 
-      const flyNum = html.length + 1;
-      const winner = flyPts > carPts ? 'fly' : carPts > flyPts ? 'car' : 'draw';
+          const nextUpper = marcadorInfo[upperRowIdx + 1];
+          if (
+            nextUpper &&
+            (!nextUpper.FLY || String(nextUpper.FLY).trim() === "") &&
+            nextUpper.CAR
+          ) {
+            pCar2 = String(nextUpper.CAR).trim();
+          }
+        }
 
-      html.push(
-        `<div class='match-card' style='margin-bottom: 6px; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.2);'>
-          <div style='display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 6px;'>
-            <span style='font-size: 9px; color: var(--text2); font-weight: 800; letter-spacing: 0.05em;'>FLY ${flyNum}</span>
-            <span style='font-size: 11px; font-weight: 900; text-align: center; color: ${winner === 'draw' ? 'var(--text2)' : winner === 'fly' ? 'var(--blue)' : '#e67e22'}; text-transform: uppercase; letter-spacing: 0.5px;'>
-              ${winner === 'draw' ? '— EMPATE —' : '🏆 GANADOR ' + (winner === 'fly' ? 'FLY' : 'SLICE')}
-            </span>
-            <span></span>
-          </div>
-          <div style='display: flex; align-items: center; justify-content: space-between; gap: 10px;'>
-            <div style='flex: 1; display: flex; flex-direction: column; align-items: flex-start;'>
-              <span style='color:${winner === 'fly' ? 'var(--blue)' : 'var(--text)'}; font-weight: ${winner === 'fly' ? '800' : '600'}; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px;'>${pFly}</span>
-              <span style='font-size: 11px; color: var(--text2); font-weight: 500;'>${flyDisplayScore} pts</span>
-            </div>
-            <div style='font-weight: 900; color: var(--text2); font-size: 12px; opacity: 0.3; font-style: italic;'>VS</div>
-            <div style='flex: 1; display: flex; flex-direction: column; align-items: flex-end;'>
-              <span style='color:${winner === 'car' ? '#e67e22' : 'var(--text)'}; font-weight: ${winner === 'car' ? '800' : '600'}; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px;'>${pCar}</span>
-              <span style='font-size: 11px; color: var(--text2); font-weight: 500;'>${carDisplayScore} pts</span>
-            </div>
-          </div>
-          <div style='margin-top: 10px; display: flex; justify-content: center; gap: 15px;'>
-            ${winner === 'draw' ? `
-              <div style='display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; background: rgba(91, 196, 216, 0.1); border: 1px solid rgba(91, 196, 216, 0.2);'>
-                <span style='font-size: 10px; color: var(--blue); font-weight: 800;'>FLYING +1</span>
+        const pFlyData = players.find((p) =>
+          (p._CleanName || p.Jugador).toUpperCase().includes(pFly.toUpperCase()),
+        );
+        const pCarData = players.find((p) =>
+          (p._CleanName || p.Jugador).toUpperCase().includes(pCar.toUpperCase()),
+        );
+        const flyScore = pFlyData ? pFlyData._totalScore : "?";
+        const carScore = pCarData ? pCarData._totalScore : "?";
+
+        if (pCar2) {
+          const pCar2Data = players.find((p) =>
+            (p._CleanName || p.Jugador).toUpperCase().includes(pCar2.toUpperCase()),
+          );
+          const car2Score = pCar2Data ? pCar2Data._totalScore : "?";
+          html.push(
+            `<div class='match-card trio' style='margin-bottom: 12px; padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--border);'>
+              <div style='font-size: 11px; text-transform: uppercase; color: var(--gold); font-weight: 800; margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px;'>🏆 El Trío Final</div>
+              <div style='display: flex; flex-direction: column; gap: 8px;'>
+                <div style='display: flex; justify-content: space-between; align-items: center;'>
+                  <span style='color:var(--blue); font-weight: 700;'>${pFly}</span>
+                  <span style='font-size: 12px; color: var(--text2)'>(${flyScore} pts)</span>
+                </div>
+                <div style='display: flex; justify-content: space-between; align-items: center;'>
+                  <span style='color:#e67e22; font-weight: 700;'>${pCar}</span>
+                  <span style='font-size: 12px; color: var(--text2)'>(${carScore} pts)</span>
+                </div>
+                <div style='display: flex; justify-content: space-between; align-items: center;'>
+                  <span style='color:#e67e22; font-weight: 700;'>${pCar2}</span>
+                  <span style='font-size: 12px; color: var(--text2)'>(${car2Score} pts)</span>
+                </div>
+                <div style='margin-top: 4px; padding-top: 8px; border-top: 1px dashed var(--border); display: flex; justify-content: space-around; font-size: 12px;'>
+                  <span style='color:var(--blue); font-weight:bold;'>FLYING +${flyPts}</span>
+                  <span style='color:#e67e22; font-weight:bold;'>SLICE +${carPts}</span>
+                </div>
+                <div style='color:#e67e22; font-size:10px; text-align: center; opacity: 0.8;'>(Incluye +1 minoría FLY)</div>
               </div>
-              <div style='display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; background: rgba(230, 126, 34, 0.1); border: 1px solid rgba(230, 126, 34, 0.2);'>
-                <span style='font-size: 10px; color: #e67e22; font-weight: 800;'>SLICE +1</span>
+            </div>`,
+          );
+        } else {
+          const flyNum = html.length + 1;
+          const winner = flyPts > carPts ? 'fly' : carPts > flyPts ? 'car' : 'draw';
+
+          html.push(
+            `<div class='match-card' style='margin-bottom: 8px; padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--border);'>
+              <div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;'>
+                <span style='font-size: 10px; color: var(--text2); font-weight: 700;'>FLY ${flyNum}</span>
+                <span style='font-size: 10px; font-weight: 800; color: ${winner === 'draw' ? 'var(--text2)' : winner === 'fly' ? 'var(--blue)' : '#e67e22'}'>
+                  ${winner === 'draw' ? 'EMPATE' : 'GANADOR ' + (winner === 'fly' ? 'FLY' : 'SLICE')}
+                </span>
               </div>
-            ` : (winner === 'fly' ? `
-              <div style='display: flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 6px; background: rgba(91, 196, 216, 0.1); border: 1px solid rgba(91, 196, 216, 0.2);'>
-                <span style='font-size: 11px; color: var(--blue); font-weight: 900;'>FLYING +${flyPts}</span>
+              <div style='display: flex; align-items: center; gap: 8px; justify-content: space-between;'>
+                <div style='flex: 1; display: flex; flex-direction: column; align-items: flex-start;'>
+                  <span style='color:${winner === 'fly' ? 'var(--blue)' : 'var(--text)'}; font-weight: ${winner === 'fly' ? '800' : '600'}; font-size: 13px;'>${pFly}</span>
+                  <span style='font-size: 11px; color: var(--text2)'>${flyScore} pts</span>
+                </div>
+                <div style='font-weight: 800; color: var(--text2); font-size: 12px;'>VS</div>
+                <div style='flex: 1; display: flex; flex-direction: column; align-items: flex-end;'>
+                  <span style='color:${winner === 'car' ? '#e67e22' : 'var(--text)'}; font-weight: ${winner === 'car' ? '800' : '600'}; font-size: 13px;'>${pCar}</span>
+                  <span style='font-size: 11px; color: var(--text2)'>${carScore} pts</span>
+                </div>
               </div>
-            ` : `
-              <div style='display: flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 6px; background: rgba(230, 126, 34, 0.1); border: 1px solid rgba(230, 126, 34, 0.2);'>
-                <span style='font-size: 11px; color: #e67e22; font-weight: 900;'>SLICE +${carPts}</span>
+              <div style='margin-top: 8px; display: flex; justify-content: center; gap: 12px; font-size: 11px; font-weight: 700;'>
+                <span style='color:var(--blue); padding: 2px 8px; border-radius: 4px; background: ${winner === 'fly' ? 'rgba(91, 196, 216, 0.15)' : 'transparent'}'>FLYING +${flyPts}</span>
+                <span style='color:#e67e22; padding: 2px 8px; border-radius: 4px; background: ${winner === 'car' ? 'rgba(230, 126, 34, 0.15)' : 'transparent'}'>SLICE +${carPts}</span>
               </div>
-            `)}
-          </div>
-        </div>`,
-      );
+            </div>`,
+          );
+        }
+      }
     }
     matchPlayHtml = html.join("");
   }
@@ -667,9 +718,9 @@ export default function App() {
       let totalPuntos = 0;
 
       if (eqNameUpper.includes("FLY")) {
-        totalPuntos = sumaTotalFly > 0 ? sumaTotalFly : puntosIndivTotal;
+        totalPuntos = sumaTotalFly > 0 ? sumaTotalFly : (puntosIndivTotal + matchPlayPuntosFly);
       } else if (eqNameUpper.includes("CARA")) {
-        totalPuntos = sumaTotalCar > 0 ? sumaTotalCar : puntosIndivTotal;
+        totalPuntos = sumaTotalCar > 0 ? sumaTotalCar : (puntosIndivTotal + matchPlayPuntosCar);
       } else {
         totalPuntos = puntosIndivTotal;
       }
