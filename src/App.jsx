@@ -622,6 +622,8 @@ export default function App() {
 
   let sumaTotalFly = 0;
   let sumaTotalCar = 0;
+  let matchPlayPuntosFly = 0;
+  let matchPlayPuntosCar = 0;
 
   if (marcadorInfo && Array.isArray(marcadorInfo)) {
     let html = [];
@@ -679,6 +681,15 @@ export default function App() {
       const flyNum = html.length + 1;
       const winner = flyPts > carPts ? "fly" : carPts > flyPts ? "car" : "draw";
 
+      if (winner === "fly") {
+        matchPlayPuntosFly += 2;
+      } else if (winner === "car") {
+        matchPlayPuntosCar += 2;
+      } else {
+        matchPlayPuntosFly += 1;
+        matchPlayPuntosCar += 1;
+      }
+
       html.push(
         `<div class='match-card' style='margin-bottom: 6px; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.2);'>
           <div style='display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 6px;'>
@@ -712,12 +723,12 @@ export default function App() {
           : winner === "fly"
             ? `
               <div style='display: flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 6px; background: rgba(91, 196, 216, 0.1); border: 1px solid rgba(91, 196, 216, 0.2);'>
-                <span style='font-size: 11px; color: var(--blue); font-weight: 900;'>FLYING +${flyPts}</span>
+                <span style='font-size: 11px; color: var(--blue); font-weight: 900;'>FLYING +2</span>
               </div>
             `
             : `
               <div style='display: flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 6px; background: rgba(230, 126, 34, 0.1); border: 1px solid rgba(230, 126, 34, 0.2);'>
-                <span style='font-size: 11px; color: #e67e22; font-weight: 900;'>SLICE +${carPts}</span>
+                <span style='font-size: 11px; color: #e67e22; font-weight: 900;'>SLICE +2</span>
               </div>
             `
         }
@@ -755,20 +766,27 @@ export default function App() {
       const eqNameUpper = equipo.trim().toUpperCase();
       let totalPuntos = 0;
 
-      if (eqNameUpper.includes("FLY")) {
-        totalPuntos = sumaTotalFly > 0 ? sumaTotalFly : puntosIndivTotal;
-      } else if (eqNameUpper.includes("CARA")) {
-        totalPuntos = sumaTotalCar > 0 ? sumaTotalCar : puntosIndivTotal;
+      const isFlyingTeam = eqNameUpper.includes("FLYING") || eqNameUpper.includes("CARAJILLOS");
+      const isCarabassaTeam = eqNameUpper.includes("SLICE") || eqNameUpper.includes("CARABASSA");
+
+      if (isFlyingTeam) {
+        teamR2 += matchPlayPuntosFly;
+        totalPuntos = (sumaTotalFly > 0)
+          ? sumaTotalFly
+          : (puntosIndivTotal + matchPlayPuntosFly);
+      } else if (isCarabassaTeam) {
+        teamR2 += matchPlayPuntosCar;
+        totalPuntos = (sumaTotalCar > 0)
+          ? sumaTotalCar
+          : (puntosIndivTotal + matchPlayPuntosCar);
       } else {
         totalPuntos = puntosIndivTotal;
       }
 
-      const isFinished =
-        jugadores.length > 0 &&
-        jugadores.every((p) => {
-          const h = p.Hoyo || p.HOYO;
-          return h === "F" || h === "18" || h === 18;
-        });
+      const isFinished = jugadores.length > 0 && jugadores.every(p => {
+        const h = p.Hoyo || p.HOYO;
+        return h === "F" || h === "18" || h === 18;
+      });
 
       return { equipo, jugadores, teamR1, teamR2, totalPuntos, isFinished };
     })
