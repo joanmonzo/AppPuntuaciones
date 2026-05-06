@@ -281,9 +281,14 @@ body.light-mode .theme-toggle-btn:hover {
   font-weight: 600;
   letter-spacing: 0.02em;
   color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.name-text {
+  /* Sin elipsis, permitimos que crezca o rompa */
 }
 
 .on-fire-icon {
@@ -449,6 +454,19 @@ body.light-mode .theme-toggle-btn:hover {
   border-radius: 6px;
   line-height: 1;
 }
+
+.maradona-gif {
+  width: 80px;
+  height: 50px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.maradona-gif:hover {
+  transform: scale(1.2);
+}
+
 
 .resultado.positivo {
   color: var(--green);
@@ -1710,6 +1728,17 @@ body.light-mode .desplegable-header {
   .player-name {
     font-size: 15px;
   }
+
+  .name-text {
+    max-width: none !important;
+  }
+
+  .maradona-gif {
+    width: 40px !important;
+    height: 25px !important;
+    margin-left: 4px !important;
+  }
+
 
   .player-team {
     margin-top: 1px;

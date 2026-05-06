@@ -2,6 +2,7 @@ import React from 'react';
 import { RankBadge, ResultadoBadge } from './UIComponents';
 import { AVATAR_COLORS, TEAM_AVATAR_IMAGES } from '../utils/constants';
 import { getInitials } from '../utils/helpers';
+import maradonaGif from '../maradona.gif';
 
 export default function PlayerRow({
   player,
@@ -28,6 +29,10 @@ export default function PlayerRow({
       : "";
 
   const avatarImageUrl = TEAM_AVATAR_IMAGES[equipo];
+
+  // Lógica Maradona: Solo el que tiene MÁS rayas en la ronda activa
+  const isMaradona = activeHoleRound === "Ronda 1" ? player._isMaradonaR1 : player._isMaradonaR2;
+  const hasZero = isMaradona;
 
   return (
     <div
@@ -69,9 +74,21 @@ export default function PlayerRow({
 
         <div className="player-info">
           <span className="player-name">
-            {player._CleanName || player.Jugador}
+            <span className="name-text">{player._CleanName || player.Jugador}</span>
             {player._onFire && <span className="on-fire-icon" title="¡En racha!">🔥</span>}
             {player._woodenSpoon && <span className="wooden-spoon-icon" style={{ marginLeft: '6px', display: 'inline-block' }} title="Cuchara de madera">🥄</span>}
+            {hasZero && (
+              <img
+                src={maradonaGif}
+                alt="Maradona"
+                className="maradona-gif"
+                style={{
+                  marginLeft: '6px',
+                  verticalAlign: 'middle',
+                  borderRadius: '4px'
+                }}
+              />
+            )}
           </span>
           {equipo && (
             <div className="player-team">

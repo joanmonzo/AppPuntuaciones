@@ -603,12 +603,31 @@ export default function App() {
       return h === "F" || h === "18" || h === 18;
     });
 
-  const players = playersBase.map((p, i) => ({
-    ...p,
-    _woodenSpoon: allFinished
-      ? i === playersBase.length - 1
-      : i >= playersBase.length - 4,
-  }));
+  // Calcular el "Rey de las Rayas" (Maradona)
+  const countRayas = (data) => {
+    if (!data) return 0;
+    return Object.keys(data).filter(key => {
+      const val = data[key];
+      return (val === "0" || val === 0 || val === "R");
+    }).length;
+  };
+
+  const maxRayasR1 = Math.max(...playersBase.map(p => countRayas(p._r1Data)), 0);
+  const maxRayasR2 = Math.max(...playersBase.map(p => countRayas(p._r2Data)), 0);
+
+  const players = playersBase.map((p, i) => {
+    const numRayasR1 = countRayas(p._r1Data);
+    const numRayasR2 = countRayas(p._r2Data);
+
+    return {
+      ...p,
+      _woodenSpoon: allFinished
+        ? i === playersBase.length - 1
+        : i >= playersBase.length - 4,
+      _isMaradonaR1: maxRayasR1 > 0 && numRayasR1 === maxRayasR1,
+      _isMaradonaR2: maxRayasR2 > 0 && numRayasR2 === maxRayasR2,
+    };
+  });
 
   const equiposUnicosMatch = [
     ...new Set(
