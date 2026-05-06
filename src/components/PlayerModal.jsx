@@ -56,7 +56,8 @@ export default function PlayerModal({
                 <button
                   key={eq}
                   onClick={() => {
-                    setScoringTeamFilter(isActive ? "" : eq);
+                    const nextFilter = (scoringTeamFilter === eq) ? "" : eq;
+                    setScoringTeamFilter(nextFilter);
                     setScoringPlayer(null);
                   }}
                   title={eq}
