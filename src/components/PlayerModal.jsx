@@ -40,57 +40,93 @@ export default function PlayerModal({
         </div>
       )}
 
-      {/* Controles de selección: Equipo, Jugador y Acciones (Guardar/Reset) */}
-      <div className="scoring-controls-wrapper" style={{ marginBottom: '25px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', alignItems: 'flex-end' }}>
-        <div className="control-group">
-          <label style={{ display: 'block', fontSize: '11px', color: 'var(--text2)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Filtrar por Equipo</label>
-          <select
-            className="scoring-select"
-            value={scoringTeamFilter}
-            onChange={(e) => {
-              setScoringTeamFilter(e.target.value);
-              setScoringPlayer(null);
-            }}
-            style={{ width: '100%', padding: '12px', borderRadius: '10px', backgroundColor: 'var(--bg-card)', color: 'var(--text)', border: '1px solid var(--border)', fontSize: '14px', fontWeight: '600' }}
-          >
-            <option value="">— Todos los Equipos —</option>
-            {equiposUnicosMatch.map(eq => (
-              <option key={eq} value={eq}>{eq}</option>
-            ))}
-          </select>
+      <div className="scoring-controls-wrapper" style={{ marginBottom: '25px', display: 'flex', flexWrap: 'wrap', gap: '20px', alignItems: 'center' }}>
+        
+        {/* Agrupamos Logos (Vertical) + Selector (Al lado) */}
+        <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flex: 1, minWidth: '280px' }}>
+          
+          {/* 1. FILTRO POR EQUIPOS (VERTICAL) */}
+          <div className="team-filter-vertical" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {equiposUnicosMatch.map(eq => {
+              const logo = TEAM_AVATAR_IMAGES[eq];
+              const isActive = scoringTeamFilter === eq;
+              const isAnyActive = scoringTeamFilter !== "";
+
+              return (
+                <button
+                  key={eq}
+                  onClick={() => {
+                    setScoringTeamFilter(isActive ? "" : eq);
+                    setScoringPlayer(null);
+                  }}
+                  title={eq}
+                  style={{
+                    width: '42px',
+                    height: '42px',
+                    borderRadius: '10px',
+                    border: isActive ? '2px solid var(--gold)' : '1px solid var(--border)',
+                    background: isActive ? 'rgba(212, 175, 55, 0.1)' : 'var(--bg3)',
+                    padding: '0',
+                    overflow: 'hidden',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    opacity: isAnyActive && !isActive ? 0.3 : 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transform: isActive ? 'scale(1.08)' : 'scale(1)',
+                    boxShadow: isActive ? '0 4px 10px rgba(212, 175, 55, 0.2)' : 'none',
+                    flexShrink: 0
+                  }}
+                >
+                  {logo ? (
+                    <img src={logo} alt={eq} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text)' }}>
+                      {getInitials(eq)}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* 2. SELECTOR DE JUGADOR (AL LADO) */}
+          <div className="control-group" style={{ flex: 1 }}>
+            <label style={{ display: 'block', fontSize: '11px', color: 'var(--text2)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
+              {scoringTeamFilter ? `Filtrando: ${scoringTeamFilter}` : "Seleccionar Jugador"}
+            </label>
+            <select
+              className="scoring-select"
+              value={scoringPlayer?.Jugador || ""}
+              onChange={(e) => {
+                const p = players.find(pl => pl.Jugador === e.target.value);
+                setScoringPlayer(p);
+              }}
+              style={{ width: '100%', padding: '12px', borderRadius: '10px', backgroundColor: 'var(--bg-card)', color: 'var(--text)', border: '1px solid var(--border)', fontSize: '14px', fontWeight: '600' }}
+            >
+              <option value="">— Elegir jugador —</option>
+              {players
+                .filter(p => !scoringTeamFilter || p.EQUIPO === scoringTeamFilter)
+                .sort((a, b) => {
+                  const nameA = (a._CleanName || a.Jugador || "").toUpperCase();
+                  const nameB = (b._CleanName || b.Jugador || "").toUpperCase();
+                  return nameA.localeCompare(nameB);
+                })
+                .map(p => (
+                  <option key={p.Jugador} value={p.Jugador}>
+                    {p._CleanName || p.Jugador} ({p.ARQUETIPO || "Sin Arquetipo"})
+                  </option>
+                ))}
+            </select>
+          </div>
         </div>
 
-        <div className="control-group">
-          <label style={{ display: 'block', fontSize: '11px', color: 'var(--text2)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Seleccionar Jugador</label>
-          <select
-            className="scoring-select"
-            value={scoringPlayer?.Jugador || ""}
-            onChange={(e) => {
-              const p = players.find(pl => pl.Jugador === e.target.value);
-              setScoringPlayer(p);
-            }}
-            style={{ width: '100%', padding: '12px', borderRadius: '10px', backgroundColor: 'var(--bg-card)', color: 'var(--text)', border: '1px solid var(--border)', fontSize: '14px', fontWeight: '600' }}
-          >
-            <option value="">— Elegir jugador —</option>
-            {players
-              .filter(p => !scoringTeamFilter || p.EQUIPO === scoringTeamFilter)
-              .sort((a, b) => {
-                const nameA = (a._CleanName || a.Jugador || "").toUpperCase();
-                const nameB = (b._CleanName || b.Jugador || "").toUpperCase();
-                return nameA.localeCompare(nameB);
-              })
-              .map(p => (
-                <option key={p.Jugador} value={p.Jugador}>
-                  {p._CleanName || p.Jugador} ({p.ARQUETIPO || "Sin Arquetipo"})
-                </option>
-              ))}
-          </select>
-        </div>
-
-        <div style={{ display: 'flex', gap: '10px', gridColumn: 'span 1 / -1', justifyContent: 'flex-end' }}>
+        {/* 3. BOTONES DE ACCIÓN */}
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginLeft: 'auto' }}>
           <button className="reset-btn" onClick={resetScores} disabled={!scoringPlayer || isSaving} title="Borrar ronda actual" style={{ width: '46px', height: '46px', borderRadius: '12px' }}>↺</button>
-          <button className="save-btn" onClick={saveScores} disabled={!scoringPlayer || isSaving} style={{ padding: '0 30px', borderRadius: '12px', height: '46px', fontSize: '14px', fontWeight: '800', letterSpacing: '1px', boxShadow: '0 4px 15px rgba(91, 196, 216, 0.2)' }}>
-            {isSaving ? "PROCESANDO..." : "GUARDAR CAMBIOS"}
+          <button className="save-btn" onClick={saveScores} disabled={!scoringPlayer || isSaving} style={{ padding: '0 25px', borderRadius: '12px', height: '46px', fontSize: '14px', fontWeight: '800', letterSpacing: '1px', boxShadow: '0 4px 15px rgba(91, 196, 216, 0.2)' }}>
+            {isSaving ? "PROCESANDO..." : "GUARDAR"}
           </button>
         </div>
       </div>

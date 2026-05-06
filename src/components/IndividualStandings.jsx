@@ -31,7 +31,12 @@ export default function IndividualStandings({
             {/*Cabecera*/}
             <div className="table-header header-individual">
                 <span className="th-rank">#</span>
-                <span className="th-player">Jugador</span>
+                <span className="th-player" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+                    <span>Jugador</span>
+                    <span style={{ color: "var(--gold)", fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px", opacity: 0.8 }}>
+                        {activeHoleRound === "Ronda 1" ? "⛳ La Marquesa" : "⛳ Font del Llop"}
+                    </span>
+                </span>
 
                 <span className="th-hoyo" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
                     <div className="modal-tabs mini">
