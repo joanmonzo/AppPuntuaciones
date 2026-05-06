@@ -612,8 +612,21 @@ export default function App() {
     }).length;
   };
 
-  const maxRayasR1 = Math.max(...playersBase.map(p => countRayas(p._r1Data)), 0);
-  const maxRayasR2 = Math.max(...playersBase.map(p => countRayas(p._r2Data)), 0);
+  const hasStarted = (dataList) => {
+    return dataList.some(p => {
+      if (!p) return false;
+      for (let i = 1; i <= 18; i++) {
+        if (p[i] !== "" && p[i] !== undefined && p[i] !== null) return true;
+      }
+      return false;
+    });
+  };
+
+  const r1Started = hasStarted(playersBase.map(p => p._r1Data));
+  const r2Started = hasStarted(playersBase.map(p => p._r2Data));
+
+  const maxRayasR1 = r1Started ? Math.max(...playersBase.map(p => countRayas(p._r1Data)), 0) : 0;
+  const maxRayasR2 = r2Started ? Math.max(...playersBase.map(p => countRayas(p._r2Data)), 0) : 0;
 
   const players = playersBase.map((p, i) => {
     const numRayasR1 = countRayas(p._r1Data);
@@ -624,8 +637,8 @@ export default function App() {
       _woodenSpoon: allFinished
         ? i === playersBase.length - 1
         : i >= playersBase.length - 4,
-      _isMaradonaR1: maxRayasR1 > 0 && numRayasR1 === maxRayasR1,
-      _isMaradonaR2: maxRayasR2 > 0 && numRayasR2 === maxRayasR2,
+      _isMaradonaR1: r1Started && (allFinished ? (maxRayasR1 > 0 && numRayasR1 === maxRayasR1) : (numRayasR1 > 0)),
+      _isMaradonaR2: r2Started && (allFinished ? (maxRayasR2 > 0 && numRayasR2 === maxRayasR2) : (numRayasR2 > 0)),
     };
   });
 

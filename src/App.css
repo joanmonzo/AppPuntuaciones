@@ -287,9 +287,6 @@ body.light-mode .theme-toggle-btn:hover {
   gap: 6px;
 }
 
-.name-text {
-  /* Sin elipsis, permitimos que crezca o rompa */
-}
 
 .on-fire-icon {
   margin-left: 6px;
@@ -460,7 +457,7 @@ body.light-mode .theme-toggle-btn:hover {
   height: 50px;
   object-fit: cover;
   transition: transform 0.3s ease;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 .maradona-gif:hover {
@@ -1656,6 +1653,7 @@ body.light-mode .desplegable-header {
       opacity: 0;
       transform: translateY(10px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
