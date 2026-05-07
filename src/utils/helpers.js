@@ -46,6 +46,7 @@ export function isRealPlayer(p) {
   return (
     p.Jugador &&
     !String(p.Jugador).startsWith("PAR ") &&
+    !String(p.Jugador).includes("GOLPES MARCADOR") &&
     p.Jugador !== "PAR CAMPO" &&
     p.Jugador !== "HCP HOYO" &&
     p.Jugador !== "STABLE" &&
