@@ -21,6 +21,7 @@ import PlayerModal from "./components/PlayerModal";
 import IndividualStandings from "./components/IndividualStandings";
 import TeamStandings from "./components/TeamStandings";
 import AppHeader from "./components/AppHeader";
+import MarcadorTab from "./components/MarcadorTab";
 
 export default function App() {
   // ESTADO: Sincronización
@@ -34,6 +35,14 @@ export default function App() {
   const [dbRonda2, setDbRonda2] = useState([]);
   const [dbGeneral, setDbGeneral] = useState([]);
   const [marcadorInfo, setMarcadorInfo] = useState(null);
+  const [marcadorLocal, setMarcadorLocal] = useState(() => {
+    const saved = localStorage.getItem('marcador_local_data');
+    return saved ? JSON.parse(saved) : {};
+  });
+
+  useEffect(() => {
+    localStorage.setItem('marcador_local_data', JSON.stringify(marcadorLocal));
+  }, [marcadorLocal]);
 
   // ESTADO UI
   const [loading, setLoading] = useState(true);
@@ -60,6 +69,13 @@ export default function App() {
   const [accordionRound, setAccordionRound] = useState("R1");
   const [activeHoleRound, setActiveHoleRound] = useState("Ronda 1");
   const [currentRound] = useState("General");
+
+  // ESTADO MARCADOR (NUEVO)
+  const [markerScoringTeamFilter, setMarkerScoringTeamFilter] = useState("");
+  const [markerScoringPlayer, setMarkerScoringPlayer] = useState(null);
+  const [markerScoringRound, setMarkerScoringRound] = useState("Ronda 1");
+  const [markerScoringData, setMarkerScoringData] = useState({});
+  const [isSavingMarker, setIsSavingMarker] = useState(false);
 
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem("app-theme") || "dark";
@@ -157,8 +173,48 @@ export default function App() {
     }
   }, [scoringPlayer, scoringRound, dbRonda1, dbRonda2]);
 
+  // CARGAR DATOS MARCADOR
+  const lastMarkerScoringRef = useRef("");
+  useEffect(() => {
+    const key = `${markerScoringPlayer?.Jugador}-${markerScoringRound}`;
+    if (markerScoringPlayer && key !== lastMarkerScoringRef.current) {
+      lastMarkerScoringRef.current = key;
+      const activeDb = markerScoringRound === "Ronda 1" ? dbRonda1 : dbRonda2;
+      const markerPlayerName = `${markerScoringPlayer.Jugador} GOLPES MARCADOR`;
+      const markerDataRow = activeDb.find(
+        (p) => String(p.Jugador).toUpperCase() === markerPlayerName.toUpperCase(),
+      );
+      const roundPlayerData = activeDb.find(
+        (p) => p.Jugador === markerScoringPlayer.Jugador,
+      );
+      const parRow = roundPlayerData
+        ? activeDb.find((p) => p.Jugador === roundPlayerData._parName)
+        : null;
+
+      const initial = {};
+      const holes = Array.from({ length: 18 }, (_, i) => i + 1);
+      holes.forEach((h) => {
+        initial[h] = {
+          par: parRow && parRow[h] !== undefined ? parRow[h] : "",
+          golpes:
+            markerDataRow && markerDataRow[h] !== undefined
+              ? markerDataRow[h]
+              : "",
+        };
+      });
+      setMarkerScoringData(initial);
+    }
+  }, [markerScoringPlayer, markerScoringRound, dbRonda1, dbRonda2]);
+
   const handleScoreChange = (hole, field, value) => {
     setScoringData((prev) => ({
+      ...prev,
+      [hole]: { ...prev[hole], [field]: value },
+    }));
+  };
+
+  const handleMarkerScoreChange = (hole, field, value) => {
+    setMarkerScoringData((prev) => ({
       ...prev,
       [hole]: { ...prev[hole], [field]: value },
     }));
@@ -284,6 +340,113 @@ export default function App() {
     setActiveTab("clasificacion");
     setIsSaving(false);
     lastScoringRef.current = "";
+
+    if (!navigator.onLine) {
+      const qs = [...syncQueue, paqueteReset];
+      setSyncQueue(qs);
+      localStorage.setItem("sync_queue", JSON.stringify(qs));
+      return;
+    }
+
+    fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify(paqueteReset),
+      headers: { "Content-Type": "text/plain" },
+    })
+      .then(() => fetchData())
+      .catch(() => { });
+  };
+
+  const saveMarkerScores = async () => {
+    if (!markerScoringPlayer) return;
+    setIsSavingMarker(true);
+    let nuevosGolpes = {};
+    Object.keys(markerScoringData).forEach((hole) => {
+      let val = markerScoringData[hole].golpes;
+      if (val === "0" || val === 0) val = "R";
+      nuevosGolpes[hole] = val;
+    });
+
+    const markerPlayerName = `${markerScoringPlayer.Jugador} GOLPES MARCADOR`;
+    const paqueteGolpes = {
+      jugador: markerPlayerName,
+      ronda: markerScoringRound,
+      golpes: nuevosGolpes,
+    };
+
+    // Actualización optimista para la fila del marcador
+    const updateMarkerFn = (prevDb) => {
+      const newDb = [...prevDb];
+      const pIdx = newDb.findIndex((p) => String(p.Jugador).toUpperCase() === markerPlayerName.toUpperCase());
+      if (pIdx !== -1) {
+        newDb[pIdx] = { ...newDb[pIdx], ...nuevosGolpes };
+      }
+      return newDb;
+    };
+
+    if (markerScoringRound === "Ronda 1") {
+      setDbRonda1(updateMarkerFn);
+    } else {
+      setDbRonda2(updateMarkerFn);
+    }
+
+    setActiveTab("clasificacion");
+    setIsSavingMarker(false);
+    lastMarkerScoringRef.current = "";
+
+    if (!navigator.onLine) {
+      const qs = [...syncQueue, paqueteGolpes];
+      setSyncQueue(qs);
+      localStorage.setItem("sync_queue", JSON.stringify(qs));
+      return;
+    }
+
+    try {
+      await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify(paqueteGolpes),
+        headers: { "Content-Type": "text/plain" },
+      });
+      fetchData();
+    } catch (e) { }
+  };
+
+  const resetMarkerScores = async () => {
+    if (!markerScoringPlayer) return;
+    const confirmReset = window.confirm(
+      `⚠️ ¿Borrar todos los golpes de MARCADOR de ${markerScoringPlayer._CleanName || markerScoringPlayer.Jugador} en ${markerScoringRound}?`,
+    );
+    if (!confirmReset) return;
+
+    setIsSavingMarker(true);
+    let golpesVacios = {};
+    for (let i = 1; i <= 18; i++) golpesVacios[i] = "";
+
+    const markerPlayerName = `${markerScoringPlayer.Jugador} GOLPES MARCADOR`;
+    const paqueteReset = {
+      jugador: markerPlayerName,
+      ronda: markerScoringRound,
+      golpes: golpesVacios,
+    };
+
+    const updateMarkerFn = (prevDb) => {
+      const newDb = [...prevDb];
+      const pIdx = newDb.findIndex((p) => String(p.Jugador).toUpperCase() === markerPlayerName.toUpperCase());
+      if (pIdx !== -1) {
+        newDb[pIdx] = { ...newDb[pIdx], ...golpesVacios };
+      }
+      return newDb;
+    };
+
+    if (markerScoringRound === "Ronda 1") {
+      setDbRonda1(updateMarkerFn);
+    } else {
+      setDbRonda2(updateMarkerFn);
+    }
+
+    setActiveTab("clasificacion");
+    setIsSavingMarker(false);
+    lastMarkerScoringRef.current = "";
 
     if (!navigator.onLine) {
       const qs = [...syncQueue, paqueteReset];
@@ -858,7 +1021,9 @@ export default function App() {
       {selectedHoleInfo &&
         (() => {
           const currentRoundView =
-            activeTab === "anotar" ? scoringRound : activeHoleRound;
+            activeTab === "anotar" ? scoringRound : 
+            activeTab === "marcador" ? markerScoringRound : 
+            activeHoleRound;
           const isRonda1 = currentRoundView === "Ronda 1";
           const imagePath = isRonda1
             ? `/images/hoyos/ronda1/hoyo${selectedHoleInfo}.png`
@@ -990,6 +1155,27 @@ export default function App() {
                 dbRonda2={dbRonda2}
                 setSelectedHoleInfo={setSelectedHoleInfo}
                 handleScoreChange={handleScoreChange}
+              />
+            )}
+
+            {activeTab === "marcador" && (
+              <MarcadorTab
+                equiposUnicosMatch={equiposUnicosMatch}
+                scoringTeamFilter={markerScoringTeamFilter}
+                setScoringTeamFilter={setMarkerScoringTeamFilter}
+                scoringPlayer={markerScoringPlayer}
+                setScoringPlayer={setMarkerScoringPlayer}
+                players={players}
+                resetScores={resetMarkerScores}
+                saveScores={saveMarkerScores}
+                isSaving={isSavingMarker}
+                scoringRound={markerScoringRound}
+                setScoringRound={setMarkerScoringRound}
+                scoringData={markerScoringData}
+                dbRonda1={dbRonda1}
+                dbRonda2={dbRonda2}
+                setSelectedHoleInfo={setSelectedHoleInfo}
+                handleScoreChange={handleMarkerScoreChange}
               />
             )}
           </>

@@ -2,7 +2,7 @@ import React from 'react';
 import { getInitials, getScoreClass } from '../utils/helpers';
 import { TEAM_AVATAR_IMAGES } from '../utils/constants';
 
-export default function PlayerModal({
+export default function MarcadorTab({
   equiposUnicosMatch,
   scoringTeamFilter,
   setScoringTeamFilter,
@@ -36,7 +36,7 @@ export default function PlayerModal({
           textAlign: 'center',
           fontWeight: '500'
         }}>
-          💡 Selecciona un jugador del menú superior o haz clic en cualquier nombre de la clasificación para empezar a introducir los resultados
+          💡 Selecciona un jugador para anotar sus golpes como marcador. Estos se guardarán en la fila "Nombre golpes marcador" de Excel.
         </div>
       )}
 
@@ -95,7 +95,7 @@ export default function PlayerModal({
           {/* 2. SELECTOR DE JUGADOR (AL LADO) */}
           <div className="control-group" style={{ flex: 1 }}>
             <label style={{ display: 'block', fontSize: '11px', color: 'var(--text2)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
-              {scoringTeamFilter ? `Filtrando: ${scoringTeamFilter}` : "Seleccionar Jugador"}
+              {scoringTeamFilter ? `Filtrando: ${scoringTeamFilter}` : "Seleccionar Jugador (Marcador)"}
             </label>
             <select
               className="scoring-select"
@@ -116,7 +116,7 @@ export default function PlayerModal({
                 })
                 .map(p => (
                   <option key={p.Jugador} value={p.Jugador}>
-                    {p._CleanName || p.Jugador} ({p.ARQUETIPO || "Sin Arquetipo"})
+                    {p._CleanName || p.Jugador}
                   </option>
                 ))}
             </select>
@@ -125,9 +125,9 @@ export default function PlayerModal({
 
         {/* 3. BOTONES DE ACCIÓN */}
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginLeft: 'auto' }}>
-          <button className="reset-btn" onClick={resetScores} disabled={!scoringPlayer || isSaving} title="Borrar ronda actual" style={{ width: '46px', height: '46px', borderRadius: '12px' }}>↺</button>
-          <button className="save-btn" onClick={saveScores} disabled={!scoringPlayer || isSaving} style={{ padding: '0 25px', borderRadius: '12px', height: '46px', fontSize: '14px', fontWeight: '800', letterSpacing: '1px', boxShadow: '0 4px 15px rgba(91, 196, 216, 0.2)' }}>
-            {isSaving ? "PROCESANDO..." : "GUARDAR"}
+          <button className="reset-btn" onClick={resetScores} disabled={!scoringPlayer || isSaving} title="Borrar marcador" style={{ width: '46px', height: '46px', borderRadius: '12px' }}>↺</button>
+          <button className="save-btn" onClick={saveScores} disabled={!scoringPlayer || isSaving} style={{ padding: '0 25px', borderRadius: '12px', height: '46px', fontSize: '14px', fontWeight: '800', letterSpacing: '1px', boxShadow: '0 4px 15px rgba(212, 175, 55, 0.2)', backgroundColor: 'var(--gold)', color: 'black' }}>
+            {isSaving ? "PROCESANDO..." : "GUARDAR MARCADOR"}
           </button>
         </div>
       </div>
@@ -151,6 +151,7 @@ export default function PlayerModal({
                 <h2 style={{ color: 'var(--text)', margin: 0, fontSize: '22px', letterSpacing: '0.5px', fontWeight: '700', lineHeight: '1.1' }}>
                   {scoringPlayer._CleanName || scoringPlayer.Jugador}
                 </h2>
+                <span style={{ color: 'var(--text2)', fontSize: '12px' }}>Anotando como MARCADOR</span>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -210,24 +211,9 @@ export default function PlayerModal({
 
                     return (
                       <div className="stats-row" key={h} style={{ gridTemplateColumns: '80px 1fr 1fr 1fr', padding: '12px 15px', marginBottom: '4px' }}>
-                        <div className="hole-cell" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <button 
-                            onClick={() => setSelectedHoleInfo(h)}
-                            style={{ 
-                              background: 'none', 
-                              border: 'none', 
-                              color: 'var(--text)', 
-                              fontWeight: '700', 
-                              fontSize: '16px',
-                              cursor: 'pointer',
-                              padding: '5px 10px',
-                              borderRadius: '4px',
-                              transition: 'background 0.2s'
-                            }}
-                            onMouseOver={(e) => e.target.style.background = 'rgba(255,255,255,0.05)'}
-                            onMouseOut={(e) => e.target.style.background = 'none'}
-                          >
-                            {h}
+                        <div className="hole-cell">
+                          <button className="hole-btn-trigger" onClick={() => setSelectedHoleInfo(h)} style={{ padding: '6px 12px', fontSize: '12px', background: 'var(--bg3)', borderRadius: '8px', border: '1px solid var(--border)', color: 'var(--text)', fontWeight: '700' }}>
+                            {h} 🗺️
                           </button>
                         </div>
                         <span style={{ color: 'var(--text2)', alignSelf: 'center', fontWeight: '600' }}>{parCampo > 0 ? parCampo : "-"}</span>

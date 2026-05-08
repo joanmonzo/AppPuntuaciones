@@ -182,10 +182,17 @@ body.light-mode .theme-toggle-btn:hover {
 }
 
 .tab-btn.active.anotar {
-  background: var(--gold);
-  color: #1a1500;
-  border-color: var(--gold);
-  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+  color: #fff;
+  border-color: #27ae60;
+  box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+}
+
+.tab-btn.active.marcador {
+  background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);
+  color: #fff;
+  border-color: #8e44ad;
+  box-shadow: 0 4px 15px rgba(155, 89, 182, 0.4);
 }
 
 /* --- TABLAS & CLASIFICACIONES --- */
@@ -1065,10 +1072,10 @@ body.light-mode .desplegable-header {
   border: 1px solid var(--border);
   color: var(--text2);
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 4px;
+  padding: 8px 20px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -1546,15 +1553,27 @@ body.light-mode .desplegable-header {
   }
 
   .tabs-container {
-    gap: 8px;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 4px !important;
     margin-top: 0 !important;
+    width: 100% !important;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .tabs-container::-webkit-scrollbar {
+    display: none;
   }
 
   .tab-btn {
-    flex: 1;
+    flex: 1 1 auto;
     text-align: center;
-    padding: 10px 16px;
-    font-size: 13px;
+    padding: 8px 4px !important;
+    font-size: 11px !important;
+    letter-spacing: 0.05em !important;
+    white-space: nowrap;
+    min-width: 0;
   }
 
   .header-right {
@@ -1817,8 +1836,8 @@ body.light-mode .desplegable-header {
   .round-selector-tab .modal-tab-btn {
     flex: 1;
     text-align: center;
-    padding: 8px 12px !important;
-    font-size: 12px !important;
+    padding: 12px 16px !important;
+    font-size: 14px !important;
   }
 
   .team-logo-modal {

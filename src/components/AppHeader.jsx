@@ -60,7 +60,7 @@ export default function AppHeader({
               className={`tab-btn ${activeTab === 'clasificacion' ? 'active' : ''}`}
               onClick={() => setActiveTab('clasificacion')}
             >
-              Individuales
+              Clasificación
             </button>
             <button
               className={`tab-btn ${activeTab === 'equipos' ? 'active equipos' : ''}`}
@@ -75,6 +75,14 @@ export default function AppHeader({
             >
               Anotar{' '}
               <span style={{ fontSize: '10px', verticalAlign: 'top', marginLeft: '2px' }}>✎</span>
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'marcador' ? 'active marcador' : ''}`}
+              onClick={() => setActiveTab('marcador')}
+              style={{ position: 'relative' }}
+            >
+              Marcador{' '}
+              <span style={{ fontSize: '10px', verticalAlign: 'top', marginLeft: '2px' }}>📋</span>
             </button>
           </div>
         </div>
