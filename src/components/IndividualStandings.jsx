@@ -30,7 +30,7 @@ export default function IndividualStandings({
 
             {/*Cabecera*/}
             <div className="table-header header-individual">
-                <span className="th-rank">#</span>
+                <span className="th-rank">Posición</span>
                 <span className="th-player" style={{ paddingLeft: '40px' }}>
                     <span>Jugador</span>
                 </span>
