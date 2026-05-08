@@ -31,11 +31,8 @@ export default function IndividualStandings({
             {/*Cabecera*/}
             <div className="table-header header-individual">
                 <span className="th-rank">#</span>
-                <span className="th-player" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+                <span className="th-player" style={{ paddingLeft: '40px' }}>
                     <span>Jugador</span>
-                    <span style={{ color: "var(--gold)", fontSize: "10px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px", opacity: 0.8 }}>
-                        {activeHoleRound === "Ronda 1" ? "⛳ La Marquesa" : "⛳ Font del Llop"}
-                    </span>
                 </span>
 
                 <span className="th-hoyo" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
@@ -50,7 +47,7 @@ export default function IndividualStandings({
                     <span>Hoyo</span>
                 </span>
 
-                <div className="th-stats header-r1r2" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div className="th-stats header-r1r2" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "4px" }}>
                     <div className="modal-tabs mini">
                         <button
                             className={`modal-tab-btn ${activeHoleRound === "Ronda 1" ? "active" : ""}`}
@@ -65,6 +62,9 @@ export default function IndividualStandings({
                             R2
                         </button>
                     </div>
+                    <span style={{ color: "var(--gold)", fontSize: "9px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", whiteSpace: "nowrap" }}>
+                        {activeHoleRound === "Ronda 1" ? "⛳ La Marquesa" : "⛳ Font del Llop"}
+                    </span>
                 </div>
 
                 <span className="th-resultado">TOTAL</span>

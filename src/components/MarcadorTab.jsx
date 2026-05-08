@@ -36,15 +36,15 @@ export default function MarcadorTab({
           textAlign: 'center',
           fontWeight: '500'
         }}>
-          💡 Selecciona un jugador para anotar sus golpes como marcador. Estos se guardarán en la fila "Nombre golpes marcador" de Excel.
+          💡 Selecciona un jugador para anotar sus golpes como marcador.
         </div>
       )}
 
       <div className="scoring-controls-wrapper" style={{ marginBottom: '25px', display: 'flex', flexWrap: 'wrap', gap: '20px', alignItems: 'center' }}>
-        
+
         {/* Agrupamos Logos (Vertical) + Selector (Al lado) */}
         <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flex: 1, minWidth: '280px' }}>
-          
+
           {/* 1. FILTRO POR EQUIPOS (VERTICAL) */}
           <div className="team-filter-vertical" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {equiposUnicosMatch.map(eq => {
@@ -163,15 +163,15 @@ export default function MarcadorTab({
 
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', minWidth: '180px' }}>
               <div className="modal-tabs round-selector-tab" style={{ margin: 0, width: '100%', display: 'flex' }}>
-                <button 
-                  className={`modal-tab-btn ${scoringRound === "Ronda 1" ? "active" : ""}`} 
+                <button
+                  className={`modal-tab-btn ${scoringRound === "Ronda 1" ? "active" : ""}`}
                   onClick={() => setScoringRound("Ronda 1")}
                   style={{ flex: 1, textAlign: 'center' }}
                 >
                   R1
                 </button>
-                <button 
-                  className={`modal-tab-btn ${scoringRound === "Ronda 2" ? "active" : ""}`} 
+                <button
+                  className={`modal-tab-btn ${scoringRound === "Ronda 2" ? "active" : ""}`}
                   onClick={() => setScoringRound("Ronda 2")}
                   style={{ flex: 1, textAlign: 'center' }}
                 >
