@@ -70,7 +70,6 @@ export default function App() {
   const [activeHoleRound, setActiveHoleRound] = useState("Ronda 1");
   const [currentRound] = useState("General");
 
-  // ESTADO MARCADOR (NUEVO)
   const [markerScoringTeamFilter, setMarkerScoringTeamFilter] = useState("");
   const [markerScoringPlayer, setMarkerScoringPlayer] = useState(null);
   const [markerScoringRound, setMarkerScoringRound] = useState("Ronda 1");
@@ -374,7 +373,6 @@ export default function App() {
       golpes: nuevosGolpes,
     };
 
-    // Actualización optimista para la fila del marcador
     const updateMarkerFn = (prevDb) => {
       const newDb = [...prevDb];
       const pIdx = newDb.findIndex((p) => String(p.Jugador).toUpperCase() === markerPlayerName.toUpperCase());
@@ -1021,9 +1019,9 @@ export default function App() {
       {selectedHoleInfo &&
         (() => {
           const currentRoundView =
-            activeTab === "anotar" ? scoringRound : 
-            activeTab === "marcador" ? markerScoringRound : 
-            activeHoleRound;
+            activeTab === "anotar" ? scoringRound :
+              activeTab === "marcador" ? markerScoringRound :
+                activeHoleRound;
           const isRonda1 = currentRoundView === "Ronda 1";
           const imagePath = isRonda1
             ? `/images/hoyos/ronda1/hoyo${selectedHoleInfo}.png`

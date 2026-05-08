@@ -30,7 +30,6 @@ export default function PlayerRow({
 
   const avatarImageUrl = TEAM_AVATAR_IMAGES[equipo];
 
-  // Lógica Maradona: Solo el que tiene MÁS rayas en la ronda activa
   const isMaradona = activeHoleRound === "Ronda 1" ? player._isMaradonaR1 : player._isMaradonaR2;
   const hasZero = isMaradona;
 

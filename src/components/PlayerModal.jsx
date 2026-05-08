@@ -42,7 +42,6 @@ export default function PlayerModal({
 
       <div className="scoring-controls-wrapper" style={{ marginBottom: '25px', display: 'flex', flexWrap: 'wrap', gap: '20px', alignItems: 'center' }}>
 
-        {/* Agrupamos Logos (Vertical) + Selector (Al lado) */}
         <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flex: 1, minWidth: '280px' }}>
 
           {/* 1. FILTRO POR EQUIPOS (VERTICAL) */}
@@ -92,7 +91,7 @@ export default function PlayerModal({
             })}
           </div>
 
-          {/* 2. SELECTOR DE JUGADOR (AL LADO) */}
+          {/* 2. SELECTOR DE JUGADOR */}
           <div className="control-group" style={{ flex: 1 }}>
             <label style={{ display: 'block', fontSize: '11px', color: 'var(--text2)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
               {scoringTeamFilter ? `Filtrando: ${scoringTeamFilter}` : "Seleccionar Jugador"}
