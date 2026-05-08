@@ -36,7 +36,7 @@ export default function MarcadorTab({
           textAlign: 'center',
           fontWeight: '500'
         }}>
-          💡 Selecciona un jugador para anotar sus golpes como marcador.
+          💡 Apunta tus golpes al marcador.
         </div>
       )}
 
@@ -225,7 +225,7 @@ export default function MarcadorTab({
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           <input
                             type="text"
-                            inputMode="text"
+                            inputMode="decimal"
                             className={`edit-input ${scoreClass}`}
                             value={data.golpes}
                             onChange={(e) => handleScoreChange(h, "golpes", e.target.value)}

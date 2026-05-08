@@ -36,15 +36,15 @@ export default function PlayerModal({
           textAlign: 'center',
           fontWeight: '500'
         }}>
-          💡 Selecciona un jugador del menú superior o haz clic en cualquier nombre de la clasificación para empezar a introducir los resultados
+          💡 Selecciona el equipo y el jugador para introducir los resultados
         </div>
       )}
 
       <div className="scoring-controls-wrapper" style={{ marginBottom: '25px', display: 'flex', flexWrap: 'wrap', gap: '20px', alignItems: 'center' }}>
-        
+
         {/* Agrupamos Logos (Vertical) + Selector (Al lado) */}
         <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flex: 1, minWidth: '280px' }}>
-          
+
           {/* 1. FILTRO POR EQUIPOS (VERTICAL) */}
           <div className="team-filter-vertical" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {equiposUnicosMatch.map(eq => {
@@ -162,15 +162,15 @@ export default function PlayerModal({
 
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', minWidth: '180px' }}>
               <div className="modal-tabs round-selector-tab" style={{ margin: 0, width: '100%', display: 'flex' }}>
-                <button 
-                  className={`modal-tab-btn ${scoringRound === "Ronda 1" ? "active" : ""}`} 
+                <button
+                  className={`modal-tab-btn ${scoringRound === "Ronda 1" ? "active" : ""}`}
                   onClick={() => setScoringRound("Ronda 1")}
                   style={{ flex: 1, textAlign: 'center' }}
                 >
                   R1
                 </button>
-                <button 
-                  className={`modal-tab-btn ${scoringRound === "Ronda 2" ? "active" : ""}`} 
+                <button
+                  className={`modal-tab-btn ${scoringRound === "Ronda 2" ? "active" : ""}`}
                   onClick={() => setScoringRound("Ronda 2")}
                   style={{ flex: 1, textAlign: 'center' }}
                 >
@@ -211,13 +211,13 @@ export default function PlayerModal({
                     return (
                       <div className="stats-row" key={h} style={{ gridTemplateColumns: '80px 1fr 1fr 1fr', padding: '12px 15px', marginBottom: '4px' }}>
                         <div className="hole-cell" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <button 
+                          <button
                             onClick={() => setSelectedHoleInfo(h)}
-                            style={{ 
-                              background: 'none', 
-                              border: 'none', 
-                              color: 'var(--text)', 
-                              fontWeight: '700', 
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: 'var(--text)',
+                              fontWeight: '700',
                               fontSize: '16px',
                               cursor: 'pointer',
                               padding: '5px 10px',
@@ -239,7 +239,7 @@ export default function PlayerModal({
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           <input
                             type="text"
-                            inputMode="text"
+                            inputMode="decimal"
                             className={`edit-input ${scoreClass}`}
                             value={data.golpes}
                             onChange={(e) => handleScoreChange(h, "golpes", e.target.value)}
