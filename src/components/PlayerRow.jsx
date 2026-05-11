@@ -83,18 +83,6 @@ export default function PlayerRow({
               {player._onFire && <span className="on-fire-icon" title="¡En racha!">🔥</span>}
               {player._woodenSpoon && <span className="wooden-spoon-icon" style={{ marginLeft: '6px', display: 'inline-block' }} title="Cuchara de madera">🥄</span>}
             </span>
-            {hasZero && (
-              <img
-                src={maradonaGif}
-                alt="Maradona"
-                className="maradona-gif"
-                style={{
-                  marginLeft: '10px',
-                  flexShrink: 0,
-                  borderRadius: '4px'
-                }}
-              />
-            )}
           </span>
           {equipo && (
             <div className="player-team">
@@ -120,6 +108,23 @@ export default function PlayerRow({
         >
           <span className="stat-val">{player._cleanR1}</span>
         </div>
+
+        <div className="maradona-col" style={{ width: '40px', display: 'flex', justifyContent: 'center', flexShrink: 0 }}>
+          {(player._isMaradonaR1 || player._isMaradonaR2) && (
+            <img
+              src={maradonaGif}
+              alt="Maradona"
+              className="maradona-gif"
+              style={{
+                width: '35px',
+                height: '22px',
+                borderRadius: '2px',
+                boxShadow: 'none'
+              }}
+            />
+          )}
+        </div>
+
         <div
           className={`stat-block ${activeHoleRound === "Ronda 2" ? "active-col" : "dim-col"}`}
         >
