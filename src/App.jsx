@@ -810,19 +810,39 @@ export default function App() {
   const maxRayasR1 = r1Started ? Math.max(...playersBase.map(p => countRayas(p._r1Data)), 0) : 0;
   const maxRayasR2 = r2Started ? Math.max(...playersBase.map(p => countRayas(p._r2Data)), 0) : 0;
 
-  const players = playersBase.map((p, i) => {
+  // Extraer a Rafa de cualquier fuente disponible. Si no existe, creamos un objeto base para asegurar que se muestre la fila informativa.
+  let rafaRaw = [...dbRonda1, ...dbRonda2, ...dbGeneral].find(p => p.Jugador && String(p.Jugador).toUpperCase().includes("RAFA"));
+  
+  const playersSinRafa = playersBase.filter(p => String(p.Jugador).toUpperCase() !== "RAFA");
+
+  const playersMapping = playersSinRafa.map((p, i, filteredList) => {
     const numRayasR1 = countRayas(p._r1Data);
     const numRayasR2 = countRayas(p._r2Data);
 
     return {
       ...p,
       _woodenSpoon: allFinished
-        ? i === playersBase.length - 1
-        : i >= playersBase.length - 4,
+        ? i === filteredList.length - 1
+        : i >= filteredList.length - 4,
       _isMaradonaR1: r1Started && (allFinished ? (maxRayasR1 > 0 && numRayasR1 === maxRayasR1) : (numRayasR1 > 0)),
       _isMaradonaR2: r2Started && (allFinished ? (maxRayasR2 > 0 && numRayasR2 === maxRayasR2) : (numRayasR2 > 0)),
     };
   });
+
+  // Añadir siempre a Rafa al final como una fila gris puramente informativa
+  playersMapping.push({
+    ...(rafaRaw || {}),
+    Jugador: rafaRaw?.Jugador || "RAFA",
+    _CleanName: "RAFA",
+    EQUIPO: "CARABASSA SLICE FOCKERS",
+    _isRafaInjured: true,
+    _rank: "-", 
+    _totalScore: 0,
+    _cleanR1: "-",
+    _cleanR2: "-",
+  });
+
+  const players = playersMapping;
 
   const equiposUnicosMatch = [
     ...new Set(
@@ -970,9 +990,10 @@ export default function App() {
       let puntosIndivTotal = 0;
 
       rawJugadores.forEach((p) => {
-        teamR1 += p._puntosDia1;
-        teamR2 += p._puntosDia2;
-        puntosIndivTotal += p._puntosIndivTotal;
+        if (p._isRafaInjured) return; // No sumar puntos de Rafa lesionado
+        teamR1 += p._puntosDia1 || 0;
+        teamR2 += p._puntosDia2 || 0;
+        puntosIndivTotal += p._puntosIndivTotal || 0;
       });
 
       const eqNameUpper = equipo.trim().toUpperCase();

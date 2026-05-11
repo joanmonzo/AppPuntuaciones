@@ -23,13 +23,15 @@ export default function PlayerRow({
   const isTop4 = rank <= 4;
   const isChallenger = rank === 5 || rank === 6;
   const isWorst4 = totalPlayers > 6 && rank > totalPlayers - 4;
-  const highlightClass = isTop4
-    ? "highlight-top"
-    : isChallenger
-      ? "highlight-middle"
-      : isWorst4
-        ? "highlight-bottom"
-        : "";
+  const highlightClass = player._isRafaInjured
+    ? "highlight-injured"
+    : isTop4
+      ? "highlight-top"
+      : isChallenger
+        ? "highlight-middle"
+        : isWorst4
+          ? "highlight-bottom"
+          : "";
 
   const avatarImageUrl = TEAM_AVATAR_IMAGES[equipo];
 
@@ -80,6 +82,11 @@ export default function PlayerRow({
               <span className="name-text" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {player._CleanName || player.Jugador}
               </span>
+              {player._isRafaInjured && (
+                <span className="injured-icon" style={{ marginLeft: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px' }} title="Lesionado">
+                  <img src="https://flagcdn.com/w20/ch.png" alt="Suiza" style={{ height: '12px', borderRadius: '1px' }} />
+                </span>
+              )}
               {player._onFire && <span className="on-fire-icon" title="¡En racha!">🔥</span>}
               {player._woodenSpoon && <span className="wooden-spoon-icon" style={{ marginLeft: '6px', display: 'inline-block' }} title="Cuchara de madera">🥄</span>}
             </span>

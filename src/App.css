@@ -11,6 +11,11 @@ body.light-mode .player-row.highlight-middle {
   border-left: 3px solid rgba(170, 170, 170, 0.6);
 }
 
+body.light-mode .player-row.highlight-injured {
+  background: linear-gradient(135deg, rgba(200, 200, 200, 0.3) 0%, #f4f4f8 100%);
+  border-left: 3px solid #e74c3c;
+}
+
 body.light-mode .equipo-card.leader {
   background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, #ffffff 100%);
 }
@@ -279,6 +284,16 @@ body.light-mode {
 
 .player-row.highlight-middle:hover {
   border-left-color: rgba(170, 170, 170, 0.8);
+}
+
+.player-row.highlight-injured {
+  border-left: 3px solid #e74c3c;
+  background: linear-gradient(135deg, rgba(100, 100, 100, 0.2) 0%, rgba(17, 17, 24, 0.9) 100%);
+  opacity: 0.8;
+}
+
+.player-row.highlight-injured:hover {
+  border-left-color: #ff0000;
 }
 
 

@@ -107,7 +107,7 @@ export default function MarcadorTab({
             >
               <option value="">— Elegir jugador —</option>
               {players
-                .filter(p => !scoringTeamFilter || p.EQUIPO === scoringTeamFilter)
+                .filter(p => (!scoringTeamFilter || p.EQUIPO === scoringTeamFilter) && !p._isRafaInjured)
                 .sort((a, b) => {
                   const nameA = (a._CleanName || a.Jugador || "").toUpperCase();
                   const nameB = (b._CleanName || b.Jugador || "").toUpperCase();
@@ -125,7 +125,7 @@ export default function MarcadorTab({
         {/* 3. BOTONES DE ACCIÓN */}
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginLeft: 'auto' }}>
           <button className="reset-btn" onClick={resetScores} disabled={!scoringPlayer || isSaving} title="Borrar marcador" style={{ width: '46px', height: '46px', borderRadius: '12px' }}>↺</button>
-          <button className="save-btn" onClick={saveScores} disabled={!scoringPlayer || isSaving} style={{ padding: '0 25px', borderRadius: '12px', height: '46px', fontSize: '14px', fontWeight: '800', letterSpacing: '1px', boxShadow: '0 4px 15px rgba(212, 175, 55, 0.2)', backgroundColor: 'var(--gold)', color: 'black' }}>
+          <button className="save-btn" onClick={saveScores} disabled={!scoringPlayer || isSaving} style={{ padding: '0 25px', borderRadius: '12px', height: '46px', fontSize: '14px', fontWeight: '800', letterSpacing: '1px', boxShadow: '0 4px 15px rgba(142, 68, 173, 0.3)', background: 'linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%)', color: 'white', border: 'none' }}>
             {isSaving ? "PROCESANDO..." : "GUARDAR MARCADOR"}
           </button>
         </div>

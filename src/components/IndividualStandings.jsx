@@ -83,7 +83,10 @@ export default function IndividualStandings({
                             player={p}
                             rank={p._rank}
                             colorIndex={i}
-                            onClick={() => setSelectedPlayer(p)}
+                            onClick={() => {
+                                if (p._isRafaInjured) return; // No abrir modal para Rafa lesionado
+                                setSelectedPlayer(p);
+                            }}
                             hoyoActivo={rData?.HOYO || rData?.Hoyo || "-"}
                             activeHoleRound={activeHoleRound}
                             totalPlayers={players.length}

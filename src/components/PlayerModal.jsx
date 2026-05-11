@@ -107,7 +107,7 @@ export default function PlayerModal({
             >
               <option value="">— Elegir jugador —</option>
               {players
-                .filter(p => !scoringTeamFilter || p.EQUIPO === scoringTeamFilter)
+                .filter(p => (!scoringTeamFilter || p.EQUIPO === scoringTeamFilter) && !p._isRafaInjured)
                 .sort((a, b) => {
                   const nameA = (a._CleanName || a.Jugador || "").toUpperCase();
                   const nameB = (b._CleanName || b.Jugador || "").toUpperCase();
