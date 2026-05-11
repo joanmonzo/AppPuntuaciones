@@ -790,7 +790,7 @@ export default function App() {
     if (!data) return 0;
     return Object.keys(data).filter(key => {
       const val = data[key];
-      return (val === "0" || val === 0 || val === "R");
+      return (val === "R");
     }).length;
   };
 
