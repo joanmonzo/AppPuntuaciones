@@ -80,6 +80,15 @@ export default function App() {
     return localStorage.getItem("app-theme") || "dark";
   });
 
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   useEffect(() => {
     if (theme === "light") {
       document.body.classList.add("light-mode");
@@ -731,29 +740,41 @@ export default function App() {
       };
     })
     .sort((a, b) => {
+      // 1. PUNTOS (Total Score) - Descendente
       const scoreA = Number(a._totalScore) || 0;
       const scoreB = Number(b._totalScore) || 0;
       if (scoreB !== scoreA) {
         return scoreB - scoreA;
       }
 
+      // 2. HCP PAR JUGADOR - Ascendente (El que menos ventaja recibe gana el desempate)
       const hcpA = Number(a._hcpGuardado) || 0;
       const hcpB = Number(b._hcpGuardado) || 0;
-      return hcpA - hcpB;
+      if (hcpA !== hcpB) {
+        return hcpA - hcpB;
+      }
+
+      // 3. HCP PERSONAL (Desempate final) - Ascendente
+      const hcpPersA = parseFloat(String(a.HCP || 0).replace(",", "."));
+      const hcpPersB = parseFloat(String(b.HCP || 0).replace(",", "."));
+      return hcpPersA - hcpPersB;
     });
 
   let currentRank = 0;
   let lastScore = null;
   let lastHcp = null;
+  let lastHcpPers = null;
   const playersBase = sortedPlayers.map((p, i) => {
     const score = p._totalScore;
     const hcp = p._hcpGuardado;
+    const hcpPers = parseFloat(String(p.HCP || 0).replace(",", "."));
 
-    if (score !== lastScore || hcp !== lastHcp) {
+    if (score !== lastScore || hcp !== lastHcp || hcpPers !== lastHcpPers) {
       currentRank = i + 1;
     }
     lastScore = score;
     lastHcp = hcp;
+    lastHcpPers = hcpPers;
     return { ...p, _rank: currentRank };
   });
 
@@ -1013,6 +1034,7 @@ export default function App() {
         isSyncing={isSyncing}
         syncQueue={syncQueue}
         lastUpdate={lastUpdate}
+        currentTime={currentTime}
       />
 
       {/* MODAL DE IMAGEN DEL HOYO */}

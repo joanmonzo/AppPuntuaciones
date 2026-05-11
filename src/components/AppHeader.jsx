@@ -14,21 +14,13 @@ export default function AppHeader({
   isSyncing,
   syncQueue,
   lastUpdate,
+  currentTime,
 }) {
   return (
     <header className="header">
       <div className="header-left">
         <h1 className="title">
           Clasificación{' '}
-          <span
-            style={{
-              fontSize: '0.5em',
-              color: 'var(--gold)',
-              verticalAlign: 'middle',
-            }}
-          >
-            {currentRound}
-          </span>
           <span>
             <img
               src={appLogo}
@@ -92,25 +84,26 @@ export default function AppHeader({
         <button className="theme-toggle-btn" onClick={toggleTheme} title="Cambiar tema">
           {theme === 'dark' ? '☀️' : '🌙'}
         </button>
-        <div
-          className={`status-dot ${isOffline ? 'offline' : error ? 'error' : 'ok'} ${pulse ? 'pulse' : ''}`}
-          style={isOffline ? { backgroundColor: 'orange', boxShadow: '0 0 10px orange' } : {}}
-        />
-        <span className="status-text">
-          {isSyncing || syncQueue.length > 0
-            ? `Sincronizando cambios pendientes... (${syncQueue.length})`
-            : isOffline
-              ? 'Modo Offline'
-              : error
-                ? 'Error de conexión'
-                : lastUpdate
-                  ? lastUpdate.toLocaleTimeString('es-ES', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                  })
-                  : 'Conectando…'}
-        </span>
+        <div className="clock-container" style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '18px', fontWeight: '800', color: 'var(--gold)', fontFamily: 'Barlow Condensed, sans-serif', letterSpacing: '1px' }}>
+              {currentTime.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            </span>
+            <div className="live-indicator" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <div className="pulse-dot" style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--green)', boxShadow: '0 0 5px var(--green)' }} />
+              <span style={{ fontSize: '9px', fontWeight: '900', color: 'var(--green)', textTransform: 'uppercase' }}>Live</span>
+            </div>
+          </div>
+          <span className="status-text" style={{ fontSize: '10px', opacity: 0.8 }}>
+            {isSyncing || syncQueue.length > 0
+              ? `Sincronizando... (${syncQueue.length})`
+              : isOffline
+                ? 'Modo Offline'
+                : error
+                  ? 'Error de conexión'
+                  : `Actualizado: ${lastUpdate ? lastUpdate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '...'}`}
+          </span>
+        </div>
       </div>
     </header>
   );

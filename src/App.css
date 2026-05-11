@@ -6,6 +6,11 @@ body.light-mode .player-row.highlight-bottom {
   background: linear-gradient(135deg, rgba(224, 91, 91, 0.1) 0%, rgba(255, 255, 255, 1) 100%);
 }
 
+body.light-mode .player-row.highlight-middle {
+  background: linear-gradient(135deg, rgba(170, 170, 170, 0.15) 0%, #ffffff 100%);
+  border-left: 3px solid rgba(170, 170, 170, 0.6);
+}
+
 body.light-mode .equipo-card.leader {
   background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, #ffffff 100%);
 }
@@ -47,6 +52,20 @@ body.light-mode .theme-toggle-btn:hover {
   margin: 0 auto;
   padding: 0 20px;
   position: relative;
+  background: transparent;
+}
+
+/* BACKGROUNDS */
+body {
+  background-image: url('/images/CAMPO DE GOLF NOCHE.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+body.light-mode {
+  background-image: linear-gradient(rgba(244, 244, 248, 0.5), rgba(244, 244, 248, 0.5)), url('/images/CAMPO DE GOLF DÍA.jpg');
 }
 
 .main {
@@ -250,6 +269,16 @@ body.light-mode .theme-toggle-btn:hover {
 
 .player-row.highlight-bottom:hover {
   border-left-color: rgba(224, 91, 91, 0.9);
+}
+
+.player-row.highlight-middle {
+  border-left: 3px solid rgba(170, 170, 170, 0.5);
+  background: linear-gradient(135deg, rgba(170, 170, 170, 0.04) 0%, rgba(17, 17, 24, 0.95) 100%);
+  backdrop-filter: blur(5px);
+}
+
+.player-row.highlight-middle:hover {
+  border-left-color: rgba(170, 170, 170, 0.8);
 }
 
 

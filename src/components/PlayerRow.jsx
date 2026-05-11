@@ -21,12 +21,15 @@ export default function PlayerRow({
     : null;
 
   const isTop4 = rank <= 4;
-  const isWorst4 = totalPlayers > 4 && rank > totalPlayers - 4;
+  const isChallenger = rank === 5 || rank === 6;
+  const isWorst4 = totalPlayers > 6 && rank > totalPlayers - 4;
   const highlightClass = isTop4
     ? "highlight-top"
-    : isWorst4
-      ? "highlight-bottom"
-      : "";
+    : isChallenger
+      ? "highlight-middle"
+      : isWorst4
+        ? "highlight-bottom"
+        : "";
 
   const avatarImageUrl = TEAM_AVATAR_IMAGES[equipo];
 
@@ -72,18 +75,22 @@ export default function PlayerRow({
         </div>
 
         <div className="player-info">
-          <span className="player-name">
-            <span className="name-text">{player._CleanName || player.Jugador}</span>
-            {player._onFire && <span className="on-fire-icon" title="¡En racha!">🔥</span>}
-            {player._woodenSpoon && <span className="wooden-spoon-icon" style={{ marginLeft: '6px', display: 'inline-block' }} title="Cuchara de madera">🥄</span>}
+          <span className="player-name" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0, flex: 1 }}>
+              <span className="name-text" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {player._CleanName || player.Jugador}
+              </span>
+              {player._onFire && <span className="on-fire-icon" title="¡En racha!">🔥</span>}
+              {player._woodenSpoon && <span className="wooden-spoon-icon" style={{ marginLeft: '6px', display: 'inline-block' }} title="Cuchara de madera">🥄</span>}
+            </span>
             {hasZero && (
               <img
                 src={maradonaGif}
                 alt="Maradona"
                 className="maradona-gif"
                 style={{
-                  marginLeft: '6px',
-                  verticalAlign: 'middle',
+                  marginLeft: '10px',
+                  flexShrink: 0,
                   borderRadius: '4px'
                 }}
               />
