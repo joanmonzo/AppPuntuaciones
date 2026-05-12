@@ -22,6 +22,7 @@ import IndividualStandings from "./components/IndividualStandings";
 import TeamStandings from "./components/TeamStandings";
 import AppHeader from "./components/AppHeader";
 import MarcadorTab from "./components/MarcadorTab";
+import WelcomeScreen from './WelcomeScreen';
 
 const loadFromCache = (key, defaultValue) => {
   try {
@@ -35,6 +36,10 @@ const loadFromCache = (key, defaultValue) => {
 
 export default function App() {
   // ESTADO: Sincronización
+  const [showWelcome, setShowWelcome] = useState(true);
+  const handleEnterApp = () => {
+    setShowWelcome(false);
+  };
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [syncQueue, setSyncQueue] = useState(() =>
     JSON.parse(localStorage.getItem("sync_queue") || "[]"),
@@ -1046,192 +1051,198 @@ export default function App() {
 
   // RENDERIZADO
   return (
-    <div className="app">
-      <AppHeader
-        appLogo={appLogo}
-        currentRound={currentRound}
-        players={players}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        theme={theme}
-        toggleTheme={toggleTheme}
-        isOffline={isOffline}
-        error={error}
-        pulse={pulse}
-        isSyncing={isSyncing}
-        syncQueue={syncQueue}
-        lastUpdate={lastUpdate}
-        currentTime={currentTime}
-      />
+    <>
+      {showWelcome ? (
+        <WelcomeScreen onEnter={handleEnterApp} />
+      ) : (
+        <div className="app">
+          <AppHeader
+            appLogo={appLogo}
+            currentRound={currentRound}
+            players={players}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            theme={theme}
+            toggleTheme={toggleTheme}
+            isOffline={isOffline}
+            error={error}
+            pulse={pulse}
+            isSyncing={isSyncing}
+            syncQueue={syncQueue}
+            lastUpdate={lastUpdate}
+            currentTime={currentTime}
+          />
 
-      {/* MODAL DE IMAGEN DEL HOYO */}
-      {selectedHoleInfo &&
-        (() => {
-          const currentRoundView =
-            activeTab === "anotar" ? scoringRound :
-              activeTab === "marcador" ? markerScoringRound :
-                activeHoleRound;
-          const isRonda1 = currentRoundView === "Ronda 1";
-          const imagePath = isRonda1
-            ? `/images/hoyos/ronda1/hoyo${selectedHoleInfo}.png`
-            : `/images/hoyos/ronda2/hoyo${selectedHoleInfo}.jpg`;
+          {/* MODAL DE IMAGEN DEL HOYO */}
+          {selectedHoleInfo &&
+            (() => {
+              const currentRoundView =
+                activeTab === "anotar" ? scoringRound :
+                  activeTab === "marcador" ? markerScoringRound :
+                    activeHoleRound;
+              const isRonda1 = currentRoundView === "Ronda 1";
+              const imagePath = isRonda1
+                ? `/images/hoyos/ronda1/hoyo${selectedHoleInfo}.png`
+                : `/images/hoyos/ronda2/hoyo${selectedHoleInfo}.jpg`;
 
-          return (
-            <div
-              className="hole-preview-overlay"
-              onClick={() => setSelectedHoleInfo(null)}
-            >
-              <div
-                className="hole-preview-content"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <button
-                  className="close-preview"
+              return (
+                <div
+                  className="hole-preview-overlay"
                   onClick={() => setSelectedHoleInfo(null)}
                 >
-                  ×
-                </button>
+                  <div
+                    className="hole-preview-content"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      className="close-preview"
+                      onClick={() => setSelectedHoleInfo(null)}
+                    >
+                      ×
+                    </button>
 
-                {/* Título actualizado para indicar la ronda */}
-                <h3>
-                  Información Hoyo {selectedHoleInfo} - {isRonda1 ? "R1" : "R2"}
-                </h3>
+                    {/* Título actualizado para indicar la ronda */}
+                    <h3>
+                      Información Hoyo {selectedHoleInfo} - {isRonda1 ? "R1" : "R2"}
+                    </h3>
 
-                <img
-                  src={imagePath}
-                  alt={`Mapa del Hoyo ${selectedHoleInfo}`}
-                  className="hole-map-image"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src =
-                      "https://via.placeholder.com/400x300?text=Imagen+No+Disponible";
-                  }}
-                />
+                    <img
+                      src={imagePath}
+                      alt={`Mapa del Hoyo ${selectedHoleInfo}`}
+                      className="hole-map-image"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src =
+                          "https://via.placeholder.com/400x300?text=Imagen+No+Disponible";
+                      }}
+                    />
+                  </div>
+                </div>
+              );
+            })()}
+
+          <main className="main">
+            {loading ? (
+              <div className="loading">
+                <div className="spinner" />
+                <span>Cargando datos…</span>
               </div>
-            </div>
-          );
-        })()}
-
-      <main className="main">
-        {loading ? (
-          <div className="loading">
-            <div className="spinner" />
-            <span>Cargando datos…</span>
-          </div>
-        ) : error && dbGeneral.length === 0 ? (
-          <div className="error-box">
-            <span className="error-icon">!</span>
-            <div>
-              <p className="error-title">Error al cargar</p>
-              <p className="error-msg">{error}</p>
-              <button
-                onClick={() => fetchData()}
-                className="tab-btn"
-                style={{ marginTop: "10px" }}
-              >
-                Reintentar
-              </button>
-            </div>
-          </div>
-        ) : (
-          <>
-            {isOffline && (
-              <div
-                style={{
-                  background: "rgba(255, 165, 0, 0.1)",
-                  border: "1px solid orange",
-                  color: "orange",
-                  padding: "8px 16px",
-                  borderRadius: "8px",
-                  marginBottom: "16px",
-                  fontSize: "13px",
-                  textAlign: "center",
-                  fontWeight: "600",
-                }}
-              >
-                ⚠️ Estás en modo sin conexión. Los datos mostrados pueden no
-                estar actualizados.
+            ) : error && dbGeneral.length === 0 ? (
+              <div className="error-box">
+                <span className="error-icon">!</span>
+                <div>
+                  <p className="error-title">Error al cargar</p>
+                  <p className="error-msg">{error}</p>
+                  <button
+                    onClick={() => fetchData()}
+                    className="tab-btn"
+                    style={{ marginTop: "10px" }}
+                  >
+                    Reintentar
+                  </button>
+                </div>
               </div>
-            )}
-            {activeTab === "clasificacion" && (
-              <IndividualStandings
-                players={players}
-                activeHoleRound={activeHoleRound}
-                setActiveHoleRound={setActiveHoleRound}
-                dbRonda1={dbRonda1}
-                dbRonda2={dbRonda2}
-                showIndividualNotice={showIndividualNotice}
-                setSelectedPlayer={(jugador) => {
-                  setScoringPlayer(jugador);
-                  setActiveTab("anotar");
-                }}
-              />
-            )}
+            ) : (
+              <>
+                {isOffline && (
+                  <div
+                    style={{
+                      background: "rgba(255, 165, 0, 0.1)",
+                      border: "1px solid orange",
+                      color: "orange",
+                      padding: "8px 16px",
+                      borderRadius: "8px",
+                      marginBottom: "16px",
+                      fontSize: "13px",
+                      textAlign: "center",
+                      fontWeight: "600",
+                    }}
+                  >
+                    ⚠️ Estás en modo sin conexión. Los datos mostrados pueden no
+                    estar actualizados.
+                  </div>
+                )}
+                {activeTab === "clasificacion" && (
+                  <IndividualStandings
+                    players={players}
+                    activeHoleRound={activeHoleRound}
+                    setActiveHoleRound={setActiveHoleRound}
+                    dbRonda1={dbRonda1}
+                    dbRonda2={dbRonda2}
+                    showIndividualNotice={showIndividualNotice}
+                    setSelectedPlayer={(jugador) => {
+                      setScoringPlayer(jugador);
+                      setActiveTab("anotar");
+                    }}
+                  />
+                )}
 
-            {activeTab === "equipos" && (
-              <TeamStandings
-                equiposData={equiposData}
-                maxPuntosEquipos={maxPuntosEquipos}
-                expandedTeam={expandedTeam}
-                setExpandedTeam={setExpandedTeam}
-                accordionRound={accordionRound}
-                setAccordionRound={setAccordionRound}
-                selectedHoleInfo={selectedHoleInfo}
-                setSelectedHoleInfo={setSelectedHoleInfo}
-                dbRonda1={dbRonda1}
-                dbRonda2={dbRonda2}
-                matchPlayHtml={matchPlayHtml}
-              />
-            )}
+                {activeTab === "equipos" && (
+                  <TeamStandings
+                    equiposData={equiposData}
+                    maxPuntosEquipos={maxPuntosEquipos}
+                    expandedTeam={expandedTeam}
+                    setExpandedTeam={setExpandedTeam}
+                    accordionRound={accordionRound}
+                    setAccordionRound={setAccordionRound}
+                    selectedHoleInfo={selectedHoleInfo}
+                    setSelectedHoleInfo={setSelectedHoleInfo}
+                    dbRonda1={dbRonda1}
+                    dbRonda2={dbRonda2}
+                    matchPlayHtml={matchPlayHtml}
+                  />
+                )}
 
-            {activeTab === "anotar" && (
-              <PlayerModal
-                equiposUnicosMatch={equiposUnicosMatch}
-                scoringTeamFilter={scoringTeamFilter}
-                setScoringTeamFilter={setScoringTeamFilter}
-                scoringPlayer={scoringPlayer}
-                setScoringPlayer={setScoringPlayer}
-                players={players}
-                resetScores={resetScores}
-                saveScores={saveScores}
-                isSaving={isSaving}
-                scoringRound={scoringRound}
-                setScoringRound={setScoringRound}
-                scoringData={scoringData}
-                dbRonda1={dbRonda1}
-                dbRonda2={dbRonda2}
-                setSelectedHoleInfo={setSelectedHoleInfo}
-                handleScoreChange={handleScoreChange}
-              />
-            )}
+                {activeTab === "anotar" && (
+                  <PlayerModal
+                    equiposUnicosMatch={equiposUnicosMatch}
+                    scoringTeamFilter={scoringTeamFilter}
+                    setScoringTeamFilter={setScoringTeamFilter}
+                    scoringPlayer={scoringPlayer}
+                    setScoringPlayer={setScoringPlayer}
+                    players={players}
+                    resetScores={resetScores}
+                    saveScores={saveScores}
+                    isSaving={isSaving}
+                    scoringRound={scoringRound}
+                    setScoringRound={setScoringRound}
+                    scoringData={scoringData}
+                    dbRonda1={dbRonda1}
+                    dbRonda2={dbRonda2}
+                    setSelectedHoleInfo={setSelectedHoleInfo}
+                    handleScoreChange={handleScoreChange}
+                  />
+                )}
 
-            {activeTab === "marcador" && (
-              <MarcadorTab
-                equiposUnicosMatch={equiposUnicosMatch}
-                scoringTeamFilter={markerScoringTeamFilter}
-                setScoringTeamFilter={setMarkerScoringTeamFilter}
-                scoringPlayer={markerScoringPlayer}
-                setScoringPlayer={setMarkerScoringPlayer}
-                players={players}
-                resetScores={resetMarkerScores}
-                saveScores={saveMarkerScores}
-                isSaving={isSavingMarker}
-                scoringRound={markerScoringRound}
-                setScoringRound={setMarkerScoringRound}
-                scoringData={markerScoringData}
-                dbRonda1={dbRonda1}
-                dbRonda2={dbRonda2}
-                setSelectedHoleInfo={setSelectedHoleInfo}
-                handleScoreChange={handleMarkerScoreChange}
-              />
+                {activeTab === "marcador" && (
+                  <MarcadorTab
+                    equiposUnicosMatch={equiposUnicosMatch}
+                    scoringTeamFilter={markerScoringTeamFilter}
+                    setScoringTeamFilter={setMarkerScoringTeamFilter}
+                    scoringPlayer={markerScoringPlayer}
+                    setScoringPlayer={setMarkerScoringPlayer}
+                    players={players}
+                    resetScores={resetMarkerScores}
+                    saveScores={saveMarkerScores}
+                    isSaving={isSavingMarker}
+                    scoringRound={markerScoringRound}
+                    setScoringRound={setMarkerScoringRound}
+                    scoringData={markerScoringData}
+                    dbRonda1={dbRonda1}
+                    dbRonda2={dbRonda2}
+                    setSelectedHoleInfo={setSelectedHoleInfo}
+                    handleScoreChange={handleMarkerScoreChange}
+                  />
+                )}
+              </>
             )}
-          </>
-        )}
-      </main>
+          </main>
 
-      <footer className="footer">
-        <span>Actualización automática cada {POLL_INTERVAL / 1000}s</span>
-      </footer>
-    </div>
+          <footer className="footer">
+            <span>Actualización automática cada {POLL_INTERVAL / 1000}s</span>
+          </footer>
+        </div>
+      )}
+    </>
   );
 }

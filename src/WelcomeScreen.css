@@ -1,0 +1,100 @@
+/* Fondo oscuro que cubre toda la app principal */
+.welcome-overlay {
+    height: 100vh;
+    width: 100vw;
+    background-color: #0c0e12;
+    /* Tu color de fondo oscuro '--bg' */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    overflow: hidden;
+    font-family: 'Barlow Condensed', sans-serif;
+}
+
+/* El cuadro enmarcado */
+.welcome-frame {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+    text-align: center;
+    max-width: 90%;
+    width: 600px;
+    /* Un ancho equilibrado para la imagen */
+}
+
+.welcome-main-title {
+    font-size: 32px;
+    font-weight: 900;
+    color: #fff;
+    margin: 0 0 5px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.welcome-instruction {
+    font-size: 16px;
+    color: var(--gold);
+    /* Usamos tu dorado '--gold' */
+    margin: 0 0 25px 0;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Contenedor relativo para posicionar las zonas dentro de él */
+.image-selector-container {
+    position: relative;
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* La imagen se ajusta al ancho del cuadro */
+.selector-image {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Estilo común para las zonas de clic invisibles */
+.click-zone {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    /* Cubren todo el alto de la imagen */
+    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0);
+    /* Totalmente transparente */
+    transition: background-color 0.2s ease;
+}
+
+/* Efecto sutil al pasar el ratón para saber que es clickeable */
+.click-zone:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    /* Un brillo muy leve */
+}
+
+/* POSICIONAMIENTO DE LAS ZONAS SEGÚN TU IMAGEN */
+
+/* Zona Izquierda: Cubre el logo y texto del Equipo Dorado */
+.zone-left {
+    left: 0;
+    width: 45%;
+    /* Aproximadamente la mitad izquierda */
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Zona Derecha: Cubre el logo y texto del Equipo Rojo */
+.zone-right {
+    right: 0;
+    width: 45%;
+    /* Aproximadamente la mitad derecha */
+}
