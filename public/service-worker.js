@@ -2,7 +2,7 @@ const CACHE_NAME = 'golfos-pwa-cache-v1';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/the-golfos-on-tour-2026-logo.ico',
+  '/the-golfos-on-tour-2026.ico',
 ];
 
 self.addEventListener('install', event => {
