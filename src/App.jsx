@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import "./App.css";
 
-import appLogo from "./the-golfos-on-tour-2026-logo.ico";
+import appLogo from "./the-golfos-on-tour-2026.ico";
 
 import {
   API_URL,
