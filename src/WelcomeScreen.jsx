@@ -8,7 +8,6 @@ export default function WelcomeScreen({ onEnter }) {
     return (
         <div className="welcome-overlay">
             <div className="welcome-frame">
-                <h1 className="welcome-main-title">THE GOLFOS ON TOUR 2026</h1>
                 <p className="welcome-instruction">Pulsa sobre tu equipo para entrar</p>
 
                 <div className="image-selector-container">
