@@ -10,6 +10,9 @@ export default function IndividualStandings({
     setSelectedPlayer,
     showIndividualNotice
 }) {
+    const playersSinRafa = players.filter(p => !(p._CleanName || p.Jugador || "").toUpperCase().includes("RAFA"));
+    const peores4Jugadores = playersSinRafa.slice(-4).map(p => p.Jugador);
+
     return (
         <div className="clasificacion-tab slide-up">
             {showIndividualNotice && (
@@ -62,7 +65,7 @@ export default function IndividualStandings({
                             R2
                         </button>
                     </div>
-                    <span style={{ color: "var(--gold)", fontSize: "9px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", whiteSpace: "nowrap" }}>
+                    <span style={{ color: "var(--text)", fontSize: "9px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", whiteSpace: "nowrap" }}>
                         {activeHoleRound === "Ronda 1" ? "⛳ La Marquesa" : "⛳ Font del Llop"}
                     </span>
                 </div>
@@ -84,12 +87,13 @@ export default function IndividualStandings({
                             rank={p._rank}
                             colorIndex={i}
                             onClick={() => {
-                                if (p._isRafaInjured) return; // No abrir modal para Rafa lesionado
+                                if (p._isRafaInjured) return;
                                 setSelectedPlayer(p);
                             }}
                             hoyoActivo={rData?.HOYO || rData?.Hoyo || "-"}
                             activeHoleRound={activeHoleRound}
                             totalPlayers={players.length}
+                            isBottom4={peores4Jugadores.includes(p.Jugador)}
                         />
                     );
                 })}

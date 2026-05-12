@@ -12,6 +12,7 @@ export default function PlayerRow({
   hoyoActivo,
   activeHoleRound,
   totalPlayers,
+  isBottom4 // NUEVO: Recibimos la propiedad desde IndividualStandings
 }) {
   const color = AVATAR_COLORS[colorIndex % AVATAR_COLORS.length];
 
@@ -22,7 +23,10 @@ export default function PlayerRow({
 
   const isTop4 = rank <= 4;
   const isChallenger = rank === 5 || rank === 6;
-  const isWorst4 = totalPlayers > 6 && rank > totalPlayers - 5;
+
+  // AHORA USAMOS DIRECTAMENTE EL PROP QUE NOS PASA EL PADRE, IGNORANDO MATEMÁTICAS
+  const isWorst4 = isBottom4;
+
   const highlightClass = player._isRafaInjured
     ? "highlight-injured"
     : isTop4
