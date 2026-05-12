@@ -22,7 +22,7 @@ export default function PlayerRow({
 
   const isTop4 = rank <= 4;
   const isChallenger = rank === 5 || rank === 6;
-  const isWorst4 = totalPlayers > 6 && rank > totalPlayers - 4;
+  const isWorst4 = totalPlayers > 6 && rank > totalPlayers - 5;
   const highlightClass = player._isRafaInjured
     ? "highlight-injured"
     : isTop4

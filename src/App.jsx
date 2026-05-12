@@ -697,7 +697,7 @@ export default function App() {
     }
   });
 
-  const sortedPlayers = Array.from(playerMap.values())
+  let sortedPlayers = Array.from(playerMap.values())
     .map((p) => {
       const pGen = dbGeneral.find((pg) => pg.Jugador === p.Jugador);
 
@@ -810,9 +810,8 @@ export default function App() {
   const maxRayasR1 = r1Started ? Math.max(...playersBase.map(p => countRayas(p._r1Data)), 0) : 0;
   const maxRayasR2 = r2Started ? Math.max(...playersBase.map(p => countRayas(p._r2Data)), 0) : 0;
 
-  // Extraer a Rafa de cualquier fuente disponible. Si no existe, creamos un objeto base para asegurar que se muestre la fila informativa.
   let rafaRaw = [...dbRonda1, ...dbRonda2, ...dbGeneral].find(p => p.Jugador && String(p.Jugador).toUpperCase().includes("RAFA"));
-  
+
   const playersSinRafa = playersBase.filter(p => String(p.Jugador).toUpperCase() !== "RAFA");
 
   const playersMapping = playersSinRafa.map((p, i, filteredList) => {
@@ -836,7 +835,7 @@ export default function App() {
     _CleanName: "RAFA",
     EQUIPO: "CARABASSA SLICE FOCKERS",
     _isRafaInjured: true,
-    _rank: "-", 
+    _rank: "-",
     _totalScore: 0,
     _cleanR1: "-",
     _cleanR2: "-",
@@ -924,48 +923,43 @@ export default function App() {
 
       html.push(
         `<div class='match-card' style='margin-bottom: 6px; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.2);'>
-          <div style='display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 6px;'>
-            <span style='font-size: 9px; color: var(--text2); font-weight: 800; letter-spacing: 0.05em;'>FLY ${flyNum}</span>
-            <span style='font-size: 11px; font-weight: 900; text-align: center; color: ${winner === "draw" ? "var(--text2)" : winner === "fly" ? "var(--blue)" : "#e67e22"}; text-transform: uppercase; letter-spacing: 0.5px;'>
-              ${winner === "draw" ? "— EMPATE —" : "🏆 GANADOR " + (winner === "fly" ? "FLY" : "SLICE")}
-            </span>
-            <span></span>
-          </div>
-          <div style='display: flex; align-items: center; justify-content: space-between; gap: 10px;'>
-            <div style='flex: 1; display: flex; flex-direction: column; align-items: flex-start;'>
-              <span style='color:${winner === "fly" ? "var(--blue)" : "var(--text)"}; font-weight: ${winner === "fly" ? "800" : "600"}; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px;'>${pFly}</span>
-              <span style='font-size: 11px; color: var(--text2); font-weight: 500;'>${flyDisplayScore} pts</span>
+            <div style='display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 6px;'>
+              <span style='font-size: 9px; color: var(--text2); font-weight: 800; letter-spacing: 0.05em;'>MATCH ${flyNum}</span>
+              <span style='font-size: 11px; font-weight: 900; text-align: center; color: ${winner === 'draw' ? 'var(--text2)' : winner === 'fly' ? 'var(--blue)' : '#e67e22'}; text-transform: uppercase; letter-spacing: 0.5px;'>
+                ${winner === 'draw' ? '— EMPATE —' : '🏆 GANADOR ' + (winner === 'fly' ? 'CARAJILLOS' : 'CARABASSA')}
+              </span>
+              <span></span>
             </div>
-            <div style='font-weight: 900; color: var(--text2); font-size: 12px; opacity: 0.3; font-style: italic;'>VS</div>
-            <div style='flex: 1; display: flex; flex-direction: column; align-items: flex-end;'>
-              <span style='color:${winner === "car" ? "#e67e22" : "var(--text)"}; font-weight: ${winner === "car" ? "800" : "600"}; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px;'>${pCar}</span>
-              <span style='font-size: 11px; color: var(--text2); font-weight: 500;'>${carDisplayScore} pts</span>
+            <div style='display: flex; align-items: center; justify-content: space-between; gap: 10px;'>
+              <div style='flex: 1; display: flex; flex-direction: column; align-items: flex-start;'>
+                <span style='color:${winner === 'fly' ? 'var(--blue)' : 'var(--text)'}; font-weight: ${winner === 'fly' ? '800' : '600'}; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px;'>${pFly}</span>
+                <span style='font-size: 11px; color: var(--text2); font-weight: 500;'>${flyDisplayScore} pts</span>
+              </div>
+              <div style='font-weight: 900; color: var(--text2); font-size: 12px; opacity: 0.3; font-style: italic;'>VS</div>
+              <div style='flex: 1; display: flex; flex-direction: column; align-items: flex-end;'>
+                <span style='color:${winner === 'car' ? '#e67e22' : 'var(--text)'}; font-weight: ${winner === 'car' ? '800' : '600'}; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px;'>${pCar}</span>
+                <span style='font-size: 11px; color: var(--text2); font-weight: 500;'>${carDisplayScore} pts</span>
+              </div>
             </div>
-          </div>
-          <div style='margin-top: 10px; display: flex; justify-content: center; gap: 15px;'>
-            ${winner === "draw"
-          ? `
-              <div style='display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; background: rgba(91, 196, 216, 0.1); border: 1px solid rgba(91, 196, 216, 0.2);'>
-                <span style='font-size: 10px; color: var(--blue); font-weight: 800;'>FLYING +1</span>
-              </div>
-              <div style='display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; background: rgba(230, 126, 34, 0.1); border: 1px solid rgba(230, 126, 34, 0.2);'>
-                <span style='font-size: 10px; color: #e67e22; font-weight: 800;'>SLICE +1</span>
-              </div>
-            `
-          : winner === "fly"
-            ? `
-              <div style='display: flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 6px; background: rgba(91, 196, 216, 0.1); border: 1px solid rgba(91, 196, 216, 0.2);'>
-                <span style='font-size: 11px; color: var(--blue); font-weight: 900;'>FLYING +2</span>
-              </div>
-            `
-            : `
-              <div style='display: flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 6px; background: rgba(230, 126, 34, 0.1); border: 1px solid rgba(230, 126, 34, 0.2);'>
-                <span style='font-size: 11px; color: #e67e22; font-weight: 900;'>SLICE +2</span>
-              </div>
-            `
-        }
-          </div>
-        </div>`,
+            <div style='margin-top: 10px; display: flex; justify-content: center; gap: 15px;'>
+              ${winner === 'draw' ? `
+                <div style='display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; background: rgba(91, 196, 216, 0.1); border: 1px solid rgba(91, 196, 216, 0.2);'>
+                  <span style='font-size: 10px; color: var(--blue); font-weight: 800;'>CARAJILLOS +1</span>
+                </div>
+                <div style='display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; background: rgba(230, 126, 34, 0.1); border: 1px solid rgba(230, 126, 34, 0.2);'>
+                  <span style='font-size: 10px; color: #e67e22; font-weight: 800;'>CARABASSA +1</span>
+                </div>
+              ` : (winner === 'fly' ? `
+                <div style='display: flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 6px; background: rgba(91, 196, 216, 0.1); border: 1px solid rgba(91, 196, 216, 0.2);'>
+                  <span style='font-size: 11px; color: var(--blue); font-weight: 900;'>CARAJILLOS +${flyPts}</span>
+                </div>
+              ` : `
+                <div style='display: flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 6px; background: rgba(230, 126, 34, 0.1); border: 1px solid rgba(230, 126, 34, 0.2);'>
+                  <span style='font-size: 11px; color: #e67e22; font-weight: 900;'>CARABASSA +${carPts}</span>
+                </div>
+              `)}
+            </div>
+          </div>`
       );
     }
     matchPlayHtml = html.join("");
@@ -973,7 +967,9 @@ export default function App() {
 
   const rawEquiposData = equiposUnicosMatch
     .map((equipo) => {
-      const rawJugadores = players.filter((p) => p.EQUIPO === equipo);
+      const rawJugadores = players.filter(
+        (p) => p.EQUIPO === equipo && !(p._CleanName || p.Jugador || "").toUpperCase().includes("RAFA")
+      );
 
       const capitanNombre = TEAM_CAPTAINS[equipo.toUpperCase()] || "";
       const jugadores = [...rawJugadores].sort((a, b) => {

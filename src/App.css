@@ -62,7 +62,7 @@ body.light-mode .theme-toggle-btn:hover {
 
 /* BACKGROUNDS */
 body {
-  background-image: url('/images/CAMPO DE GOLF NOCHE.jpg');
+  background-image: url('/images/CAMPO DE GOLF NOCHE.png');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -70,7 +70,7 @@ body {
 }
 
 body.light-mode {
-  background-image: linear-gradient(rgba(244, 244, 248, 0.5), rgba(244, 244, 248, 0.5)), url('/images/CAMPO DE GOLF DÍA.jpg');
+  background-image: linear-gradient(rgba(244, 244, 248, 0.6), rgba(244, 244, 248, 0.6)), url('/images/CAMPO DE GOLF DÍA.jpg');
 }
 
 .main {
