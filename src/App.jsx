@@ -23,6 +23,16 @@ import TeamStandings from "./components/TeamStandings";
 import AppHeader from "./components/AppHeader";
 import MarcadorTab from "./components/MarcadorTab";
 
+const loadFromCache = (key, defaultValue) => {
+  try {
+    const cachedItem = localStorage.getItem(key);
+    return cachedItem ? JSON.parse(cachedItem) : defaultValue;
+  } catch (error) {
+    console.warn("Error leyendo caché para", key);
+    return defaultValue;
+  }
+};
+
 export default function App() {
   // ESTADO: Sincronización
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
@@ -31,9 +41,9 @@ export default function App() {
   );
   const [isSyncing, setIsSyncing] = useState(false);
 
-  const [dbRonda1, setDbRonda1] = useState([]);
-  const [dbRonda2, setDbRonda2] = useState([]);
-  const [dbGeneral, setDbGeneral] = useState([]);
+  const [dbGeneral, setDbGeneral] = useState(() => loadFromCache('golfos_dbGeneral', []));
+  const [dbRonda1, setDbRonda1] = useState(() => loadFromCache('golfos_dbRonda1', []));
+  const [dbRonda2, setDbRonda2] = useState(() => loadFromCache('golfos_dbRonda2', []));
   const [marcadorInfo, setMarcadorInfo] = useState(null);
   const [marcadorLocal, setMarcadorLocal] = useState(() => {
     const saved = localStorage.getItem('marcador_local_data');

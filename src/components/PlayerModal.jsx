@@ -17,7 +17,6 @@ export default function PlayerModal({
   scoringData,
   dbRonda1,
   dbRonda2,
-  setSelectedHoleInfo,
   handleScoreChange
 }) {
   const teamLogo = scoringPlayer ? TEAM_AVATAR_IMAGES[scoringPlayer.EQUIPO] : null;
@@ -93,7 +92,7 @@ export default function PlayerModal({
 
           {/* 2. SELECTOR DE JUGADOR */}
           <div className="control-group" style={{ flex: 1 }}>
-            <label style={{ display: 'block', fontSize: '11px', color: 'var(--text2)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
+            <label style={{ display: 'block', fontSize: '11px', color: 'var(--blue)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
               {scoringTeamFilter ? `Filtrando: ${scoringTeamFilter}` : "Seleccionar Jugador"}
             </label>
             <select
@@ -195,11 +194,9 @@ export default function PlayerModal({
                   const activeDb = scoringRound === "Ronda 1" ? dbRonda1 : dbRonda2;
                   const parCampoRow = activeDb.find(p => p.Jugador === "PAR CAMPO");
                   const parJugadorRow = activeDb.find(p => p.Jugador === scoringPlayer?._parName);
-                  const hcpRow = activeDb.find(p => p.Jugador === "HCP HOYO");
 
                   return Array.from({ length: 18 }, (_, i) => i + 1).map((h) => {
                     const data = scoringData[h] || { par: "", golpes: "" };
-                    const hcpVal = hcpRow?.[h] || "-";
 
                     const parCampo = Number(parCampoRow?.[h]) || 0;
                     const hándicap = Number(parJugadorRow?.[h]) || 0;
@@ -209,32 +206,27 @@ export default function PlayerModal({
 
                     return (
                       <div className="stats-row" key={h} style={{ gridTemplateColumns: '80px 1fr 1fr 1fr', padding: '12px 15px', marginBottom: '4px' }}>
+
+                        {/* 1. CAMBIO AQUÍ: El hoyo ya no es un botón */}
                         <div className="hole-cell" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <button
-                            onClick={() => setSelectedHoleInfo(h)}
-                            style={{
-                              background: 'none',
-                              border: 'none',
-                              color: 'var(--text)',
-                              fontWeight: '700',
-                              fontSize: '16px',
-                              cursor: 'pointer',
-                              padding: '5px 10px',
-                              borderRadius: '4px',
-                              transition: 'background 0.2s'
-                            }}
-                            onMouseOver={(e) => e.target.style.background = 'rgba(255,255,255,0.05)'}
-                            onMouseOut={(e) => e.target.style.background = 'none'}
-                          >
+                          <span style={{
+                            color: 'var(--text)',
+                            fontWeight: '700',
+                            fontSize: '16px',
+                            padding: '5px 10px',
+                          }}>
                             {h}
-                          </button>
+                          </span>
                         </div>
+
                         <span style={{ color: 'var(--text2)', alignSelf: 'center', fontWeight: '600' }}>{parCampo > 0 ? parCampo : "-"}</span>
+
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           <span style={{ color: 'var(--text2)', fontWeight: '600' }}>
                             {parTotal > 0 ? parTotal : "-"}
                           </span>
                         </div>
+
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           <input
                             type="text"
@@ -246,6 +238,7 @@ export default function PlayerModal({
                             placeholder="-"
                           />
                         </div>
+
                       </div>
                     );
                   });
