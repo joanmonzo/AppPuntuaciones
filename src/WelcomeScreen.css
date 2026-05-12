@@ -5,6 +5,8 @@
     background-color: #0c0e12;
     /* Tu color de fondo oscuro '--bg' */
     display: flex;
+    flex-direction: column;
+    /* Coloca los elementos uno debajo de otro */
     align-items: center;
     justify-content: center;
     position: fixed;
@@ -13,51 +15,45 @@
     z-index: 9999;
     overflow: hidden;
     font-family: 'Barlow Condensed', sans-serif;
-}
-
-/* El cuadro enmarcado */
-.welcome-frame {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
-    text-align: center;
-    max-width: 90%;
-    width: 600px;
-    /* Un ancho equilibrado para la imagen */
+    padding: 20px;
+    /* Margen para pantallas pequeñas */
+    box-sizing: border-box;
 }
 
 .welcome-main-title {
-    font-size: 32px;
+    font-size: 36px;
     font-weight: 900;
     color: #fff;
     margin: 0 0 5px 0;
     text-transform: uppercase;
     letter-spacing: 1px;
+    text-align: center;
 }
 
 .welcome-instruction {
-    font-size: 16px;
+    font-size: 18px;
     color: var(--gold);
     /* Usamos tu dorado '--gold' */
-    margin: 0 0 25px 0;
+    margin: 0 0 30px 0;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    text-align: center;
 }
 
-/* Contenedor relativo para posicionar las zonas dentro de él */
+/* Contenedor relativo para posicionar las zonas dentro de él y limitar el tamaño */
 .image-selector-container {
     position: relative;
     width: 100%;
+    max-width: 650px;
+    /* Evita que la imagen sea colosal en PC */
     border-radius: 12px;
     overflow: hidden;
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    /* Eliminado el borde y la sombra para un aspecto más plano y limpio,
+     pero puedes devolverlos si el cliente quiere que la imagen resalte */
 }
 
-/* La imagen se ajusta al ancho del cuadro */
+/* La imagen se ajusta al ancho del contenedor */
 .selector-image {
     width: 100%;
     height: auto;
@@ -87,14 +83,13 @@
 /* Zona Izquierda: Cubre el logo y texto del Equipo Dorado */
 .zone-left {
     left: 0;
-    width: 45%;
-    /* Aproximadamente la mitad izquierda */
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    width: 50%;
+    /* Mitad izquierda exacta */
 }
 
 /* Zona Derecha: Cubre el logo y texto del Equipo Rojo */
 .zone-right {
     right: 0;
-    width: 45%;
-    /* Aproximadamente la mitad derecha */
+    width: 50%;
+    /* Mitad derecha exacta */
 }
