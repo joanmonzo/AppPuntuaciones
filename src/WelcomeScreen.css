@@ -1,12 +1,9 @@
-/* Fondo oscuro que cubre toda la app principal */
 .welcome-overlay {
     height: 100vh;
     width: 100vw;
     background-color: #0c0e12;
-    /* Tu color de fondo oscuro '--bg' */
     display: flex;
     flex-direction: column;
-    /* Coloca los elementos uno debajo de otro */
     align-items: center;
     justify-content: center;
     position: fixed;
@@ -16,7 +13,6 @@
     overflow: hidden;
     font-family: 'Barlow Condensed', sans-serif;
     padding: 20px;
-    /* Margen para pantallas pequeñas */
     box-sizing: border-box;
 }
 
@@ -33,7 +29,6 @@
 .welcome-instruction {
     font-size: 18px;
     color: var(--gold);
-    /* Usamos tu dorado '--gold' */
     margin: 0 0 30px 0;
     font-weight: 700;
     text-transform: uppercase;
@@ -41,55 +36,39 @@
     text-align: center;
 }
 
-/* Contenedor relativo para posicionar las zonas dentro de él y limitar el tamaño */
 .image-selector-container {
     position: relative;
     width: 100%;
     max-width: 650px;
-    /* Evita que la imagen sea colosal en PC */
     border-radius: 12px;
     overflow: hidden;
-    /* Eliminado el borde y la sombra para un aspecto más plano y limpio,
-     pero puedes devolverlos si el cliente quiere que la imagen resalte */
 }
 
-/* La imagen se ajusta al ancho del contenedor */
 .selector-image {
     width: 100%;
     height: auto;
     display: block;
 }
 
-/* Estilo común para las zonas de clic invisibles */
 .click-zone {
     position: absolute;
     top: 0;
     height: 100%;
-    /* Cubren todo el alto de la imagen */
     cursor: pointer;
     background-color: rgba(255, 255, 255, 0);
-    /* Totalmente transparente */
     transition: background-color 0.2s ease;
 }
 
-/* Efecto sutil al pasar el ratón para saber que es clickeable */
 .click-zone:hover {
     background-color: rgba(255, 255, 255, 0.05);
-    /* Un brillo muy leve */
 }
 
-/* POSICIONAMIENTO DE LAS ZONAS SEGÚN TU IMAGEN */
-
-/* Zona Izquierda: Cubre el logo y texto del Equipo Dorado */
 .zone-left {
     left: 0;
     width: 50%;
-    /* Mitad izquierda exacta */
 }
 
-/* Zona Derecha: Cubre el logo y texto del Equipo Rojo */
 .zone-right {
     right: 0;
     width: 50%;
-    /* Mitad derecha exacta */
 }
