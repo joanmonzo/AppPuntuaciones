@@ -12,63 +12,84 @@
     z-index: 9999;
     overflow: hidden;
     font-family: 'Barlow Condensed', sans-serif;
-    padding: 20px;
+    padding: 10px;
     box-sizing: border-box;
 }
 
-.welcome-main-title {
-    font-size: 36px;
-    font-weight: 900;
-    color: #fff;
-    margin: 0 0 5px 0;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+.welcome-header-vertical {
+    width: 100%;
+    max-width: 500px;
     text-align: center;
+    margin-bottom: 15px;
 }
 
-.welcome-instruction {
-    font-size: 18px;
+.welcome-main-title-vertical {
+    font-size: 26px;
+    font-weight: 900;
+    color: #fff;
+    margin: 0 0 3px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.welcome-instruction-vertical {
+    font-size: 14px;
     color: var(--gold);
-    margin: 0 0 30px 0;
+    margin: 0;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    text-align: center;
 }
 
-.image-selector-container {
+.image-selector-container-vertical {
     position: relative;
-    width: 100%;
-    max-width: 650px;
+    width: auto;
+    max-width: 90vw;
+    max-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border-radius: 12px;
     overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-.selector-image {
-    width: 100%;
+.selector-image-vertical {
     height: auto;
+    width: auto;
+    max-height: 80vh;
+    max-width: 100%;
     display: block;
+    object-fit: contain;
 }
 
-.click-zone {
+.click-zone-vertical {
     position: absolute;
     top: 0;
     height: 100%;
     cursor: pointer;
     background-color: rgba(255, 255, 255, 0);
     transition: background-color 0.2s ease;
+
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
-.click-zone:hover {
+.click-zone-vertical:hover {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
-.zone-left {
+.zone-left-vertical {
     left: 0;
     width: 50%;
 }
 
-.zone-right {
+.zone-right-vertical {
     right: 0;
     width: 50%;
 }

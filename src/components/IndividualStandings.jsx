@@ -10,8 +10,7 @@ export default function IndividualStandings({
     setSelectedPlayer,
     showIndividualNotice
 }) {
-    const playersSinRafa = players.filter(p => !(p._CleanName || p.Jugador || "").toUpperCase().includes("RAFA"));
-    const peores4Jugadores = playersSinRafa.slice(-4).map(p => p.Jugador);
+    const peores4Jugadores = players.slice(-4).map(p => p.Jugador);
 
     return (
         <div className="clasificacion-tab slide-up">
@@ -87,7 +86,6 @@ export default function IndividualStandings({
                             rank={p._rank}
                             colorIndex={i}
                             onClick={() => {
-                                if (p._isRafaInjured) return;
                                 setSelectedPlayer(p);
                             }}
                             hoyoActivo={rData?.HOYO || rData?.Hoyo || "-"}

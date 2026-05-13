@@ -843,19 +843,6 @@ export default function App() {
     };
   });
 
-  // Añadir siempre a Rafa al final como una fila gris puramente informativa
-  playersMapping.push({
-    ...(rafaRaw || {}),
-    Jugador: rafaRaw?.Jugador || "RAFA",
-    _CleanName: "RAFA",
-    EQUIPO: "CARABASSA SLICE FOCKERS",
-    _isRafaInjured: true,
-    _rank: "-",
-    _totalScore: 0,
-    _cleanR1: "-",
-    _cleanR2: "-",
-  });
-
   const players = playersMapping;
 
   const equiposUnicosMatch = [
