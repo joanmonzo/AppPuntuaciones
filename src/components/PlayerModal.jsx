@@ -230,10 +230,17 @@ export default function PlayerModal({
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           <input
                             type="text"
-                            inputMode="decimal"
+                            inputMode="numeric"
                             className={`edit-input ${scoreClass}`}
                             value={data.golpes}
-                            onChange={(e) => handleScoreChange(h, "golpes", e.target.value)}
+                            onChange={(e) => {
+                              const valor = e.target.value;
+                              if (valor === "" || /^\d+$/.test(valor)) {
+                                handleScoreChange(h, "golpes", valor);
+                              } else {
+                                alert("Por favor, introduzca solo números.");
+                              }
+                            }}
                             disabled={isSaving}
                             placeholder="-"
                           />
