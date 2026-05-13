@@ -31,7 +31,7 @@ export default function MarcadorTab({
           borderRadius: '12px',
           padding: '15px 20px',
           marginBottom: '20px',
-          color: 'var(--text2)',
+          color: 'var(--text1)',
           fontSize: '14px',
           textAlign: 'center',
           fontWeight: '500'
