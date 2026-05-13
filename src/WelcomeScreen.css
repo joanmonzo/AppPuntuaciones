@@ -66,18 +66,26 @@
 
 .click-zone-vertical {
     position: absolute;
-    top: 0;
-    height: 100%;
+
+    top: 60%;
+    height: 33%;
+
     cursor: pointer;
     background-color: rgba(255, 255, 255, 0);
     transition: background-color 0.2s ease;
-
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
     user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
+}
+
+.zone-left-vertical {
+    left: 0;
+    width: 50%;
+}
+
+.zone-right-vertical {
+    right: 0;
+    width: 50%;
 }
 
 .click-zone-vertical:hover {
