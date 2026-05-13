@@ -16,7 +16,6 @@ export default function AppHeader({
   lastUpdate,
 }) {
 
-  // Limpiamos la variable de ronda para que NO muestre "General" si existe
   const roundDisplay = currentRound && !currentRound.toUpperCase().includes("GENERAL") ? currentRound : "";
 
   return (
@@ -174,7 +173,7 @@ export default function AppHeader({
           {!isOffline && !error && !isSyncing && (
             <span style={{
               fontSize: '9px',
-              color: 'var(--text2)',
+              color: 'var(--text1)',
               fontWeight: '700',
               textTransform: 'uppercase',
               letterSpacing: '0.5px',

@@ -125,7 +125,7 @@ body.light-mode {
 
 .subtitle {
   font-size: 12px;
-  color: var(--text2);
+  color: var(--text1);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   margin-top: 6px;
@@ -175,7 +175,7 @@ body.light-mode {
 .tab-btn {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--border);
-  color: var(--text2);
+  color: var(--text1);
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 14px;
   font-weight: 600;
@@ -229,7 +229,7 @@ body.light-mode {
   font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--text2);
+  color: var(--text1);
   border-bottom: 1px solid var(--border);
   margin-bottom: 8px;
 }
@@ -404,7 +404,7 @@ body.light-mode {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text2);
+  color: var(--text1);
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 14px;
 }
@@ -448,7 +448,7 @@ body.light-mode {
   font-size: 10px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--text2);
+  color: var(--text1);
   line-height: 1;
 }
 
@@ -468,7 +468,7 @@ body.light-mode {
 }
 
 .stat-block.dim-col .stat-val {
-  color: var(--text2);
+  color: var(--text1);
   opacity: 0.3;
   transform: scale(0.9);
 }
@@ -1676,7 +1676,7 @@ body.light-mode .desplegable-header {
   }
 
   .save-btn {
-    background: linear-gradient(135deg, var(--blue) 0%, #3498db 100%);
+    background: linear-gradient(135deg, var(--green) 0%, #27ae60 100%);
     border: none;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);

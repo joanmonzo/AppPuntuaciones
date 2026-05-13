@@ -93,7 +93,7 @@ export default function MarcadorTab({
 
           {/* 2. SELECTOR DE JUGADOR */}
           <div className="control-group" style={{ flex: 1 }}>
-            <label style={{ display: 'block', fontSize: '11px', color: 'var(--text2)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
+            <label style={{ display: 'block', fontSize: '11px', color: 'var(--text1)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
               {scoringTeamFilter ? `Filtrando: ${scoringTeamFilter}` : "Seleccionar Jugador (Marcador)"}
             </label>
             <select

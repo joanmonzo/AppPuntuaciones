@@ -117,14 +117,15 @@ export default function TeamStandings({
                                                 <div className="hole-row par">
                                                     <span className="hole-label">Par</span>
                                                     {(() => {
-                                                        const anyPlayer = eq.jugadores[0];
-                                                        const parRow = dbRonda1.find((p) => p.Jugador === anyPlayer?._parName) ||
-                                                            dbRonda2.find((p) => p.Jugador === anyPlayer?._parName);
+                                                        // CAMBIO AQUÍ: Ahora buscamos "PAR CAMPO" dependiendo de la ronda seleccionada en el acordeón
+                                                        const activeDb = accordionRound === "R1" ? dbRonda1 : dbRonda2;
+                                                        const parCampoRow = activeDb.find(p => p.Jugador === "PAR CAMPO");
                                                         let parSum = 0;
+
                                                         return (
                                                             <>
                                                                 {Array.from({ length: 18 }, (_, i) => i + 1).map((h) => {
-                                                                    const pVal = Number(parRow?.[h]) || 0;
+                                                                    const pVal = Number(parCampoRow?.[h]) || 0;
                                                                     parSum += pVal;
                                                                     return (
                                                                         <span key={h} className="score-box">{pVal || "-"}</span>
@@ -138,8 +139,11 @@ export default function TeamStandings({
 
                                                 {eq.jugadores.map((player) => {
                                                     const source = accordionRound === "R1" ? player._r1Data : player._r2Data;
-                                                    const parRow = dbRonda1.find((p) => p.Jugador === player?._parName) ||
-                                                        dbRonda2.find((p) => p.Jugador === player?._parName);
+                                                    // CAMBIO AQUÍ: Para que los colores de los golpes se calculen bien, usamos el PAR JUGADOR total
+                                                    const activeDb = accordionRound === "R1" ? dbRonda1 : dbRonda2;
+                                                    const parCampoRow = activeDb.find(p => p.Jugador === "PAR CAMPO");
+                                                    const handicapJugadorRow = activeDb.find(p => p.Jugador === player?._parName);
+
                                                     let totalStrokes = 0;
                                                     const nombre = player._CleanName || player.Jugador;
                                                     const capName = TEAM_CAPTAINS[eq.equipo.toUpperCase()];
@@ -166,9 +170,16 @@ export default function TeamStandings({
                                                             {Array.from({ length: 18 }, (_, i) => i + 1).map((h) => {
                                                                 const strokesRaw = source[h];
                                                                 const strokes = Number(strokesRaw);
-                                                                const par = Number(parRow?.[h]);
+
+                                                                // Calculamos el PAR JUEGO total para este jugador (Par Campo + Hcp del hoyo)
+                                                                const parCampoHoyo = Number(parCampoRow?.[h]) || 0;
+                                                                const handicapHoyo = Number(handicapJugadorRow?.[h]) || 0;
+                                                                const parTotalJugador = parCampoHoyo + handicapHoyo;
+
                                                                 totalStrokes += strokes || 0;
-                                                                const scoreClass = getScoreClass(strokesRaw, par);
+
+                                                                // Le pasamos a getScoreClass el Par Total con Handicap
+                                                                const scoreClass = getScoreClass(strokesRaw, parTotalJugador);
 
                                                                 return (
                                                                     <span key={h} className={`score-box ${scoreClass}`}>

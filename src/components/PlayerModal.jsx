@@ -30,7 +30,7 @@ export default function PlayerModal({
           borderRadius: '12px',
           padding: '15px 20px',
           marginBottom: '20px',
-          color: 'var(--text2)',
+          color: 'var(--text1)',
           fontSize: '14px',
           textAlign: 'center',
           fontWeight: '500'
@@ -92,7 +92,7 @@ export default function PlayerModal({
 
           {/* 2. SELECTOR DE JUGADOR */}
           <div className="control-group" style={{ flex: 1 }}>
-            <label style={{ display: 'block', fontSize: '11px', color: 'var(--blue)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
+            <label style={{ display: 'block', fontSize: '11px', color: 'var(--text1)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
               {scoringTeamFilter ? `Filtrando: ${scoringTeamFilter}` : "Seleccionar Jugador"}
             </label>
             <select

@@ -22,7 +22,7 @@ export default function IndividualStandings({
                     borderRadius: '12px',
                     padding: '12px 20px',
                     marginBottom: '20px',
-                    color: 'var(--text2)',
+                    color: 'var(--text1)',
                     fontSize: '14px',
                     textAlign: 'center',
                     fontWeight: '500'
