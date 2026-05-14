@@ -117,7 +117,7 @@ export default function AppHeader({
               onClick={() => setActiveTab('anotar')}
               style={{ position: 'relative' }}
             >
-              Anotar{' '}
+              jugador{' '}
               <span style={{ fontSize: '10px', verticalAlign: 'top', marginLeft: '2px' }}>✎</span>
             </button>
             <button
