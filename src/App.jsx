@@ -37,7 +37,9 @@ const loadFromCache = (key, defaultValue) => {
 export default function App() {
   // ESTADO: Sincronización
   const [showWelcome, setShowWelcome] = useState(true);
-  const handleEnterApp = () => {
+  const [userTeam, setUserTeam] = useState(null);
+  const handleEnterApp = (team) => {
+    setUserTeam(team);
     setShowWelcome(false);
   };
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
@@ -1058,6 +1060,7 @@ export default function App() {
             syncQueue={syncQueue}
             lastUpdate={lastUpdate}
             currentTime={currentTime}
+            userTeam={userTeam}
           />
 
           {/* MODAL DE IMAGEN DEL HOYO */}

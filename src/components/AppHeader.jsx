@@ -14,6 +14,7 @@ export default function AppHeader({
   isSyncing,
   syncQueue,
   lastUpdate,
+  userTeam,
 }) {
 
   const roundDisplay = currentRound && !currentRound.toUpperCase().includes("GENERAL") ? currentRound : "";
@@ -52,6 +53,25 @@ export default function AppHeader({
         <p className="subtitle">
           {players.length > 0 ? `${players.length} jugadores` : 'Cargando…'}
         </p>
+
+        {userTeam && (
+          <div style={{
+            display: 'inline-block',
+            marginTop: '8px',
+            padding: '4px 12px',
+            backgroundColor: userTeam.includes('CARABASSA') ? 'rgba(212, 175, 55, 0.15)' : 'rgba(245, 230, 204, 0.15)',
+            border: `1px solid ${userTeam.includes('CARABASSA') ? 'var(--gold)' : '#F5E6CC'}`,
+            borderRadius: '20px',
+            color: userTeam.includes('CARABASSA') ? 'var(--gold)' : '#F5E6CC',
+            fontSize: '12px',
+            fontWeight: '800',
+            letterSpacing: '1px',
+            textTransform: 'uppercase',
+            boxShadow: `0 2px 10px ${userTeam.includes('CARABASSA') ? 'rgba(212, 175, 55, 0.2)' : 'rgba(245, 230, 204, 0.2)'}`
+          }}>
+            🛡️ TU EQUIPO: {userTeam}
+          </div>
+        )}
 
         <div
           className="tabs-groups"
@@ -103,16 +123,14 @@ export default function AppHeader({
 
       <div className="header-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
 
-        {/* CONTENEDOR FLEX: Botón Tema + Punto Rojo + LIVE SCORING */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 
-          {/* BOTÓN TEMA: Forzamos position 'static' para anular tu CSS global */}
           <button
             className="theme-toggle-btn"
             onClick={toggleTheme}
             title="Cambiar tema"
             style={{
-              position: 'static', /* <-- ESTA ES LA CLAVE MÁGICA */
+              position: 'static',
               margin: '0 4px 0 0',
               padding: 0,
               fontSize: '18px',

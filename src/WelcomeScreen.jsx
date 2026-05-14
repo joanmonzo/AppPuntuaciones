@@ -18,14 +18,14 @@ export default function WelcomeScreen({ onEnter }) {
 
                 <div
                     className="click-zone-vertical zone-left-vertical"
-                    onClick={onEnter}
-                    title="Entrar con Equipo Carabassa Slice Fockers"
+                    onClick={() => onEnter("CARABASSA SLICE FOCKERS")}
+                    title="Entrar con Carabassa"
                 />
 
                 <div
                     className="click-zone-vertical zone-right-vertical"
-                    onClick={onEnter}
-                    title="Entrar con Equipo Carajillos Voladores"
+                    onClick={() => onEnter("CARAJILLOS VOLADORES")}
+                    title="Entrar con Carajillos"
                 />
             </div>
         </div>
