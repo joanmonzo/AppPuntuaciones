@@ -54,24 +54,41 @@ export default function AppHeader({
           {players.length > 0 ? `${players.length} jugadores` : 'Cargando…'}
         </p>
 
-        {userTeam && (
-          <div style={{
-            display: 'inline-block',
-            marginTop: '8px',
-            padding: '4px 12px',
-            backgroundColor: userTeam.includes('CARABASSA') ? 'rgba(212, 175, 55, 0.15)' : 'rgba(245, 230, 204, 0.15)',
-            border: `1px solid ${userTeam.includes('CARABASSA') ? 'var(--gold)' : '#F5E6CC'}`,
-            borderRadius: '20px',
-            color: userTeam.includes('CARABASSA') ? 'var(--gold)' : '#F5E6CC',
-            fontSize: '12px',
-            fontWeight: '800',
-            letterSpacing: '1px',
-            textTransform: 'uppercase',
-            boxShadow: `0 2px 10px ${userTeam.includes('CARABASSA') ? 'rgba(212, 175, 55, 0.2)' : 'rgba(245, 230, 204, 0.2)'}`
-          }}>
-            🛡️ TU EQUIPO: {userTeam}
-          </div>
-        )}
+        {userTeam && (() => {
+          const isCarabassa = userTeam.includes('CARABASSA');
+
+          const carajillosColor = theme === 'light' ? '#8C5A35' : '#F5E6CC';
+          const carabassaColor = theme === 'light' ? '#a04f0eff' : 'var(--gold)';
+
+          const mainColor = isCarabassa ? carabassaColor : carajillosColor;
+
+          const bgOpacity = isCarabassa
+            ? (theme === 'light' ? 'rgba(184, 134, 11, 0.15)' : 'rgba(212, 175, 55, 0.15)')
+            : (theme === 'light' ? 'rgba(140, 90, 53, 0.15)' : 'rgba(245, 230, 204, 0.15)');
+
+          const shadowOpacity = isCarabassa
+            ? (theme === 'light' ? 'rgba(184, 134, 11, 0.2)' : 'rgba(212, 175, 55, 0.2)')
+            : (theme === 'light' ? 'rgba(140, 90, 53, 0.2)' : 'rgba(245, 230, 204, 0.2)');
+
+          return (
+            <div style={{
+              display: 'inline-block',
+              marginTop: '8px',
+              padding: '4px 12px',
+              backgroundColor: bgOpacity,
+              border: `1px solid ${mainColor}`,
+              borderRadius: '20px',
+              color: mainColor,
+              fontSize: '12px',
+              fontWeight: '900',
+              letterSpacing: '1px',
+              textTransform: 'uppercase',
+              boxShadow: `0 2px 10px ${shadowOpacity}`
+            }}>
+              🛡️ TU EQUIPO: {userTeam}
+            </div>
+          );
+        })()}
 
         <div
           className="tabs-groups"
