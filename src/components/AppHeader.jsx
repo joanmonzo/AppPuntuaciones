@@ -83,16 +83,13 @@ export default function AppHeader({
               Anotar{' '}
               <span style={{ fontSize: '10px', verticalAlign: 'top', marginLeft: '2px' }}>✎</span>
             </button>
-            {/* PESTAÑA MARCADOR: Forzada a MORADO SÓLIDO (No transparente) */}
             <button
               className={`tab-btn ${activeTab === 'marcador' ? 'active' : ''}`}
               onClick={() => setActiveTab('marcador')}
               style={{
-                // Usamos HEX directo para asegurar el tono morado CTA y forzamos opacidad
                 backgroundColor: activeTab === 'marcador' ? '#a855f7' : '',
                 borderColor: activeTab === 'marcador' ? '#a855f7' : '',
                 color: activeTab === 'marcador' ? '#fff' : '',
-                // ESTOS CAMBIOS GARANTIZAN QUE NO SEA TRANSPARENTE
                 backgroundImage: activeTab === 'marcador' ? 'none' : '',
                 opacity: activeTab === 'marcador' ? '1' : '',
                 boxShadow: activeTab === 'marcador' ? '0 2px 8px rgba(168, 85, 247, 0.4)' : ''
@@ -148,11 +145,11 @@ export default function AppHeader({
 
                         {lastUpdate && (
                           <div style={{
-                            backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                            border: '1px solid rgba(255, 255, 255, 0.15)',
+                            backgroundColor: theme === 'light' ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.08)',
+                            border: theme === 'light' ? '1px solid rgba(0, 0, 0, 0.15)' : '1px solid rgba(255, 255, 255, 0.15)',
                             padding: '2px 8px',
                             borderRadius: '4px',
-                            color: '#ffffff',
+                            color: theme === 'light' ? '#000000' : '#ffffff',
                             fontSize: '14px',
                             fontFamily: "'Barlow Condensed', sans-serif",
                             fontWeight: '700',
