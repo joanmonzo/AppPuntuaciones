@@ -2,7 +2,7 @@ import React from 'react';
 import './WelcomeScreen.css';
 
 export default function WelcomeScreen({ onEnter }) {
-    const imageSelector = '/images/VERTICAL INICIO J.png';
+    const imageSelector = '/images/PANTALLA VERTICAL INICIO.png';
 
     return (
         <div className="welcome-overlay">
