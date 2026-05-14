@@ -101,86 +101,103 @@ export default function AppHeader({
         </div>
       </div>
 
-      <div className="header-right" style={{ alignItems: 'flex-start' }}>
-        <button className="theme-toggle-btn" onClick={toggleTheme} title="Cambiar tema">
-          {theme === 'dark' ? '☀️' : '🌙'}
-        </button>
+      <div className="header-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
 
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div
-              className={`status-dot ${isOffline ? 'offline' : error ? 'error' : 'online'}`}
-              style={{
-                ...(isOffline ? { backgroundColor: 'orange', boxShadow: '0 0 10px orange' } : {}),
-                ...(!isOffline && !error ? {
-                  backgroundColor: 'var(--red)',
-                  boxShadow: '0 0 8px var(--red)',
-                  animation: 'blink 1.5s infinite'
-                } : {})
-              }}
-            />
+        {/* CONTENEDOR FLEX: Botón Tema + Punto Rojo + LIVE SCORING */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 
-            <span
-              className="status-text"
-              style={{
-                fontSize: '16px',
-                fontWeight: '900',
-                letterSpacing: '1px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px'
-              }}
-            >
-              {isSyncing || syncQueue.length > 0
-                ? <span style={{ color: 'var(--gold)' }}>SINCRONIZANDO...</span>
-                : isOffline
-                  ? <span style={{ color: 'orange' }}>OFFLINE</span>
-                  : error
-                    ? <span style={{ color: 'var(--red)' }}>ERROR</span>
-                    : (
-                      <>
-                        <span style={{ color: 'var(--red)', textShadow: '0 0 10px rgba(224, 91, 91, 0.3)' }}>
-                          LIVE SCORING
-                        </span>
+          {/* BOTÓN TEMA: Forzamos position 'static' para anular tu CSS global */}
+          <button
+            className="theme-toggle-btn"
+            onClick={toggleTheme}
+            title="Cambiar tema"
+            style={{
+              position: 'static', /* <-- ESTA ES LA CLAVE MÁGICA */
+              margin: '0 4px 0 0',
+              padding: 0,
+              fontSize: '18px',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center'
+            }}
+          >
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
 
-                        {lastUpdate && (
-                          <div style={{
-                            backgroundColor: theme === 'light' ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.08)',
-                            border: theme === 'light' ? '1px solid rgba(0, 0, 0, 0.15)' : '1px solid rgba(255, 255, 255, 0.15)',
-                            padding: '2px 8px',
-                            borderRadius: '4px',
-                            color: theme === 'light' ? '#000000' : '#ffffff',
-                            fontSize: '14px',
-                            fontFamily: "'Barlow Condensed', sans-serif",
-                            fontWeight: '700',
-                            letterSpacing: '0.5px'
-                          }}>
-                            {lastUpdate.toLocaleTimeString('es-ES', {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                              second: '2-digit',
-                            })}
-                          </div>
-                        )}
-                      </>
-                    )}
-            </span>
-          </div>
+          <div
+            className={`status-dot ${isOffline ? 'offline' : error ? 'error' : 'online'}`}
+            style={{
+              ...(isOffline ? { backgroundColor: 'orange', boxShadow: '0 0 10px orange' } : {}),
+              ...(!isOffline && !error ? {
+                backgroundColor: 'var(--red)',
+                boxShadow: '0 0 8px var(--red)',
+                animation: 'blink 1.5s infinite'
+              } : {})
+            }}
+          />
 
-          {!isOffline && !error && !isSyncing && (
-            <span style={{
-              fontSize: '9px',
-              color: 'var(--text1)',
-              fontWeight: '700',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px',
-              marginRight: '2px',
-              fontFamily: "'Barlow Condensed', sans-serif"
-            }}>
-              Última actualización de datos
-            </span>
-          )}
+          <span
+            className="status-text"
+            style={{
+              fontSize: '16px',
+              fontWeight: '900',
+              letterSpacing: '1px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px'
+            }}
+          >
+            {isSyncing || syncQueue.length > 0
+              ? <span style={{ color: 'var(--gold)' }}>SINCRONIZANDO...</span>
+              : isOffline
+                ? <span style={{ color: 'orange' }}>OFFLINE</span>
+                : error
+                  ? <span style={{ color: 'var(--red)' }}>ERROR</span>
+                  : (
+                    <>
+                      <span style={{ color: 'var(--red)', textShadow: '0 0 10px rgba(224, 91, 91, 0.3)' }}>
+                        LIVE SCORING
+                      </span>
+
+                      {lastUpdate && (
+                        <div style={{
+                          backgroundColor: theme === 'light' ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.08)',
+                          border: theme === 'light' ? '1px solid rgba(0, 0, 0, 0.15)' : '1px solid rgba(255, 255, 255, 0.15)',
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          color: theme === 'light' ? '#000000' : '#ffffff',
+                          fontSize: '14px',
+                          fontFamily: "'Barlow Condensed', sans-serif",
+                          fontWeight: '700',
+                          letterSpacing: '0.5px'
+                        }}>
+                          {lastUpdate.toLocaleTimeString('es-ES', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                          })}
+                        </div>
+                      )}
+                    </>
+                  )}
+          </span>
         </div>
+
+        {!isOffline && !error && !isSyncing && (
+          <span style={{
+            fontSize: '9px',
+            color: 'var(--text2)',
+            fontWeight: '700',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            marginRight: '2px',
+            fontFamily: "'Barlow Condensed', sans-serif"
+          }}>
+            Última actualización de datos
+          </span>
+        )}
       </div>
     </header>
   );
