@@ -123,7 +123,7 @@ export default function AppHeader({
               alignItems: 'center'
             }}
           >
-            {theme === 'dark' ? '☀️' : '🌙'}
+            {theme === 'dark' ? '🌙' : '☀️'}
           </button>
 
           <div

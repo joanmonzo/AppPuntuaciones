@@ -2,7 +2,7 @@ import React from 'react';
 import './WelcomeScreen.css';
 
 export default function WelcomeScreen({ onEnter }) {
-    const imageSelector = '/images/VERTICAL INICIO D.png';
+    const imageSelector = '/images/VERTICAL INICIO J.png';
 
     return (
         <div className="welcome-overlay">
@@ -28,7 +28,6 @@ export default function WelcomeScreen({ onEnter }) {
                     title="Entrar con Equipo Carajillos Voladores"
                 />
             </div>
-
         </div>
     );
 }
