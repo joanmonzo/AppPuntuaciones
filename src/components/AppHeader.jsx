@@ -223,7 +223,7 @@ export default function AppHeader({
         {!isOffline && !error && !isSyncing && (
           <span style={{
             fontSize: '9px',
-            color: 'var(--text2)',
+            color: 'var(--text1)',
             fontWeight: '700',
             textTransform: 'uppercase',
             letterSpacing: '0.5px',
